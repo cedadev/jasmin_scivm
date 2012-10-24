@@ -18,8 +18,9 @@ setup(name='basic_package',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-        'nose',
+        'nose>=1.0',
       ],
+      test_suite = 'nose.collector',
       entry_points="""
       # -*- Entry points: -*-
       """,
