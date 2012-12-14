@@ -61,12 +61,13 @@ class TestNetCDF(TestCase):
         
             print p.stdout.read()
 
-            p2 = sp.Popen('cd %s ; %s' % (TESTS_DIR, test_exe),
+            p2 = sp.Popen('cd %s ; %s' % (TESTS_DIR+'/data', test_exe),
                           shell=True, stderr=sp.STDOUT, stdout=sp.PIPE)
-            print p2.stdout.read()
+            output = p2.stdout.read()
+            print output
+            
+            assert re.search(r'There are\s+0 dimensions', output)
 
         finally:
             os.remove(test_exe)
         
-        # Trap for debugging
-        assert False
