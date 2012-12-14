@@ -31,9 +31,11 @@ class TestNetCDF(TestCase):
         assert re.search(r'--has-nc4.*-> yes', self.header)
         assert re.search(r'--has-hdf5.*-> yes', self.header)
 
-    def test_fortran(self):
-        # Ensure f77 and f90 support
-        assert re.search(r'--has-f77.*-> yes', self.header)
+    def test_f90(self):
+        # Ensure f90 support
         assert re.search(r'--has-f90.*-> yes', self.header)
 
-
+    def test_f77(self):
+        # Ensure f77 support
+        assert re.search(r'--has-f77.*-> yes', self.header)
+    test_f77.__test__ = False
