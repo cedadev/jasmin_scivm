@@ -5,7 +5,12 @@ Test netCDF libraries are available and properly configured
 
 import subprocess as sp
 import re
+import os
+
 from unittest import TestCase
+import tempfile
+
+from jasmin_scivm.tests import TESTS_DIR
 
 class TestNetCDF(TestCase):
     """
@@ -39,3 +44,23 @@ class TestNetCDF(TestCase):
         # Ensure f77 support
         assert re.search(r'--has-f77.*-> yes', self.header)
     test_f77.__test__ = False
+
+    def test_fortran_compile(self):
+        fflags = re.search(r'--fflags.*-> (.*)', self.header).group(1)
+        fc = re.search(r'--fc.*-> (.*)', self.header).group(1)
+        flibs = re.search(r'--flibs.*-> (.*)', self.header).group(1)
+
+        test_file = os.path.join(TESTS_DIR, 'data', 'test.f')
+        (fd, test_exe) = tempfile.mkstemp('test_fortran_')
+        os.close(fd)
+
+        p = sp.Popen('%s %s %s %s -o %s' % (fc, fflags, flibs, test_file,
+                                            test_exe),
+                     shell=True, stderr=sp.STDOUT, stdout=sp.PIPE)
+        
+        print p.stdout.read()
+
+        print 'Exe compiled to %s' % test_exe
+        
+        # Trap for debugging
+        assert False
