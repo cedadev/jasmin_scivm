@@ -3,7 +3,7 @@
 
       integer ncid, ndims, status
 
-      status = nf_open('my.nc', 0, ncid)
+      status = nf_open('foo.nc', 0, ncid)
       if (status .ne. nf_noerr) call handle_err(status)
 
       status = nf_inq_ndims(ncid, ndims)

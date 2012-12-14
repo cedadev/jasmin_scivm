@@ -51,16 +51,22 @@ class TestNetCDF(TestCase):
         flibs = re.search(r'--flibs.*-> (.*)', self.header).group(1)
 
         test_file = os.path.join(TESTS_DIR, 'data', 'test.f')
-        (fd, test_exe) = tempfile.mkstemp('test_fortran_')
+        (fd, test_exe) = tempfile.mkstemp(prefix='test_fortran_')
         os.close(fd)
+        try:
 
-        p = sp.Popen('%s %s %s %s -o %s' % (fc, fflags, flibs, test_file,
-                                            test_exe),
-                     shell=True, stderr=sp.STDOUT, stdout=sp.PIPE)
+            p = sp.Popen('%s %s %s %s -o %s' % (fc, fflags, flibs, test_file,
+                                                test_exe),
+                         shell=True, stderr=sp.STDOUT, stdout=sp.PIPE)
         
-        print p.stdout.read()
+            print p.stdout.read()
 
-        print 'Exe compiled to %s' % test_exe
+            p2 = sp.Popen('cd %s ; %s' % (TESTS_DIR, test_exe),
+                          shell=True, stderr=sp.STDOUT, stdout=sp.PIPE)
+            print p2.stdout.read()
+
+        finally:
+            os.remove(test_exe)
         
         # Trap for debugging
         assert False
