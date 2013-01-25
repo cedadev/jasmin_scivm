@@ -1,0 +1,79 @@
+# NAME	VERSION	DISTRIBUTION
+arpack	3.0.1	Fedora Project
+atlas	3.8.4	Red Hat
+atlas-devel	3.8.4	Red Hat
+blas	3.2.1	Red Hat
+cdo	1.5.6.1	(none)
+cmor-devel	2.8.2  (none)
+emacs	23.1	Red Hat
+emacs-gnuplot	4.2.6	Red Hat
+fftw	3.2.1	Red Hat
+fftw-devel	3.2.1	Red Hat
+firefox	10.0.11	Red Hat
+gcc-gfortran	4.4.6	Red Hat
+geany	0.21	Fedora Project
+gedit	2.28.4	Red Hat
+geos	3.3.6	(none)
+geos-devel	3.3.6	(none)
+git	1.7.1	Red Hat
+gnuplot	4.2.6	Red Hat
+gv	3.7.1	Fedora Project
+hdf5	1.8.9	(none)
+hdf5-devel	1.8.9	(none)
+ImageMagick	6.5.4.7	Red Hat
+java-1.5.0-sun	1.5.0.17	(none)
+ksh	20100621	Red Hat
+libuuid	2.17.2	Red Hat
+ncBrowse	1.6.5	(none)
+nco	4.2.1	(none)
+nco-devel	4.2.1	(none)
+ncview	2.1.2	(none)
+netcdf	4.2.1	(none)
+netcdf-devel	4.2.1	(none)
+netcdf-fortran	4.2	(none)
+netcdf-fortran-devel	4.2	(none)
+octave	3.6.4	(none)
+octave-devel	3.6.4	(none)
+octave-doc	3.6.4	(none)
+octave-octcdf	1.1.5	(none)
+python27	2.7.3	(none)
+python27-Cython	0.17.3	(none)
+python27-Pydap	3.1.RC1	(none)
+python27-Pygments	1.5	(none)
+python27-Shapely	1.2.16	(none)
+python27-basemap	1.0.5	(none)
+python27-cartopy	0.5.x	(none)
+python27-cdat_lite	6.0rc2	(none)
+python27-cf	0.9.6	(none)
+python27-cmor	2.8.2	(none)
+python27-ipython	0.14_dev_ceda.1	(none)
+python27-iris	1.1.0rc1	(none)
+python27-matplotlib	1.2.0	(none)
+python27-netCDF4	1	(none)
+python27-nose	1.2.0	(none)
+python27-numpy	1.6.2	(none)
+python27-pyke	1.1.1	(none)
+python27-pyzmq	2.2.0.1	(none)
+python27-rpy2	2.2.6	(none)
+python27-scipy	0.11.0rc2	(none)
+python27-setuptools	0.6c12dev_r88846	(none)
+python27-shapefile	1.1.4	(none)
+python27-tornado	2.4	(none)
+python27-virtualenv	1.8.2	(none)
+R	2.15.2	Fedora Project
+R-devel	2.15.2	Fedora Project
+subversion	1.6.11	Red Hat
+tcl	8.5.7	Red Hat
+tcl-devel	8.5.7	Red Hat
+tcsh	6.17	Red Hat
+tk	8.5.7	Red Hat
+tk-devel	8.5.7	Red Hat
+tkdiff	4.2	(none)
+udunits	2.1.24	(none)
+udunits-devel	2.1.24	(none)
+uuid	1.6.1	Red Hat
+uuid-devel	1.6.1	Red Hat
+vim-enhanced	7.2.411	Red Hat
+xconv	1.91	(none)
+xemacs	21.5.31	Fedora Project
+xpdf	3.02	Fedora Project
