@@ -14,4 +14,6 @@ int main()
   g2 = GEOSWKTReader_read_r(handle, wktReader, "POINT(3 6)");
 
   GEOSDistance_r(handle, g1, g2, &dist);
+
+  return 0;
 }
