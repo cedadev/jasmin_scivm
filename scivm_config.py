@@ -119,4 +119,19 @@ def write_trac(conf, fh=sys.stdout):
 if __name__ == '__main__':
     conf = SciVMConf.from_file('scivm.conf')
 
-    write_trac(conf)
+    import cStringIO as StringIO
+    import trac_rpc
+    import getpass
+    from xml.sax.saxutils import escape
+
+    wiki_fh = StringIO.StringIO()
+    write_trac(conf, wiki_fh)
+
+    print wiki_fh.getvalue()
+
+
+    # wiki.putPage(string pagename, string content, struct attributes)
+    #proxy = trac_rpc.make_proxy('spascoe')
+    #proxy.wiki.putPage('JASMIN/ScientificAnalysisVM/Packages', escape(wiki_fh.getvalue()))
+
+
