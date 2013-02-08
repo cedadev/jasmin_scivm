@@ -7,6 +7,22 @@ from ConfigParser import SafeConfigParser as ConfigParser
 import rpm
 import sys
 
+
+TRAC_PREAMBLE = '''
+== JASMIN SciVM Supported Packages ==
+
+Each JASMIN Science VM includes the standard development tools which
+are part of the Redhat "Development Tools" group.  These include the
+standard compilers (gcc, g++, gfortran) and version control systems
+(subversion, git).  In addition each VM includes the following set of
+general and science tools which we support in terms of managing
+upgrades and bug fixes.
+
+If a tool isn't in this list you can request their inclusion by
+submitting a feature request at [wiki:JASMIN/ScientificAnalysisVM/Tickets]
+
+'''
+
 class SciVMConf(object):
     def __init__(self, config):
         self._config = config
@@ -58,16 +74,49 @@ def write_supported_dat(conf, fh=sys.stdout):
     used to list the supported rpms.
 
     """
-    #!TODO: release
     data = iter_rpm_info(conf.supported_rpms, ['name', 'version', 'distribution'])
 
     print '# NAME\tVERSION\tDISTRIBUTION'
     for d in data:
-        print '{0}\t{1}\t{2}'.format(
+        print >>fh, '{0}\t{1}\t{2}'.format(
             d['name'], d['version'], d['distribution']
             )
+
+def write_trac(conf, fh=sys.stdout):
+    """
+    Write a Trac Wiki page describing the supported packages.
+
+    """
+
+    data = dict((x['name'], x) for x in iter_rpm_info(
+            conf.supported_rpms, 
+            ['name', 'version', 'summary', 'description', 'url', 
+             'release', 'packager', 'platform']))
+
+    print >>fh, TRAC_PREAMBLE
+
+    print >>fh, '||= Package =||= Version =||= Summary =||'
+    for name in sorted(data):
+        print >>fh, '|| [#{name} {name}] || {version} || {summary} ||'.format(**data[name])
+
+    print >>fh, '\n\n== Package Descriptions =='
+
+    for name in sorted(data):
+        print >>fh, '''\
+=== {name}-{version}-{release} ===
+
+ ||= Summary =|| {summary} ||
+ ||= Packager =|| {packager} ||
+ ||= Software URL =|| {url} ||
+
+{{{{{{
+{description}
+}}}}}}
+
+
+'''.format(**data[name])
 
 if __name__ == '__main__':
     conf = SciVMConf.from_file('scivm.conf')
 
-    write_supported_dat(conf)
+    write_trac(conf)
