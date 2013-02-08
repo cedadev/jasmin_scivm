@@ -63,9 +63,22 @@ def iter_rpm_info(rpms, tags):
     ts = rpm.TransactionSet()
     for r in rpms:
         for h in ts.dbMatch('name', r):
-            info = dict((tag, h[tag]) for tag in ['name'] + tags)
+            info = dict((tag, _clean_tag_value(h[tag])) 
+                        for tag in ['name'] + tags)
             yield info
 
+def _clean_tag_value(value):
+    """
+    For some reason unusual characters have ended up in at least
+    one RPM's metadata.  The cdo package has  the character 0xb6
+    in it's summary.  Therefore this function cleans any known
+    illegal characters.
+
+    """
+    if type(value) is str:
+        value = value.replace('\xb6', '')
+
+    return value
 
 def write_supported_dat(conf, fh=sys.stdout):
     """
@@ -90,31 +103,15 @@ def write_trac(conf, fh=sys.stdout):
 
     data = dict((x['name'], x) for x in iter_rpm_info(
             conf.supported_rpms, 
-            ['name', 'version', 'summary', 'description', 'url', 
+            ['name', 'version', 'summary', 'distribution', 'url', 
              'release', 'packager', 'platform']))
 
     print >>fh, TRAC_PREAMBLE
 
     print >>fh, '||= Package =||= Version =||= Summary =||'
     for name in sorted(data):
-        print >>fh, '|| [#{name} {name}] || {version} || {summary} ||'.format(**data[name])
+        print >>fh, '|| [{url} {name}] || {version}-{release} || {summary} ||'.format(**data[name])
 
-    print >>fh, '\n\n== Package Descriptions =='
-
-    for name in sorted(data):
-        print >>fh, '''\
-=== {name}-{version}-{release} ===
-
- ||= Summary =|| {summary} ||
- ||= Packager =|| {packager} ||
- ||= Software URL =|| {url} ||
-
-{{{{{{
-{description}
-}}}}}}
-
-
-'''.format(**data[name])
 
 if __name__ == '__main__':
     conf = SciVMConf.from_file('scivm.conf')
@@ -127,11 +124,17 @@ if __name__ == '__main__':
     wiki_fh = StringIO.StringIO()
     write_trac(conf, wiki_fh)
 
-    print wiki_fh.getvalue()
-
-
-    # wiki.putPage(string pagename, string content, struct attributes)
-    #proxy = trac_rpc.make_proxy('spascoe')
-    #proxy.wiki.putPage('JASMIN/ScientificAnalysisVM/Packages', escape(wiki_fh.getvalue()))
+    wiki_file = 'packages.wiki'
+    with open(wiki_file, 'w') as fh:
+        print >>fh, wiki_fh.getvalue()
+    print 'Written packages wiki page to %s' % wiki_file
+        
+    wiki_page = 'JASMIN/ScientificAnalysisVM/Packages'
+    print 'Would you like to send this content to Trac page %s? ' % wiki_page,
+    resp = raw_input()
+    if resp.strip().lower() in ['y', 'yes']:
+        print 'Sending ...'
+        proxy = trac_rpc.make_proxy()
+        proxy.wiki.putPage(wiki_page, escape(wiki_fh.getvalue()), {})
 
 

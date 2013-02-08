@@ -32,8 +32,12 @@ class CEDAServicesTransport(xmlrpclib.SafeTransport):
         f=opener.open(request)
         return(self.parse_response(f))
 
-def make_proxy(username):
-    transport = CEDAServicesTransport(username, getpass.getpass())
+def make_proxy(username=None, password=None):
+    if username is None:
+        username = getpass.getuser()
+    if password is None:
+        password = getpass.getpass()
+    transport = CEDAServicesTransport(username, password)
     server = xmlrpclib.ServerProxy("http://proj.badc.rl.ac.uk/cedaservices/login/xmlrpc", 
                                    transport=transport)
     return server
