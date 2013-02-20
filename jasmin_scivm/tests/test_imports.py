@@ -16,13 +16,19 @@ IMPORTS = [
     'mpl_toolkits.basemap',
     'cartopy',
     'matplotlib',
-    'mpi4py',
     'pyhdf',
     'rpy2',
+    'grib_api.gribapi',
     ]
 
 
+def check_import(imp):
+    try:
+        import_module(imp)
+    except ImportError:
+        raise AssertionError("Cannot import %s" % imp)
+
 def test_imports():
     for imp in IMPORTS:
-        yield import_module, imp
-
+        yield check_import, imp
+        
