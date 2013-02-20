@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+"""
+Creates information about supported packages from the scivm configuration.
+
+"""
+
+import sys
+
+import cStringIO as StringIO
+import getpass
+from xml.sax.saxutils import escape
+
+from jasmin_scivm import rpm_tools
+from jasmin_scivm import trac_rpc
+
+
+def main(argv=sys.argv):
+    conf = rpm_tools.SciVMConf.from_file('scivm.conf')
+
+    wiki_fh = StringIO.StringIO()
+    rpm_tools.write_trac(conf, wiki_fh)
+
+    wiki_file = 'packages.wiki'
+    with open(wiki_file, 'w') as fh:
+        print >>fh, wiki_fh.getvalue()
+    print 'Written packages wiki page to %s' % wiki_file
+        
+    wiki_page = 'JASMIN/ScientificAnalysisVM/Packages'
+    print 'Would you like to send this content to Trac page %s? ' % wiki_page,
+    resp = raw_input()
+    if resp.strip().lower() in ['y', 'yes']:
+        print 'Sending ...'
+        proxy = trac_rpc.make_proxy()
+        proxy.wiki.putPage(wiki_page, escape(wiki_fh.getvalue()), {})
+
+
+if __name__ == '__main__':
+    main()
