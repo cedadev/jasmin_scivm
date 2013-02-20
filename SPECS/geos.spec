@@ -1,6 +1,6 @@
 Name: geos
 Version: 3.3.6
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: LGPL v2.1
 Group: Development/Libraries
 Source: %{name}-%{version}.tar.bz2
@@ -42,6 +42,7 @@ For further information see the description for the geos (non-devel) package.
 %setup
 
 %build
+export CFLAGS="-O1" CXXFLAGS="-O1"
 %configure
 make				
 
