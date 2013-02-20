@@ -62,7 +62,10 @@ def iter_rpm_info(rpms, tags):
     """
     ts = rpm.TransactionSet()
     for r in rpms:
-        for h in ts.dbMatch('name', r):
+        hits = ts.dbMatch('name', r)
+        if not hits:
+            raise Exception('RPM %s not available' % r)
+        for h in hits:
             info = dict((tag, _clean_tag_value(h[tag])) 
                         for tag in ['name'] + tags)
             yield info
