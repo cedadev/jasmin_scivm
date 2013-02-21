@@ -1,3 +1,8 @@
-This package contains tests for verifying the state of JASMIN Scientific Analysis VMs.
+This repository contains configuration for the JASMIN Scientific Analysis VMs.  Including:
 
+ * RPM SPEC files for building rpms
+ * A test suite for verifying the intergrity of the system
+ * A system for populating JASMIN wiki pages with the status of supported rpms.
+
+http://www.jasmin.ac.uk/
 http://proj.badc.rl.ac.uk/cedaservices/wiki/JASMIN/ScientificAnalysisVM
