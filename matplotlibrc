@@ -1,0 +1,2 @@
+# Disable the Tk backend for headless testing
+backend : Agg
