@@ -10,6 +10,14 @@ import re
 from jasmin_scivm import rpm_tools
 
 
+def build_spec(conf, spec_name):
+    print 'building spec: ',
+    spec_fh = open(spec_name, "w")
+    rpm_tools.write_meta_rpm_spec(conf, spec_fh)
+    spec_fh.close()
+    print spec_name
+
+
 def build_rpms(spec_name):
     print 'building binary RPM: ',
     run_rpmbuild('-bb', spec_name)
@@ -32,16 +40,12 @@ def main(argv=sys.argv):
         conf_file = argv[1]
     except IndexError:
         conf_file = 'scivm.conf'
+    print 'using config file %s' % conf_file
 
     conf = rpm_tools.SciVMConf.from_file(conf_file)
 
-    print 'building spec: ',
     spec_name = conf.meta_spec_name
-    spec_fh = open(spec_name, "w")
-    rpm_tools.write_meta_rpm_spec(conf, spec_fh)
-    spec_fh.close()
-    print spec_name
-
+    build_spec(conf, spec_name)
     build_rpms(spec_name)
     
 
