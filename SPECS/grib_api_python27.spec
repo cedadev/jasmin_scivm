@@ -1,6 +1,6 @@
 # -*- Mode:rpm-spec -*-
 Summary: The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
-%define rel 1
+%define rel 1.ceda%{?dist}
 
 %define version 1.10.0
 %define pkgname grib_api
@@ -28,9 +28,8 @@ Vendor: ECMWF
 License: LGPL
 Group: Scientific/Libraries
 Source: %{pkgname}-%{version}.tar.gz
-Patch1: gribapi-python-init.diff
-Patch2: gribapi-python-requires.diff
-Patch3: gribapi-python-site-packages-dir.diff
+Patch1: gribapi-python-requires.diff
+Patch2: gribapi-python-site-packages-dir.diff
 # %if %{_requires_jasper}
 # Requires: libjasper
 # %endif
@@ -53,8 +52,7 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 %prep
 %setup
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1 -F2
+%patch2 -p1 -F2
 automake
 
 %build
