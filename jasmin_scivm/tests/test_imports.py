@@ -18,7 +18,7 @@ IMPORTS = [
     'matplotlib',
     'pyhdf',
     'rpy2',
-    'grib_api.gribapi',
+    'gribapi',
     ]
 
 
