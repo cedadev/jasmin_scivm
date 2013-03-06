@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+"""
+Writes a meta-rpm depending on supported packages from the scivm configuration.
+"""
+
+import sys
+import commands
+import re
+
+from jasmin_scivm import rpm_tools
+
+
+def build_spec(conf, spec_name):
+    print 'building spec: ',
+    spec_fh = open(spec_name, "w")
+    rpm_tools.write_meta_rpm_spec(conf, spec_fh)
+    spec_fh.close()
+    print spec_name
+
+
+def build_rpms(spec_name):
+    print 'building binary RPM: ',
+    run_rpmbuild('-bb', spec_name)
+    print 'building source RPM: ',
+    run_rpmbuild('-bs', spec_name)
+
+
+def run_rpmbuild(flag, spec_name):
+    status, output = commands.getstatusoutput('rpmbuild %s %s' % (flag, spec_name))
+    assert(status == 0)
+    re_test = re.compile('Wrote: (.*\.rpm)$').match
+    for line in output.split('\n'):
+        m = re_test(line)
+        if m:
+            print m.group(1)
+
+
+def main(argv=sys.argv):
+    try:
+        conf_file = argv[1]
+    except IndexError:
+        conf_file = 'scivm.conf'
+    print 'using config file %s' % conf_file
+
+    conf = rpm_tools.SciVMConf.from_file(conf_file)
+
+    spec_name = conf.meta_spec_name
+    build_spec(conf, spec_name)
+    build_rpms(spec_name)
+    
+
+if __name__ == '__main__':
+    main()

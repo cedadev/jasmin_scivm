@@ -3,9 +3,12 @@ Read the SciVM configuration and expose as an object
 
 """
 
-from ConfigParser import SafeConfigParser as ConfigParser
 import rpm
 import sys
+import string
+import time
+
+from ConfigParser import SafeConfigParser as ConfigParser
 
 
 TRAC_PREAMBLE = '''
@@ -43,13 +46,28 @@ class SciVMConf(object):
         # Split by newline only
         return [x1 for x1 in (x.strip() for x in rpm_str.split('\n'))
                 if x1]
-
+    
     @classmethod
     def from_file(cls, config_file):
         config = ConfigParser()
         config.read(config_file)
 
         return cls(config)
+
+    def meta(self, item, compulsory=False):
+        section = 'meta_rpm'
+        if self._config.has_option(section, item):
+            return self._config.get(section, item)
+        elif not compulsory:            
+            return None
+        else:
+            raise Exception('missing compulsory variable "%s" in [%s]'
+                            % (item, section))
+
+    @property
+    def meta_spec_name(self):
+        return self.meta('spec_name') or 'scivm.spec'
+
 
 def iter_rpm_info(rpms, tags):
     """
@@ -114,3 +132,51 @@ def write_trac(conf, fh=sys.stdout):
     print >>fh, '||= Package =||= Version =||= Summary =||'
     for name in sorted(data):
         print >>fh, '|| [{url} {name}] || {version}-{release} || {summary} ||'.format(**data[name])
+
+
+def write_meta_rpm_spec(conf, fh=sys.stdout):
+    """
+    Write a spec file for a meta package depending on the supported packages"
+    """
+    name = conf.meta('name') or 'jasmin-sci-vm'
+
+    description = (
+        conf.meta('description')
+        or 'Adds configuration to make the system into a JASMIN science VM')
+
+    licence = (conf.meta('licence') or 
+               conf.meta('license') or 
+               'Copyright STFC')
+
+    group = (conf.meta('group') or 'Utilities/Configuration')
+
+    version = conf.meta('version', compulsory=True)
+    release = conf.meta('release', compulsory=True)
+    packager = conf.meta('packager')
+
+    w = lambda str_: fh.write(str_ + '\n')
+
+    w('Summary: %s' % description)
+    w('Name: %s' % name)
+    w('Version: %s' % version)
+    w('Release: %s' % release)
+    w('Group: %s' % group)
+    w('License: %s' % licence)
+    w('BuildRoot: %{_builddir}/%{name}-root')
+    if packager:
+        w('Packager: %s' % packager)
+    w('BuildArch: noarch')
+    w('Requires: %s' % string.join(conf.supported_rpms))
+    w('')
+    w('%description')
+    w(description)
+    w('')
+    w('%prep')
+    w('%build')
+    w('%clean')
+    w('%install')
+    w('%files')
+    w('')
+    w('%changelog') 
+    w('* %s %s %s' % (time.strftime("%a %b %d %Y"), packager, version))
+    w('Auto-generated spec from package list by rpm_tools.py')
