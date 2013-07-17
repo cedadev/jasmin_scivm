@@ -1,5 +1,5 @@
 %define pname iris
-%define version 1.1.0rc1
+%define version 1.3.0
 %define release 2.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets
@@ -15,7 +15,9 @@ BuildArch: noarch
 Vendor: UK Met Office
 Url: http://scitools.github.com/iris
 Requires: python27, python27-pyke, python27-Cython, python27-cartopy, python27-Shapely, python27-shapefile, python27-scipy, python27-netCDF4
+Requires: python27-numpy, python27-matplotlib
 BuildRequires: python27, python27-pyke, python27-Cython, python27-cartopy, python27-Shapely, python27-shapefile, python27-scipy, python27-netCDF4
+BuildRequires: python27-numpy, python27-matplotlib
 
 
 %description
@@ -31,7 +33,7 @@ The full documentation for Iris, including a user guide, example code, and galle
 %define docdir %{_datadir}/iris-py2.7
 
 %prep
-%setup -n %{pname}
+%setup -n %{pname}-%{version}
 
 %build
 python2.7 setup.py build

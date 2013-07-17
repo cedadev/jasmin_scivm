@@ -4,7 +4,7 @@
 
 Summary: NumPy: array processing for numbers, strings, records, and objects.
 Name: python27-%{pname}
-Version: 1.6.2
+Version: 1.7.0
 Release: 2.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD

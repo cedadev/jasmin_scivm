@@ -3,7 +3,7 @@
 
 Summary: SciPy: Scientific Library for Python
 Name: python27-%{pname}
-Version: 0.11.0rc2
+Version: 0.12.0
 Release: 2.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD

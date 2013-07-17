@@ -1,35 +1,13 @@
 # The name of the package.
 Name: hdf5
 
-
 Version: 1.8.9
-			# Version of the package contained in the RPM.
-
-
-Release: 2.ceda%{?dist}
-			# Version of the RPM.
-
-
+Release: 3.ceda%{?dist}
 License: BSD-style		
-			# Licensing Terms
-
-
 Group: Development/Libraries	
-			# Group, identifies types of software. Used by users to manage multiple RPMs.
-
-
 Source: hdf5-1.8.9.tar.gz	
-
-
-			#Source tar ball name
 URL: http://www.hdfgroup.org/HDF5		
-
-
-			# URL to find package
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
-
-
-			#used with non-root builds of RPM files
 BuildRequires: gcc-c++, gcc-gfortran, zlib-devel
 
 Requires: zlib
@@ -37,13 +15,11 @@ Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
 Summary:  HDF5 is a unique technology suite that makes possible the management of extremely large and complex data collections.
-			# One line summary of package
 
 Prefix: /usr
 
 %description					
 
-			# Full description. Can be multiple lines.
 The HDF5 technology suite includes:
 
     * A versatile data model that can represent very complex data objects and a wide variety of metadata.
@@ -69,26 +45,15 @@ For further information see the description for the hdf5 (non-devel) package.
 
 
 %prep				
-			#prep: list steps after this to unpack the package.			
 %setup -n hdf5-1.8.9	
-			# setup is a macro used to unpack the package with default settings (i.e., gunzip, untar)
 
 %build				
-			#build: steps after this should compile the package
-			#macro used to configure the package with standard ./configure command
 %configure --enable-fortran --enable-cxx --enable-static-exec --with-zlib=/usr
-
 make				
-			#this is a direct command-line option, which just runs .make.: compiles the package.
 
 %install			
-			#install: steps after this will install the package.
-
 rm -rf $RPM_BUILD_ROOT		
-			#used with non-root builds of RPM files.
-
 make install DESTDIR=$RPM_BUILD_ROOT	
-			#performs a make install
 
 #
 #  Post-install-Script
@@ -105,10 +70,7 @@ fi
 
 
 %clean				
-			#performs a make clean after the install
 rm -rf $RPM_BUILD_ROOT		
-
-			#used with non-root builds of RPM files.
 
 %postun
 if test `whoami` == root; then
@@ -117,7 +79,6 @@ if test `whoami` == root; then
 fi
 
 %files				
-			#files should be followed by a list of all files that get installed.
 %defattr(0755,root,root)			
 %{_bindir}/gif2h5
 %{_bindir}/h52gif

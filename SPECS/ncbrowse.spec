@@ -4,9 +4,9 @@
 %define tmp_install /tmp/ncBrowse
 
 Name: ncBrowse
-Version: 1.6.5
+Version: 1.6.7
 Release: 2.ceda%{?dist}
-Source: install_rel1_6_5.bin
+Source: install_rel1_6_7.bin
 License: http://www.epic.noaa.gov/java/license.html
 Group: Scientific support
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -17,7 +17,6 @@ Url: http://www.epic.noaa.gov/java/ncBrowse/
 Summary: a graphical netCDF file browser
 Requires: %{java_package}
 BuildRequires: %{java_package}
-BuildArch: noarch
 
 %description
 
@@ -96,6 +95,9 @@ mv ncBrowse $tmp_script
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Jun 27 2013  <builderdev@builder.jc.rl.ac.uk> - 1.6.7-2.ceda
+- upgrade to 1.6.7
+- no longer noarch (rpmbuild found arch-dependent binaries)
 
 * Thu Jan 24 2013  <builderdev@builder.jc.rl.ac.uk> - 1.6.5-1.ceda
 - hack based on first running the graphical installer outside of rpmbuild (as the installer doesn't want to run in non-GUI mode at all, or in GUI mode inside rpmbuild)

@@ -5,10 +5,11 @@
 Summary: Python interface to the NCSA HDF4 library
 Name: python27-%{pname}
 Version: %{version}
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 Source0: %{pname}-%{unmangled_version}.tar.gz
 Patch0: pyhdf.lib64.patch
 Patch1: pyhdf.noszip.patch
+Patch2: pyhdf.include.patch
 License: public
 Group: Development/Python
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
@@ -36,6 +37,7 @@ deal specifically with data in the ODL
 %setup -n %{pname}-%{unmangled_version}
 %patch0 -p0
 %patch1 -p0
+%patch2 -p1
 
 %build
 env CFLAGS="$RPM_OPT_FLAGS" python2.7 setup.py build
@@ -48,6 +50,10 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Mar  6 2013  <builderdev@builder.jc.rl.ac.uk> - 0.8_1-2.ceda
+- add patch that fixes segfaults due to implicit declarations in the C
+  code from not including hdf.h
+
 * Fri Feb 15 2013  <builderdev@builder.jc.rl.ac.uk> - 0.8_1-1.ceda
 - initial RPM
 
