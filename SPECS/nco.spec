@@ -1,49 +1,23 @@
-# The name of the package.
 Name: nco
-
-
-Version: 4.2.1
-			# Version of the package contained in the RPM.
-
-
+Version: 4.3.4
 Release: 2.ceda%{?dist}
-			# Version of the RPM.
-
-
 License: GPL v3
-			# Licensing Terms
-
-
 Group: Scientific support	
-			# Group, identifies types of software. Used by users to manage multiple RPMs.
-
-
-Source: nco-4.2.1.tar.gz	
-
-
-			#Source tar ball name
+Source: nco-%{version}.tar.gz	
 URL: http://nco.sourceforge.net/
-
-
-			# URL to find package
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
-
-
-			#used with non-root builds of RPM files
-BuildRequires: gcc, gcc-c++, netcdf-devel, udunits-devel, antlr, libcurl-devel, bison, byacc, flex
+BuildRequires: gcc, gcc-c++, netcdf-devel, udunits-devel, antlr, libcurl-devel, bison, byacc, flex, gsl-devel
 
 Requires: netcdf, udunits
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 
 Summary:  The netCDF Operators (NCO) perform a range of operations using netCDF files as input
-			# One line summary of package
 
 Prefix: /usr
 
 %description					
 
-			# Full description. Can be multiple lines.
 The netCDF Operators (NCO) comprise a dozen standalone, command-line programs that take netCDF files as input, then operate (e.g., derive new data, average, print, hyperslab, manipulate metadata) and output the results to screen or files in text, binary, or netCDF formats. NCO aids manipulation and analysis of gridded scientific data. The shell-command style of NCO allows users to manipulate and analyze files interactively, or with simple scripts that avoid some overhead (and power) of higher level programming environments. See the NCO User's Guide (http://nco.sourceforge.net/nco.html) for examples of their use with climate data analysis:
 
     * ncap2 netCDF Arithmetic Processor
@@ -64,7 +38,7 @@ Note that the ~averagers~ (ncea and ncra) are misnamed because they perform many
 %package devel
 Group: Development/Libraries	
 Summary: Development libraries for NCO
-Requires: nco, udunits, netcdf
+Requires: nco = %{version}, udunits, netcdf
 %description devel
 This package contains the libraries needed to build other code requiring 
 the library that comes with the netCDF operators (NCO).
@@ -73,30 +47,16 @@ For further information see the description for the nco (non-devel) package.
 
 
 %prep				
-			#prep: list steps after this to unpack the package.			
-%setup -n nco-4.2.1
-			# setup is a macro used to unpack the package with default settings (i.e., gunzip, untar)
+%setup -n nco-%{version}
 
 %build				
-			#build: steps after this should compile the package
-			#macro used to configure the package with standard ./configure command
 %configure
-
-make				
-			#this is a direct command-line option, which just runs .make.: compiles the package.
+make
 
 %install			
-			#install: steps after this will install the package.
-
 rm -rf $RPM_BUILD_ROOT		
-			#used with non-root builds of RPM files.
-
 make install DESTDIR=$RPM_BUILD_ROOT	
-			#performs a make install
 
-#
-#  Post-install-Script
-#
 %post
 if test `whoami` == root; then
    echo "Running /sbin/ldconfig"
@@ -105,10 +65,7 @@ fi
 
 
 %clean				
-			#performs a make clean after the install
 rm -rf $RPM_BUILD_ROOT		
-
-			#used with non-root builds of RPM files.
 
 %postun
 if test `whoami` == root; then
@@ -117,7 +74,6 @@ if test `whoami` == root; then
 fi
 
 %files				
-			#files should be followed by a list of all files that get installed.
 %defattr(0755,root,root)
 %{_bindir}/ncap
 %{_bindir}/ncap2
@@ -134,8 +90,8 @@ fi
 %{_bindir}/ncrename
 %{_bindir}/ncwa
 %defattr(0644,root,root)			
-%{_libdir}/libnco-4.2.1.so
-%{_libdir}/libnco_c++-4.2.1.so
+%{_libdir}/libnco-%{version}.so
+%{_libdir}/libnco_c++-%{version}.so
 %{_libdir}/libnco_c++.so
 %{_libdir}/libnco.so
 %doc %{_datadir}/info/nco.info.gz
@@ -170,9 +126,13 @@ fi
 %{_libdir}/libnco_c++.la
 %{_libdir}/libnco.la
 
+%changelog
+* Tue Aug 20 2013  <builderdev@builder.jc.rl.ac.uk> - 4.3.4-2.ceda
+- devel depends on explicit version of nco
 
-#list of changes to this spec file since last version.
-%changelog			
+* Tue Aug 20 2013  <builderdev@builder.jc.rl.ac.uk> - 4.3.4-1.ceda
+- migrate to 4.3.4, tidy spec file, add gsl dependency
+			
 * Mon Aug 13 2012 Alan Iwi
 alan.iwi@stfc.ac.uk 4.2.1
 - Created initial RPM for netCDF 4.2.1 (modelled on RPM for HDF5 1.8.9)

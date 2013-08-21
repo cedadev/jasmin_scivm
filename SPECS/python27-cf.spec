@@ -1,8 +1,8 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 0.9.6
-Release: 2.ceda%{?dist}
+Version: 0.9.7.1
+Release: 1.ceda%{?dist}
 Source0: cf-%{version}.tar.gz
 #Patch0: cf-0.9.4.2-emptyimport.patch
 #Patch1: cf-0.9.4.2-straycolon.patch
@@ -67,13 +67,13 @@ tmp_man1dir=$RPM_BUILD_ROOT/%{man1dir}
 mkdir -p $tmp_man1dir
 cp scripts/man1/*.1 $tmp_man1dir
 
-for i in cf2cf pp2cf
-do
-  path=%{_bindir}/$i
-  tmppath=$RPM_BUILD_ROOT$path
-  mv $tmppath ${tmppath}_py27
-  perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
-done
+# for i in cfa cfdump
+# do
+#   path=%{_bindir}/$i
+#   tmppath=$RPM_BUILD_ROOT$path
+#   mv $tmppath ${tmppath}_py27
+#   perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
+# done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
