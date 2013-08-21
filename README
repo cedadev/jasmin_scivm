@@ -1,8 +1,8 @@
-This repository contains configuration for the JASMIN Scientific Analysis VMs.  Including:
+This repository contains configuration for the JASMIN Scientific Analysis Platform.  Including:
 
  * RPM SPEC files for building rpms
  * A test suite for verifying the intergrity of the system
  * A system for populating JASMIN wiki pages with the status of supported rpms.
 
 http://www.jasmin.ac.uk/
-http://proj.badc.rl.ac.uk/cedaservices/wiki/JASMIN/ScientificAnalysisVM
+http://proj.badc.rl.ac.uk/cedaservices/wiki/JASMIN/AnalysisPlatform
