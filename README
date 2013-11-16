@@ -6,3 +6,15 @@ This repository contains configuration for the JASMIN Scientific Analysis Platfo
 
 http://www.jasmin.ac.uk/
 http://proj.badc.rl.ac.uk/cedaservices/wiki/JASMIN/AnalysisPlatform
+
+Running the Test Suite
+======================
+
+The test suite requires NoseXUnitLite to produce reports compatible
+with Jenkins.  In order to setup the test environment create a
+virtualenv using the system site packages and install the dependencies
+into it::
+
+  $ virtualenv --system-site-packages venv
+  $ venv/bin/pip install -U NoseXUnitLite nose
+
