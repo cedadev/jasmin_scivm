@@ -71,3 +71,29 @@ class TestNetCDF(TestCase):
         finally:
             os.remove(test_exe)
         
+
+
+class TestNetCDF4(TestCase):
+    """
+    Test NetCDF4 features.
+
+    """
+
+    def setUp(self):
+        import netCDF4
+
+        test_file = os.path.join(TEST_DIR, 'my_string_file.nc')
+        self.d = netCDF4.open(test_file)
+
+    def test_format(self):
+        # Quick sanity check
+        assert self.d.file_format == 'NETCDF4'
+
+    def test_string_attributes(self):
+        # Test the library can read attributes with type NC_STRING
+        # Early versions of netCDF4-python cannot read these.
+        try:
+            val = self.d.my_string_attribute
+            print val
+        except TypeError:
+            self.fail('TypeError raised when reading NC_STRING attribute')
