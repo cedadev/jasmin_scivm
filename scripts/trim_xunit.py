@@ -9,6 +9,7 @@ import sys
 from xml.etree import ElementTree as ET
 import hashlib
 import re
+import os
 
 SHORTEN_ATTRS = ('name', 'classname')
 MAX_ATTR_LENGTH = 60
@@ -31,16 +32,19 @@ def shorten_attr(elem, attr):
         elem.set(attr, short_val)
 
 def main(argv=sys.argv):
-    xunit_xml_in, xunit_xml_out = argv[1:]
-    xunit_et = ET.parse(open(xunit_xml_in))
-    
+    #xunit_xml_in, xunit_xml_out = argv[1:]
+    xunits = argv[1:]
 
-    for elem in xunit_et.findall('//testcase'):
-        for attr in SHORTEN_ATTRS:
-            shorten_attr(elem, attr)
+    for xunit_xml_in in xunits:
+        xunit_xml_out = os.path.splitext(xunit_xml_in)[0]+'_trimmed.xml'
+        xunit_et = ET.parse(open(xunit_xml_in))
 
-    with open(xunit_xml_out, 'w') as fh:
-        xunit_et.write(fh)
+        for elem in xunit_et.findall('.//testcase'):
+            for attr in SHORTEN_ATTRS:
+                shorten_attr(elem, attr)
+
+        with open(xunit_xml_out, 'w') as fh:
+            xunit_et.write(fh)
 
     
 
