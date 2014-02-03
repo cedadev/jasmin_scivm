@@ -32,7 +32,6 @@ def shorten_attr(elem, attr):
         elem.set(attr, short_val)
 
 def main(argv=sys.argv):
-    #xunit_xml_in, xunit_xml_out = argv[1:]
     xunits = argv[1:]
 
     for xunit_xml_in in xunits:
