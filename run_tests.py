@@ -6,7 +6,7 @@ This script offers better configurability than messing round with nose configura
 
 """
 
-import os
+import os, shutil
 
 from nose.core import run
 from nose.loader import TestLoader
@@ -14,12 +14,13 @@ from nose.config import Config
 import numpy
 
 def main():
-    if not os.path.exists('xunit_results'):
+    if os.path.exists('xunit_results'):
+        shutil.rmtree('xunit_results')
         os.mkdir('xunit_results')
 
     numpy.test('full', extra_argv='--with-xunit --xunit-file=xunit_results/numpy_tests.xml'.split())
 
-    run(defaultTest='jasmin_scivm.tests', 
+    run(defaultTest='jasmin_scivm/tests', 
         argv='dummy --with-xunit --xunit-file=xunit_results/jap_tests.xml'.split(),
         exit=False)
 
