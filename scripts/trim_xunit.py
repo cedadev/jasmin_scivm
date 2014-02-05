@@ -41,6 +41,12 @@ def main(argv=sys.argv):
         for elem in xunit_et.findall('.//testcase'):
             for attr in SHORTEN_ATTRS:
                 shorten_attr(elem, attr)
+            # Remove known failures
+            error_elem = elem.find('./error')
+            if error_elem is not None:
+                if error_elem.get('type') == "numpy.testing.noseclasses.KnownFailureTest":
+                    print 'FOUND KNOWN FAILURE: %s' % elem.get('classname')
+                    elem.remove(error_elem)
 
         with open(xunit_xml_out, 'w') as fh:
             xunit_et.write(fh)
