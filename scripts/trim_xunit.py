@@ -35,8 +35,16 @@ def main(argv=sys.argv):
     xunits = argv[1:]
 
     for xunit_xml_in in xunits:
-        xunit_xml_out = os.path.splitext(xunit_xml_in)[0]+'_trimmed.xml'
+        xunit_path = os.path.splitext(xunit_xml_in)[0]
+        xunit_name = os.path.basename(xunit_path)
+
+        xunit_xml_out = xunit_path+'_trimmed.xml'
+
         xunit_et = ET.parse(open(xunit_xml_in))
+
+        # Rename the test suite according to the xunit name
+        suite_et = xunit_et.getroot()
+        suite_et.attrib['name'] = xunit_name
 
         for elem in xunit_et.findall('.//testcase'):
             for attr in SHORTEN_ATTRS:
