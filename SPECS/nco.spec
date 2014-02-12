@@ -1,6 +1,6 @@
 Name: nco
-Version: 4.3.4
-Release: 2.ceda%{?dist}
+Version: 4.4.1
+Release: 1.ceda%{?dist}
 License: GPL v3
 Group: Scientific support	
 Source: nco-%{version}.tar.gz	
@@ -89,12 +89,16 @@ fi
 %{_bindir}/ncrcat
 %{_bindir}/ncrename
 %{_bindir}/ncwa
+%{_bindir}/nces
 %defattr(0644,root,root)			
 %{_libdir}/libnco-%{version}.so
 %{_libdir}/libnco_c++-%{version}.so
 %{_libdir}/libnco_c++.so
 %{_libdir}/libnco.so
 %doc %{_datadir}/info/nco.info.gz
+%doc %{_datadir}/info/nco.info-1.gz
+%doc %{_datadir}/info/nco.info-2.gz
+%doc %{_datadir}/info/nco.info-3.gz
 %exclude %{_datadir}/info/dir
 %doc %{_mandir}/man1/ncap.1.gz
 %doc %{_mandir}/man1/ncap2.1.gz
@@ -111,6 +115,7 @@ fi
 %doc %{_mandir}/man1/ncrcat.1.gz
 %doc %{_mandir}/man1/ncrename.1.gz
 %doc %{_mandir}/man1/ncwa.1.gz
+%doc %{_mandir}/man1/nces.1.gz
 
 %files devel
 %defattr(0644,root,root)			
@@ -127,6 +132,9 @@ fi
 %{_libdir}/libnco.la
 
 %changelog
+* Wed Feb  5 2014  <builderdev@builder.jc.rl.ac.uk> - 4.4.1-1.ceda
+- upgrade to 4.4.1 (some additions to file list, particularly nces)
+
 * Tue Aug 20 2013  <builderdev@builder.jc.rl.ac.uk> - 4.3.4-2.ceda
 - devel depends on explicit version of nco
 

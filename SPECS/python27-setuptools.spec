@@ -5,7 +5,7 @@
 Summary: Download, build, install, upgrade, and uninstall Python packages -- easily!
 Name: python27-%{pname}
 Version: %{version}
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 Source0: %{pname}-%{unmangled_version}.tar.gz
 License: PSF or ZPL
 Group: Development/Libraries
@@ -203,13 +203,18 @@ python2.7 setup.py build
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-# remove easy_install link that conflicts with system python
-unversioned_exe=%{_bindir}/easy_install
-rm -f $RPM_BUILD_ROOT$unversioned_exe
-perl -n -i -e "print unless m{^$unversioned_exe$}" INSTALLED_FILES
+# # remove easy_install link that conflicts with system python
+# unversioned_exe=%{_bindir}/easy_install
+# rm -f $RPM_BUILD_ROOT$unversioned_exe
+# perl -n -i -e "print unless m{^$unversioned_exe$}" INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 0.6c12dev_r88846-2.ceda
+- comment out removal of unversioned executable
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)

@@ -3,7 +3,7 @@
 Summary: Virtual Python Environment builder
 Name: python27-%{pname}
 Version: 1.10.1
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 #Source0: pypa-virtualenv-1.8.1-6-g%{snapshot}.tar.gz
 License: MIT
@@ -39,12 +39,27 @@ python2.7 setup.py build
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-#rm $RPM_BUILD_ROOT%{_bindir}/virtualenv
-#egrep -v "^%{_bindir}/virtualenv$" INSTALLED_FILES > INSTALLED_FILES.new
-#mv INSTALLED_FILES.new INSTALLED_FILES
+# # put unversioned virtualenv exe in /usr/local/bin, where it is less likely to
+# # conflict with python-virtualenv for system python (2.6)
+# exe_path=/usr/local/bin/virtualenv
+# local_exe_path=$RPM_BUILD_ROOT$exe_path
+# tmp_filelist=INSTALLED_FILES.new
+# mkdir -p `dirname $local_exe_path`
+# mv $RPM_BUILD_ROOT%{_bindir}/virtualenv $local_exe_path
+# egrep -v "^%{_bindir}/virtualenv$" INSTALLED_FILES > $tmp_filelist
+# echo $exe_path >> $tmp_filelist
+# mv $tmp_filelist INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-2.ceda
+- comment out renaming of executable
+
+* Tue Sep  3 2013  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-1.ceda
+- upgrade to 1.10.1 and put exe in /usr/local
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)

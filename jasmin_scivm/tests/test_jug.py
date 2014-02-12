@@ -25,7 +25,7 @@ class TestJug(TestCase):
         shutil.copy2(self.script_path, self.tmpdir)
 
     def test1(self):
-        p = S.Popen("jug_py27 status {0}".format(self.script_path), shell=True, stdout=S.PIPE)
+        p = S.Popen("jug status {0}".format(self.script_path), shell=True, stdout=S.PIPE)
         p.wait()
         output = p.stdout.read()
         print output

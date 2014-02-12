@@ -1,19 +1,16 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 0.9.7.1
+Version: 0.9.8.1
 Release: 1.ceda%{?dist}
 Source0: cf-%{version}.tar.gz
-#Patch0: cf-0.9.4.2-emptyimport.patch
-#Patch1: cf-0.9.4.2-straycolon.patch
 License: OSI Approved
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-BuildArch: noarch
 Vendor: David Hassell <d.c.hassell at reading.ac.uk>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
-Url: http://code.google.com/p/cf-python
+Url: http://cfpython.bitbucket.org/
 Requires: python27-netCDF4
 BuildRequires: python27-netCDF4
 Requires: python27
@@ -21,34 +18,26 @@ BuildRequires: python27
 
 %description
 
-A minimal reference implementation of the proposed CF data model.
+The python cf package implements the CF data model for the reading, writing and processing of data and its metadata.
 
-CF is a netCDF convention which is in wide and growing use for the
-storage of model-generated and observational data relating to the
-atmosphere, ocean and Earth system.
+CF is a netCDF convention which is in wide and growing use for the storage of model-generated and observational data relating to the atmosphere, ocean and Earth system.
 
-This software:
+With this package you can:
 
-    * Reads and writes CF-netCDF files, and contains the data and
-      metadata in memory in objects called fields in a way which is
-      consistent with the data model.
+  *  Read CF-netCDF, CFA-netCDF and PP format files.
+  *  Create CF fields.
+  *  Aggregate collections of fields into as few multidimensional fields as possible using the CF aggregation rules.
+  *  Write fields to CF-netCDF and CFA-netCDF files on disk.
+  *  Create, delete and modify a field's data and metadata.
+  *  Select fields according to their metadata.
+  *  Subspace a field's data to create a new field.
+  *  Perform broadcastable, metadata-aware arithmetic, comparison and trigonometric operation with fields.
+  *  Collapse fields by statistical operations.
+  *  Sensibly deal with date-time data. 
 
-    * Aggregates fields according to the CF aggregation rules.
+All of the above use Large Amounts of Massive Arrays (LAMA) functionality, which allows multiple fields larger than the available memory to exist and be manipulated.
 
-    * Allows the creation, deletion and alteration of a field's data
-      and metadata.
-
-    * Allows the subsetting of a list of fields according to their
-      metadata attributes.
-
-    * Extracts sub-regions from fields, creating new
-      fields. Sub-regions may be defined by specifying ranges of
-      coordinates or ranges indices along the dimensions.
-
-There are currently no other processing abilities or any graphical
-functions, but it is envisaged that such higher-level functions could
-be built on the axiomatic capabilities so far included. A collapse
-function is under development.
+The package provides command line utilities for viewing CF fields (cfdump) and aggregating datasets (cfa). 
 
 %prep
 %setup -n cf-%{version}
@@ -66,6 +55,11 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 tmp_man1dir=$RPM_BUILD_ROOT/%{man1dir}
 mkdir -p $tmp_man1dir
 cp scripts/man1/*.1 $tmp_man1dir
+
+# (at 0.9.8.1)
+# weights.py and weights2.py have syntax errors - removed compiled versions 
+# from file list
+perl -i -n -e 'print unless /\/weights(2)?.(pyo|pyc)/' INSTALLED_FILES
 
 # for i in cfa cfdump
 # do

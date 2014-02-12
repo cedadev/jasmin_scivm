@@ -5,7 +5,7 @@
 Summary: NumPy: array processing for numbers, strings, records, and objects.
 Name: python27-%{pname}
 Version: 1.7.0
-Release: 2.ceda%{?dist}
+Release: 3.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD
 Group: Development/Libraries
@@ -14,8 +14,8 @@ Prefix: %{_prefix}
 Vendor: NumPy Developers <numpy-discussion@scipy.org>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://numpy.scipy.org
-Requires: python27
-BuildRequires: python27
+Requires: python27 python27-Cython swig
+BuildRequires: python27 python27-Cython swig
 
 %description
 NumPy is a general-purpose array-processing package designed to

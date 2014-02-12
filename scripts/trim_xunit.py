@@ -9,6 +9,7 @@ import sys
 from xml.etree import ElementTree as ET
 import hashlib
 import re
+import os
 
 SHORTEN_ATTRS = ('name', 'classname')
 MAX_ATTR_LENGTH = 60
@@ -31,16 +32,32 @@ def shorten_attr(elem, attr):
         elem.set(attr, short_val)
 
 def main(argv=sys.argv):
-    xunit_xml_in, xunit_xml_out = argv[1:]
-    xunit_et = ET.parse(open(xunit_xml_in))
-    
+    xunits = argv[1:]
 
-    for elem in xunit_et.findall('//testcase'):
-        for attr in SHORTEN_ATTRS:
-            shorten_attr(elem, attr)
+    for xunit_xml_in in xunits:
+        xunit_path = os.path.splitext(xunit_xml_in)[0]
+        xunit_name = os.path.basename(xunit_path)
 
-    with open(xunit_xml_out, 'w') as fh:
-        xunit_et.write(fh)
+        xunit_xml_out = xunit_path+'_trimmed.xml'
+
+        xunit_et = ET.parse(open(xunit_xml_in))
+
+        # Rename the test suite according to the xunit name
+        suite_et = xunit_et.getroot()
+        suite_et.attrib['name'] = xunit_name
+
+        for elem in xunit_et.findall('.//testcase'):
+            for attr in SHORTEN_ATTRS:
+                shorten_attr(elem, attr)
+            # Remove known failures
+            error_elem = elem.find('./error')
+            if error_elem is not None:
+                if error_elem.get('type') == "numpy.testing.noseclasses.KnownFailureTest":
+                    print 'FOUND KNOWN FAILURE: %s' % elem.get('classname')
+                    elem.remove(error_elem)
+
+        with open(xunit_xml_out, 'w') as fh:
+            xunit_et.write(fh)
 
     
 

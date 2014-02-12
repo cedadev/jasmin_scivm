@@ -1,5 +1,5 @@
 %define pname iris
-%define version 1.3.0
+%define version 1.5.1
 %define release 2.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets
@@ -11,13 +11,12 @@ License: GPL v3
 Group: Scientific support
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-BuildArch: noarch
 Vendor: UK Met Office
 Url: http://scitools.github.com/iris
 Requires: python27, python27-pyke, python27-Cython, python27-cartopy, python27-Shapely, python27-shapefile, python27-scipy, python27-netCDF4
-Requires: python27-numpy, python27-matplotlib
+Requires: python27-numpy, python27-matplotlib mo_unpack
 BuildRequires: python27, python27-pyke, python27-Cython, python27-cartopy, python27-Shapely, python27-shapefile, python27-scipy, python27-netCDF4
-BuildRequires: python27-numpy, python27-matplotlib
+BuildRequires: python27-numpy, python27-matplotlib mo_unpack
 
 
 %description
@@ -40,7 +39,7 @@ python2.7 setup.py build
 
 %install
 rm -fr $RPM_BUILD_ROOT
-python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT
+python2.7 setup.py --with-unpack install -O1 --root=$RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_datadir}
 mv $RPM_BUILD_ROOT/usr/iris $RPM_BUILD_ROOT/%{docdir}
 
@@ -48,9 +47,14 @@ mv $RPM_BUILD_ROOT/usr/iris $RPM_BUILD_ROOT/%{docdir}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Oct 31 2013  <builderdev@builder.jc.rl.ac.uk> - 1.5.1-2.ceda%{?dist}
+- include --with-unpack option
+
+* Thu Oct 17 2013  <builderdev@builder.jc.rl.ac.uk> - 1.5.1-1.ceda%{?dist}
+- change to 1.5.1
+
 * Mon Feb 11 2013  <builderdev@builder.jc.rl.ac.uk> - 1.1.0rc1-2.ceda%{?dist}
 - add dependencies for python27-scipy, python27-netCDF4
-
 
 * Mon Dec 17 2012  <builderdev@builder.jc.rl.ac.uk> - 1.1.0rc1-1.ceda{?dist}
 - initial version

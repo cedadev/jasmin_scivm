@@ -2,8 +2,10 @@
 Summary: Core components of the Climate Data Analysis tools.  This software is based on CDAT-6.0.alpha-ge3b1a45 and cdunfpp0.13.
 Name: python27-%{pname}
 Version: 6.0rc2
-Release: 2.ceda%{?dist}
-Source0: %{pname}-%{version}.tar.gz
+%define git_sha 5b1b1dd
+Release: 4.ceda%{?dist}
+#Source0: %{pname}-%{version}.tar.gz
+Source0: %{pname}-%{git_sha}.tar.gz
 License: http://www-pcmdi.llnl.gov/software-portal/cdat/docs/cdat-license
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
@@ -332,7 +334,8 @@ TODO
 
 
 %prep
-%setup -n %{pname}-%{version}
+#%setup -n %{pname}-%{version}
+%setup -n %{pname}
 
 %build
 env CFLAGS="$RPM_OPT_FLAGS" python2.7 setup.py build
@@ -341,16 +344,23 @@ env CFLAGS="$RPM_OPT_FLAGS" python2.7 setup.py build
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-for i in cddump cdscan convertcdms
-do
-  path=%{_bindir}/$i
-  tmppath=$RPM_BUILD_ROOT$path
-  mv $tmppath ${tmppath}_py27
-  perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
-done
+#for i in cddump cdscan convertcdms
+#do
+#  path=%{_bindir}/$i
+#  tmppath=$RPM_BUILD_ROOT$path
+#  mv $tmppath ${tmppath}_py27
+#  perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
+#done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+* Mon Feb 10 2014  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-4.ceda
+- update to git tag 5b1b1dd - uses 64-bit data types to cope with some large files
+
+* Wed Feb  5 2014  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-3.ceda
+- update to git tag 9c049bd; this contains bug fixes to cdunifpp although not yet tagged as new cdat_lite version
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
