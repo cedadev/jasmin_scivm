@@ -1,7 +1,7 @@
 %define pname Jug
 Summary: A Task Based Parallelization Framework
 Name: python27-%{pname}
-Version: 0.9.3
+Version: 0.9.6
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: MIT
@@ -12,7 +12,7 @@ BuildArch: noarch
 Vendor: Luis Pedro Coelho <luis@luispedro.org>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://luispedro.org/software/jug
-Requires: python27
+Requires: python27 python27-six
 BuildRequires: python27
 
 %description
@@ -169,13 +169,13 @@ perl -p -i -e 's/python/python2.7/' bin/jug
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-for i in jug
-do
-  path=%{_bindir}/$i
-  tmppath=$RPM_BUILD_ROOT$path
-  mv $tmppath ${tmppath}_py27
-  perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
-done
+# for i in jug
+# do
+#   path=%{_bindir}/$i
+#   tmppath=$RPM_BUILD_ROOT$path
+#   mv $tmppath ${tmppath}_py27
+#   perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
+# done
 
 
 %clean

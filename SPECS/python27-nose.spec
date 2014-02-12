@@ -2,7 +2,7 @@
 Summary: nose extends unittest to make testing easier
 Name: python27-%{pname}
 Version: 1.2.0
-Release: 3.ceda%{?dist}
+Release: 4.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: GNU LGPL
 Group: Development/Libraries
@@ -51,18 +51,20 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --install-data=%{_datadir}
 # replace any man pages with .gz version in file list (Alan)
 perl -p -i -e 's/$/.gz/ if m{^/usr/share/man/man(.*?)/.*\.\1$}' INSTALLED_FILES
 
-for i in nosetests
-do
-  path=%{_bindir}/$i
-  tmppath=$RPM_BUILD_ROOT$path
-  mv $tmppath ${tmppath}_py27
-  perl -p -i -e "s,^$path$,${path}_py27," INSTALLED_FILES
-done
+# for i in nosetests
+# do
+#   path=%{_bindir}/$i
+#   tmppath=$RPM_BUILD_ROOT$path
+#   mv $tmppath ${tmppath}_py27
+#   perl -p -i -e "s,^$path$,${path}_py27," INSTALLED_FILES
+# done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 1.2.0-4.ceda
+- comment out renaming of nosetests executable
 
 * Mon Dec 17 2012  <builderdev@builder.jc.rl.ac.uk> - 1.2.0-3.ceda
 - add BuildRequires setuptools, else tools not included properly
