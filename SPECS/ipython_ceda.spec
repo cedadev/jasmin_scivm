@@ -1,8 +1,8 @@
 Summary: IPython: Productive Interactive Computing
 Name: python-ipython
-Version: 0.14_dev_ceda.1
-Release: 2
-Source0: ipython-0.14.dev-ceda.1.tar.gz
+Version: 1.1.0
+Release: 1.ceda
+Source0: ipython-%{version}.tar.gz
 License: BSD
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -79,7 +79,7 @@ site <http://github.com/ipython>`_.
 
 
 %prep
-%setup -n ipython-0.14.dev-ceda.1
+%setup -n ipython-%{version}
 
 %build
 python setup.py build

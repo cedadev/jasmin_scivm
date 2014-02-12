@@ -2,8 +2,10 @@
 Summary: Core components of the Climate Data Analysis tools.  This software is based on CDAT-6.0.alpha-ge3b1a45 and cdunfpp0.13.
 Name: python-%{pname}
 Version: 6.0rc2
-Release: 2.ceda%{?dist}
-Source0: %{pname}-%{version}.tar.gz
+%define git_sha 9c049bd
+Release: 3.ceda%{?dist}
+#Source0: %{pname}-%{version}.tar.gz
+Source0: %{pname}-%{git_sha}.tar.gz
 License: http://www-pcmdi.llnl.gov/software-portal/cdat/docs/cdat-license
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
@@ -330,7 +332,8 @@ TODO
 
 
 %prep
-%setup -n %{pname}-%{version}
+#%setup -n %{pname}-%{version}
+%setup -n %{pname}
 
 %build
 env CFLAGS="$RPM_OPT_FLAGS" python setup.py build
@@ -340,6 +343,11 @@ python setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Wed Feb  5 2014  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-3.ceda
+- update to git tag 9c049bd; this contains bug fixes to cdunifpp although not yet tagged as new cdat_lite version
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
