@@ -3,7 +3,7 @@ import sys, os
 
 version = '0.1'
 
-setup(name='basic_package',
+setup(name='jasmin_scivm',
       version=version,
       description="JASMIN Scientific Analysis Build Test Suite",
       long_description="""\
