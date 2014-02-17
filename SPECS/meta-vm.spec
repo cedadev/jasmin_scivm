@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 13.ceda
+Release: 17.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -61,13 +61,8 @@ Requires: libuuid >= 2.17.2
 Requires: libuuid >= 2.17.2
 Requires: mo_unpack >= 2.0.1-1.ceda
 Requires: ncBrowse >= 1.6.5
-#-----------------------------------
-# NCO 4.4.1 build broken. Downgrade until fixed.
-#Requires: nco >= 4.4.1-1.ceda
-#Requires: nco-devel >= 4.4.1-1.ceda
-Requires: nco = 4.3.4-2.ceda.el6
-Requires: nco-devel = 4.3.4-2.ceda.el6
-#-----------------------------------
+Requires: nco >= 4.4.2-1.ceda
+Requires: nco-devel >= 4.4.2-1.ceda
 Requires: ncview >= 2.1.2-1.ceda
 Requires: nedit >= 5.5
 Requires: netcdf >= 4.3.1-1.ceda
@@ -89,11 +84,12 @@ Requires: python27-cf >= 0.9.8.1-1.ceda
 Requires: python27-cf-checker >= 2.0.5-3.ceda
 Requires: python27-cmor >= 2.8.2-2.ceda
 Requires: python27-Cython >= 0.17.3-1.ceda
-Requires: python27-ipython >= 1.1.0-1.ceda
+Requires: python27-ipython >= 1.1.0-2.ceda
 Requires: python27-iris >= 1.5.1-2.ceda
-Requires: python27-jasmin_cis >= 0.6-1.ceda
+Requires: python27-jasmin_cis >= 0.6.1-1.ceda
 Requires: python27-Jug >= 0.9.6-1.ceda
 Requires: python27-matplotlib >= 1.2.0-1.ceda
+Requires: python27-nappy >= 1.1.2-1.ceda
 Requires: python27-netCDF4 >= 1.0.7-2.ceda
 Requires: python27-nose >= 1.2.0-4.ceda
 Requires: python27-numpy >= 1.7.0-3.ceda
@@ -159,6 +155,9 @@ Adds configuration for Lotus VM
 %files -n lotus-vm
 
 %changelog
+* Mon Feb 17 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-16.ceda
+- NCO to 4.4.2, fixes issues in 4.4.1
+
 * Tue Feb 11 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-13.ceda
 - downgrade NCO to 4.3.4
 

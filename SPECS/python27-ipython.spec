@@ -1,7 +1,7 @@
 Summary: IPython: Productive Interactive Computing
 Name: python27-ipython
 Version: 1.1.0
-Release: 1.ceda
+Release: 2.ceda
 Source0: ipython-%{version}.tar.gz
 License: BSD
 Group: Development/Libraries
@@ -11,7 +11,7 @@ BuildArch: noarch
 Vendor: The IPython Development Team <ipython-dev@scipy.org>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://ipython.org
-Requires: python27
+Requires: python27 python27-pyzmq >= 2.1.11 python27-jinja2
 BuildRequires: python27
 
 %description
@@ -110,6 +110,9 @@ perl -p -i -e 's/^(.*)$/"\1"/g if /\s/' INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Feb 13 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1.0-2.ceda
+- added pyzmq and jinja2 dependencies
+
 * Thu Nov 28 2013  <builderdev@builder.jc.rl.ac.uk> - 1.1.0-1.ceda
 - change to 1.1.0
 
