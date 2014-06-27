@@ -1,6 +1,6 @@
 %define pname cartopy
-%define version 0.7.0
-%define release 2.ceda%{?dist}
+%define version 0.10.0
+%define release 1.ceda%{?dist}
 
 Summary: a cartographic python library with matplotlib support
 Name: python27-%{pname}

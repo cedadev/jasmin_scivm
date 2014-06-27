@@ -1,7 +1,7 @@
 %define pname jasmin_cis
 Summary: JASMIN Community Inter-comparison Suite
 Name: python27-%{pname}
-Version: 0.6.1
+Version: 0.7
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: LGPL 3
