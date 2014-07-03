@@ -2,7 +2,7 @@
 Summary: The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
 %define rel 1.ceda%{?dist}
 
-%define version 1.10.0
+%define version 1.12.1
 %define pkgname grib_api
 %define prefix /usr
 %define _prefix /usr
@@ -22,14 +22,14 @@ Summary: The ECMWF GRIB API is an application program interface accessible from 
 Name: %{pkgname}
 Version: %{version}
 Release: %{rel}
-Distribution: Red Hat Enterprise Linux Server release 6.3 (Santiago) 
+Distribution: Red Hat Enterprise Linux Server release 6.4 (Santiago) 
 
 Vendor: ECMWF
-License: LGPL
+License: Apache Licence version 2.0 
 Group: Scientific/Libraries
 Source: %{pkgname}-%{version}.tar.gz
-Patch1: gribapi-python-requires.diff
-Patch2: gribapi-python-site-packages-dir.diff
+#Patch1: gribapi-python-requires.diff
+Patch2: gribapi-python-site-packages-dir-aclocal.diff
 # %if %{_requires_jasper}
 # Requires: libjasper
 # %endif
@@ -40,20 +40,23 @@ Buildroot: /tmp/%{pkgname}-root
 URL: http://www.ecmwf.int
 Prefix: %{prefix}
 BuildArchitectures: %{_target_cpu}
-Packager: Software Services <software.support@ecmwf.int>
+Packager: Software Support <software.support@ecmwf.int>
 
 %description 
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
 
 %changelog
+* Thu Mar 15 2012 - Get the changelog from JIRA
+- Multiple bugfixes
+
 * Mon May 26 2005 - Get the changelog from JIRA
 - Added kmymoney-ofx package
 
 %prep
 %setup
-%patch1 -p1
+#%patch1 -p1
 %patch2 -p1 -F2
-automake
+autoconf
 
 %build
 export PYTHON=/usr/bin/python2.7
@@ -77,7 +80,7 @@ make DESTDIR="$RPM_BUILD_ROOT" install
 #%doc doc/*
 %prefix/bin/*
 %prefix/lib*/libgrib_api.so
-%prefix/lib*/libgrib_api-%{version}.so
+%prefix/lib*/libgrib_api.so.*
 %prefix/share/grib_api/definitions/*
 
 # If you install a library
@@ -100,9 +103,9 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 %files devel
 %defattr(-, root, root)
 #%doc doc
-%prefix/include/*
-%prefix/lib*/*.a
-%prefix/lib*/*.la
+%prefix/include/grib_api.h
+%prefix/lib*/libgrib_api.a
+%prefix/lib*/libgrib_api.la
 %prefix/lib*/pkgconfig/*
 %prefix/share/grib_api/samples/*
 %prefix/share/grib_api/ifs_samples/*
@@ -141,6 +144,8 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 and edition 2 messages.
 %files fortran
 %defattr(-, root,root)
+%prefix/include/*.mod
+%prefix/include/*f77*
 %prefix/lib*/*f90*
 %prefix/lib*/*f77*
 %endif

@@ -3,7 +3,7 @@
 Summary: An interpreted, interactive, object-oriented programming language
 Name: python27
 Version: 2.7.3
-Release: 2.ceda%{?dist}
+Release: 3.ceda%{?dist}
 License: Python
 Group: Development/Languages
 Provides: python-abi = %{pybasever}
@@ -11,6 +11,8 @@ Provides: python(abi) = %{pybasever}
 Source: http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.bz2
 URL: http://www.python.org/
 AutoReq: no
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
 
 %description
 Python is an interpreted, interactive, object-oriented programming
@@ -38,7 +40,7 @@ into devel, doc etc.)
 export CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -fPIC"
 export CXXFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -fPIC"
 export OPT="$RPM_OPT_FLAGS -D_GNU_SOURCE -fPIC"
-./configure --prefix=/usr
+./configure --prefix=/usr --enable-shared
 
 make
 
@@ -47,7 +49,7 @@ make
 mkdir -p $RPM_BUILD_ROOT/usr $RPM_BUILD_ROOT%{_mandir}
 make install DESTDIR=$RPM_BUILD_ROOT
 
-chmod u+w $RPM_BUILD_ROOT/usr/lib/libpython%{pybasever}.a
+chmod u+w $RPM_BUILD_ROOT/usr/lib/libpython%{pybasever}.so.*
 
 # delete/rename unversioned stuff that may conflict with system python
 cd $RPM_BUILD_ROOT%{_bindir}
@@ -56,6 +58,18 @@ rm -f python python2 python-config python2-config
 rm -f $RPM_BUILD_ROOT/usr/lib/pkgconfig/python.pc
 rm -f $RPM_BUILD_ROOT/usr/lib/pkgconfig/python2.pc
 
+%post
+if test `whoami` == root; then
+   echo "Running /sbin/ldconfig"
+   /sbin/ldconfig
+fi
+
+%postun
+if test `whoami` == root; then
+   echo "Running /sbin/ldconfig"
+   /sbin/ldconfig
+fi
+
 %files
 %defattr(-, root, root, -)
 %{_bindir}/*
@@ -63,12 +77,12 @@ rm -f $RPM_BUILD_ROOT/usr/lib/pkgconfig/python2.pc
 /usr/include/python%{pybasever}
 /usr/lib/python%{pybasever}
 /usr/lib/pkgconfig/python-%{pybasever}.pc
-/usr/lib/libpython%{pybasever}.a
-#/usr/lib64/python%{pybasever}
-#/usr/lib64/pkgconfig/python-%{pybasever}.pc
-#/usr/lib64/libpython%{pybasever}.a
+/usr/lib/libpython%{pybasever}.so*
 
 %changelog
+
+* Fri Feb 21 2014  <builderdev@builder.jc.rl.ac.uk> - 2.7.3-2.ceda
+- change from static to shared libs (--enable-shared and adjust %files)
 
 * Thu Oct 17 2013  <builderdev@builder.jc.rl.ac.uk> - 2.7.3-1.ceda
 - add PIC

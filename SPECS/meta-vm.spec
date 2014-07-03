@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 13.ceda
+Release: 21.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -16,6 +16,9 @@ Source RPM for meta-RPMs for JASMIN science VM and for Lotus VM
 
 %package -n jasmin-common-vm
 Summary: Adds common configuration for JASMIN science VM and for Lotus VM
+Requires: ImageMagick >= 6.5.4.7
+Requires: R >= 2.10.0
+Requires: R-devel >= 2.10.0
 Requires: arpack >= 3.0.1
 Requires: atlas >= 3.8.4
 Requires: atlas-devel >= 3.8.4
@@ -43,31 +46,27 @@ Requires: geos >= 3.3.6-2.ceda
 Requires: geos-devel >= 3.3.6-2.ceda
 Requires: git >= 1.7.1
 Requires: gnuplot >= 4.2.6
-Requires: grib_api >= 1.10.0-1.ceda
-Requires: grib_api-devel >= 1.10.0-1.ceda
-Requires: grib_api-fortran >= 1.10.0-1.ceda
-Requires: grib_api-python27 >= 1.10.0-1.ceda
+Requires: grib_api >= 1.12.1-1.ceda
+Requires: grib_api-devel >= 1.12.1-1.ceda
+Requires: grib_api-fortran >= 1.12.1-1.ceda
+Requires: grib_api-python27 >= 1.12.1-1.ceda
 Requires: gv >= 3.7.1
 Requires: hdf >= 4.2.9-1.ceda
 Requires: hdf-devel >= 4.2.9-1.ceda
+Requires: hdf-devel >= 4.2.9-1.ceda
 Requires: hdf5 >= 1.8.9-2.ceda
 Requires: hdf5-devel >= 1.8.9-2.ceda
-Requires: hdf-devel >= 4.2.9-1.ceda
-Requires: ImageMagick >= 6.5.4.7
 Requires: ksh >= 20100621
 Requires: lapack >= 3.2.1
 Requires: lapack-devel >= 3.2.1
+Requires: leafpad >= 0.8.18
 Requires: libuuid >= 2.17.2
 Requires: libuuid >= 2.17.2
 Requires: mo_unpack >= 2.0.1-1.ceda
 Requires: ncBrowse >= 1.6.5
-#-----------------------------------
-# NCO 4.4.1 build broken. Downgrade until fixed.
-#Requires: nco >= 4.4.1-1.ceda
-#Requires: nco-devel >= 4.4.1-1.ceda
-Requires: nco = 4.3.4-2.ceda.el6
-Requires: nco-devel = 4.3.4-2.ceda.el6
-#-----------------------------------
+Requires: ncl >= 6.1.2-1.ceda
+Requires: nco >= 4.4.2-1.ceda
+Requires: nco-devel >= 4.4.2-1.ceda
 Requires: ncview >= 2.1.2-1.ceda
 Requires: nedit >= 5.5
 Requires: netcdf >= 4.3.1-1.ceda
@@ -80,39 +79,45 @@ Requires: octave >= 3.6.4-1.ceda
 Requires: octave-devel >= 3.6.4-1.ceda
 Requires: octave-doc >= 3.6.4-1.ceda
 Requires: octave-octcdf >= 1.1.5-1.ceda
+Requires: perl-core >= 5.10.1
 Requires: perl-devel >= 5.10.1
-Requires: python27 >= 2.7.3-2.ceda
+Requires: python27 >= 2.7.3-3.ceda
+Requires: python27-Cython >= 0.17.3-1.ceda
+Requires: python27-Jug >= 0.9.6-1.ceda
+Requires: python27-PIL >= 1.1.7-2.ceda
+Requires: python27-Pydap >= 3.1.RC1-2.ceda
+Requires: python27-Pygments >= 1.5-3.ceda
+Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-cartopy >= 0.7.0-2.ceda
 Requires: python27-cdat_lite >= 6.0rc2-4.ceda
 Requires: python27-cf >= 0.9.8.1-1.ceda
 Requires: python27-cf-checker >= 2.0.5-3.ceda
+Requires: python27-cfplot >= 1.2-1.ceda
 Requires: python27-cmor >= 2.8.2-2.ceda
-Requires: python27-Cython >= 0.17.3-1.ceda
-Requires: python27-ipython >= 1.1.0-1.ceda
-Requires: python27-iris >= 1.5.1-2.ceda
-Requires: python27-jasmin_cis >= 0.6-1.ceda
-Requires: python27-Jug >= 0.9.6-1.ceda
+Requires: python27-ipython >= 2.0.0-1.ceda
+Requires: python27-iris >= 1.6.1-1.ceda
+Requires: python27-jasmin_cis >= 0.7-1.ceda
 Requires: python27-matplotlib >= 1.2.0-1.ceda
+Requires: python27-nappy >= 1.1.2-1.ceda
 Requires: python27-netCDF4 >= 1.0.7-2.ceda
 Requires: python27-nose >= 1.2.0-4.ceda
 Requires: python27-numpy >= 1.7.0-3.ceda
 Requires: python27-pandas >= 0.12.0-1.ceda
-Requires: python27-Pydap >= 3.1.RC1-2.ceda
-Requires: python27-Pygments >= 1.5-3.ceda
+Requires: python27-pycairo >= 1.8.6-1.ceda
+Requires: python27-pygobject2 >= 2.20.0-1.ceda
+Requires: python27-pygtk2 >= 2.16.0-1.ceda
+Requires: python27-pygtk2-libglade >= 2.16.0-1.ceda
 Requires: python27-pyhdf >= 0.8_1-2.ceda
 Requires: python27-pyke >= 1.1.1-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
-Requires: python27-rpy2 >= 2.2.6-2.ceda
+Requires: python27-rpy2 >= 2.3.9-1.ceda
 Requires: python27-scipy >= 0.13.1-1.ceda
 Requires: python27-setuptools >= 0.6c12dev_r88846-2.ceda
 Requires: python27-shapefile >= 1.1.4-1.ceda
-Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-six >= 1.5.2-1.ceda
-Requires: python27-tornado >= 2.4-2.ceda
+Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 1.8.2-2.ceda
-Requires: R >= 2.10.0
-Requires: R-devel >= 2.10.0
 Requires: subversion >= 1.6.11
 Requires: tcl >= 8.5.7
 Requires: tcl-devel >= 8.5.7
@@ -130,6 +135,8 @@ Requires: vim-enhanced >= 7.2.411
 Requires: xconv >= 1.92dev-1.ceda
 Requires: xemacs >= 21.5.31
 Requires: xpdf >= 3.02
+
+
 
 %description -n jasmin-common-vm
 Adds common configuration for JASMIN science VM and for Lotus VMs.
@@ -159,6 +166,36 @@ Adds configuration for Lotus VM
 %files -n lotus-vm
 
 %changelog
+* Fri Jun 27 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-21.ceda
+-     grib_api >= 1.12.1-1.ceda
+-     grib_api-devel >= 1.12.1-1.ceda
+-     grib_api-fortran >= 1.12.1-1.ceda
+-     grib_api-python27 >= 1.12.1-1.ceda
+-     ncl >= 6.1.2-1.ceda
+-     python27-PIL >= 1.1.7-2.ceda
+-     python27-ipython >= 2.0.0-1.ceda
+-     python27-jasmin_cis >= 0.7-1.ceda
+         (implies python27-backports-ssl_match_hostname)
+-     python27-pycairo >= 1.8.6-1.ceda
+-     python27-pygobject2 >= 2.20.0-1.ceda
+-     python27-pygtk2 >= 2.16.0-1.ceda
+-     python27-pygtk2-libglade >= 2.16.0-1.ceda
+-     python27-tornado >= 3.2-1.ceda
+- leafpad >= 0.8.18
+- perl-core >= 5.10.1
+
+* Fri Feb 21 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-20.ceda
+- python27-2.7.3-3.ceda, python27-rpy2-2.3.9-1.ceda
+
+* Thu Feb 20 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-19.ceda
+- python27-iris 1.6.1
+
+* Thu Feb 20 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-18.ceda
+- insert cfplot
+
+* Mon Feb 17 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-16.ceda
+- NCO to 4.4.2, fixes issues in 4.4.1
+
 * Tue Feb 11 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-13.ceda
 - downgrade NCO to 4.3.4
 
