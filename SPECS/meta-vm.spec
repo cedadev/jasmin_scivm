@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 21.ceda
+Release: 22.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -41,7 +41,6 @@ Requires: gdal-perl >= 1.9.2-1.ceda
 Requires: gdal-python27 >= 1.9.2-1.ceda
 Requires: gdal-ruby >= 1.9.2-1.ceda
 Requires: geany >= 0.21
-Requires: gedit >= 2.28.4
 Requires: geos >= 3.3.6-2.ceda
 Requires: geos-devel >= 3.3.6-2.ceda
 Requires: git >= 1.7.1
@@ -50,6 +49,8 @@ Requires: grib_api >= 1.12.1-1.ceda
 Requires: grib_api-devel >= 1.12.1-1.ceda
 Requires: grib_api-fortran >= 1.12.1-1.ceda
 Requires: grib_api-python27 >= 1.12.1-1.ceda
+Requires: gsl-devel >= 1.13
+Requires: gsl-static >= 1.13
 Requires: gv >= 3.7.1
 Requires: hdf >= 4.2.9-1.ceda
 Requires: hdf-devel >= 4.2.9-1.ceda
@@ -166,6 +167,10 @@ Adds configuration for Lotus VM
 %files -n lotus-vm
 
 %changelog
+* Fri Jul 11 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-22.ceda
+- deprecate gedit
+- add gsl-devel and gsl-static
+
 * Fri Jun 27 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-21.ceda
 -     grib_api >= 1.12.1-1.ceda
 -     grib_api-devel >= 1.12.1-1.ceda
