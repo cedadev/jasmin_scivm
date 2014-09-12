@@ -1,5 +1,5 @@
 %define pname iris
-%define version 1.6.1
+%define version 1.7.1
 %define release 1.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets
@@ -13,7 +13,7 @@ BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Vendor: UK Met Office
 Url: http://scitools.github.com/iris
-%define prereq gdal-python27 >= 1.9.1, graphviz-python27 >= 2.18, grib_api-python27 >= 1.9.16, python27-PIL >= 1.1.7, python27-Shapely >= 1.2.14, python27-cartopy >= 0.8.0, python27-matplotlib >= 1.2.0, python27-mock >= 1.0.1, python27-netCDF4 >= 0.9.9, python27-nose >= 1.1.2, python27-numpy >= 1.6, python27-pandas >= 0.11.0, python27-pyke >= 1.1.1, python27-scipy >= 0.10, python27-setuptools >= 0.6c11, udunits >= 2.1.24, python27, python27-Cython, mo_unpack, python27-shapefile
+%define prereq gdal-python27 >= 1.9.1, graphviz-python27 >= 2.18, grib_api-python27 >= 1.9.16, python27-PIL >= 1.1.7, python27-Shapely >= 1.2.14, python27-cartopy >= 0.8.0, python27-matplotlib >= 1.2.0, python27-mock >= 1.0.1, python27-netCDF4 >= 0.9.9, python27-nose >= 1.1.2, python27-numpy >= 1.6, python27-pandas >= 0.11.0, python27-pyke >= 1.1.1, python27-scipy >= 0.10, python27-setuptools >= 0.6c11, udunits >= 2.1.24, python27, python27-Cython, mo_unpack, python27-shapefile python27-biggus >= 0.7.0
 Requires: %{prereq}
 BuildRequires: %{prereq}
 

@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 22.ceda
+Release: 23.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -22,6 +22,8 @@ Requires: R-devel >= 2.10.0
 Requires: arpack >= 3.0.1
 Requires: atlas >= 3.8.4
 Requires: atlas-devel >= 3.8.4
+Requires: bbcp >= 140414.00.1-1.ceda
+Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
 Requires: cdo >= 1.5.6.1-3.ceda
 Requires: cmor-devel >= 2.8.2-2.ceda
@@ -70,12 +72,12 @@ Requires: nco >= 4.4.2-1.ceda
 Requires: nco-devel >= 4.4.2-1.ceda
 Requires: ncview >= 2.1.2-1.ceda
 Requires: nedit >= 5.5
-Requires: netcdf >= 4.3.1-1.ceda
-Requires: netcdf-c++ >= 4.2-2.ceda
-Requires: netcdf-c++-devel >= 4.2-2.ceda
-Requires: netcdf-devel >= 4.3.1-1.ceda
-Requires: netcdf-fortran >= 4.2-2.ceda
-Requires: netcdf-fortran-devel >= 4.2-2.ceda
+Requires: netcdf >= 4.3.2-1.ceda
+Requires: netcdf-c++ >= 4.2-3.ceda
+Requires: netcdf-c++-devel >= 4.2-3.ceda
+Requires: netcdf-devel >= 4.3.2-1.ceda
+Requires: netcdf-fortran >= 4.2-3.ceda
+Requires: netcdf-fortran-devel >= 4.2-3.ceda
 Requires: octave >= 3.6.4-1.ceda
 Requires: octave-devel >= 3.6.4-1.ceda
 Requires: octave-doc >= 3.6.4-1.ceda
@@ -93,16 +95,16 @@ Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-cartopy >= 0.7.0-2.ceda
 Requires: python27-cdat_lite >= 6.0rc2-4.ceda
 Requires: python27-cf >= 0.9.8.1-1.ceda
-Requires: python27-cf-checker >= 2.0.5-3.ceda
+Requires: python27-cf-checker >= 2.0.5-4.ceda
 Requires: python27-cfplot >= 1.2-1.ceda
 Requires: python27-cmor >= 2.8.2-2.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 1.6.1-1.ceda
+Requires: python27-iris >= 1.7.1-1.ceda
 Requires: python27-jasmin_cis >= 0.7-1.ceda
 Requires: python27-matplotlib >= 1.2.0-1.ceda
 Requires: python27-nappy >= 1.1.2-1.ceda
 Requires: python27-netCDF4 >= 1.0.7-2.ceda
-Requires: python27-nose >= 1.2.0-4.ceda
+Requires: python27-nose >= 1.3.4-1.ceda
 Requires: python27-numpy >= 1.7.0-3.ceda
 Requires: python27-pandas >= 0.12.0-1.ceda
 Requires: python27-pycairo >= 1.8.6-1.ceda
@@ -111,6 +113,7 @@ Requires: python27-pygtk2 >= 2.16.0-1.ceda
 Requires: python27-pygtk2-libglade >= 2.16.0-1.ceda
 Requires: python27-pyhdf >= 0.8_1-2.ceda
 Requires: python27-pyke >= 1.1.1-1.ceda
+Requires: python27-pyspharm >= 1.0.8-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
 Requires: python27-rpy2 >= 2.3.9-1.ceda
 Requires: python27-scipy >= 0.13.1-1.ceda
@@ -119,6 +122,7 @@ Requires: python27-shapefile >= 1.1.4-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
 Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 1.8.2-2.ceda
+Requires: python27-windspharm >= 1.3.1-1.ceda
 Requires: subversion >= 1.6.11
 Requires: tcl >= 8.5.7
 Requires: tcl-devel >= 8.5.7
@@ -136,7 +140,6 @@ Requires: vim-enhanced >= 7.2.411
 Requires: xconv >= 1.92dev-1.ceda
 Requires: xemacs >= 21.5.31
 Requires: xpdf >= 3.02
-
 
 
 %description -n jasmin-common-vm
@@ -167,6 +170,20 @@ Adds configuration for Lotus VM
 %files -n lotus-vm
 
 %changelog
+* Fri Sep 12 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-23.ceda
+-        bbcp >= 140414.00.1-1.ceda
+-        bbcp-config >= 1-1.ceda
+-        netcdf >= 4.3.2-1.ceda
+-        netcdf-c++ >= 4.2-3.ceda
+-        netcdf-c++-devel >= 4.2-3.ceda
+-        netcdf-devel >= 4.3.2-1.ceda
+-        netcdf-fortran >= 4.2-3.ceda
+-        netcdf-fortran-devel >= 4.2-3.ceda
+-        python27-cf-checker >= 2.0.5-4.ceda
+-        python27-iris >= 1.7.1-1.ceda
+-        python27-nose >= 1.3.4-1.ceda
+-        python27-pyspharm >= 1.0.8-1.ceda
+-        python27-windspharm >= 1.3.1-1.ceda
 * Fri Jul 11 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-22.ceda
 - deprecate gedit
 - add gsl-devel and gsl-static

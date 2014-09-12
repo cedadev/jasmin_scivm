@@ -1,5 +1,5 @@
 Name: netcdf
-Version: 4.3.1
+Version: 4.3.2
 Release: 1.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
@@ -51,6 +51,12 @@ make
 rm -rf $RPM_BUILD_ROOT		
 make install DESTDIR=$RPM_BUILD_ROOT	
 
+# fix nc-config to report lib64 path
+if echo %{_libdir} | grep -q lib64
+then
+  perl -p -i -e 's,^(libdir=.*)/lib$,$1/lib64,' $RPM_BUILD_ROOT%{_bindir}/nc-config
+fi
+
 %post
 if test `whoami` == root; then
    echo "Running /sbin/ldconfig"
@@ -91,6 +97,8 @@ fi
 %{_includedir}/netcdf.h
 
 %changelog
+* Thu Sep 11 2014 Alan Iwi - 4.3.1-2.ceda
+- update to 4.3.2
 * Thu Jan 23 2014 Alan Iwi - 4.3.1-1.ceda
 - update to 4.3.1
 * Fri Dec 14 2012 Alan Iwi

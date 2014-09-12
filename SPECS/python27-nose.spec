@@ -1,22 +1,22 @@
 %define pname nose
 Summary: nose extends unittest to make testing easier
 Name: python27-%{pname}
-Version: 1.2.0
-Release: 4.ceda%{?dist}
+Version: 1.3.4
+Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: GNU LGPL
 Group: Development/Libraries
-BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-BuildArch: noarch
 Vendor: Jason Pellerin <jpellerin+nose@gmail.com>
-Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://readthedocs.org/docs/nose/
+Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Requires: python27
 BuildRequires: python27
-BuildRequires: python27-setuptools
+BuildArch: noarch
 
 %description
+
 nose extends the test loading and running features of unittest, making
     it easier to write, find and run tests.
 
@@ -36,7 +36,6 @@ nose extends the test loading and running features of unittest, making
     If you have recently reported a bug marked as fixed, or have a craving for
     the very latest, you may want the development version instead:
     https://github.com/nose-devs/nose/tarball/master#egg=nose-dev
-    
 
 %prep
 %setup -n %{pname}-%{version}
@@ -46,29 +45,13 @@ python2.7 setup.py build
 
 %install
 rm -fr $RPM_BUILD_ROOT
-python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --install-data=%{_datadir} --record=INSTALLED_FILES
-
-# replace any man pages with .gz version in file list (Alan)
-perl -p -i -e 's/$/.gz/ if m{^/usr/share/man/man(.*?)/.*\.\1$}' INSTALLED_FILES
-
-# for i in nosetests
-# do
-#   path=%{_bindir}/$i
-#   tmppath=$RPM_BUILD_ROOT$path
-#   mv $tmppath ${tmppath}_py27
-#   perl -p -i -e "s,^$path$,${path}_py27," INSTALLED_FILES
-# done
+python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}
+mv $RPM_BUILD_ROOT/usr/man $RPM_BUILD_ROOT/%{_mandir}
+perl -p -i -e 's,^/usr/man/,/usr/share/man/,; s/$/.gz/ if m{^/usr/share/man/man(.*?)/.*\.\1$}' INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%changelog
-* Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 1.2.0-4.ceda
-- comment out renaming of nosetests executable
-
-* Mon Dec 17 2012  <builderdev@builder.jc.rl.ac.uk> - 1.2.0-3.ceda
-- add BuildRequires setuptools, else tools not included properly
-
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
-%doc README.txt
