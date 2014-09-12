@@ -1,0 +1,36 @@
+#!/bin/sh
+
+#
+# make a spec file for python2.7 package
+# this version does not attempt to parse the auto-generated specfile
+# but puts it up alongside the template file in an editor so it's a quick job 
+# to replace the relevant tokens
+#
+
+name=$1
+
+base=/home/builderdev/rpmbuild/
+tarfile=`ls /$base/SOURCES/$name*.tar.* | tail -1`
+specdir=$base/SPECS
+specname=python27-$name.spec
+tmpspec=/tmp/tmpspec
+
+tmpunpack=/home/builderdev/tmp/$name.tmp
+mkdir $tmpunpack || exit 1
+cd $tmpunpack
+tar xfz $tarfile || tar xfj $tarfile
+cd $name*
+python2.7 setup.py bdist_rpm --spec-only
+cp dist/*.spec $tmpspec
+rm -fr $tmpunpack
+
+cd $specdir
+cp python27-TEMPLATE.spec $specname
+emacs $specname $tmpspec
+
+cat <<EOF
+====================================
+cd $specdir
+rpmbuild -bb $specname
+====================================
+EOF
