@@ -1,9 +1,11 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 0.9.8.1
+Version: 0.9.8.3
 Release: 1.ceda%{?dist}
 Source0: cf-%{version}.tar.gz
+Source1: cfa.1
+Source2: cfdump.1
 License: OSI Approved
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
@@ -41,8 +43,9 @@ The package provides command line utilities for viewing CF fields (cfdump) and a
 
 %prep
 %setup -n cf-%{version}
-#%patch0 -p1
-#%patch1 -p1
+mkdir scripts/man1
+cp %{SOURCE1} scripts/man1
+cp %{SOURCE2} scripts/man1
 
 %build
 python2.7 setup.py build
@@ -56,10 +59,9 @@ tmp_man1dir=$RPM_BUILD_ROOT/%{man1dir}
 mkdir -p $tmp_man1dir
 cp scripts/man1/*.1 $tmp_man1dir
 
-# (at 0.9.8.1)
 # weights.py and weights2.py have syntax errors - removed compiled versions 
 # from file list
-perl -i -n -e 'print unless /\/weights(2)?.(pyo|pyc)/' INSTALLED_FILES
+#perl -i -n -e 'print unless /\/weights(2)?.(pyo|pyc)/' INSTALLED_FILES
 
 # for i in cfa cfdump
 # do
@@ -77,6 +79,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc %man1dir/*.1.gz
 
 %changelog
+
+* Thu Oct 23 2014 root <root@jasmin-sci1-dev.ceda.ac.uk> - 0.9.8.3-1.ami
+- update to 0.9.8.3
 
 * Mon Jan 14 2013  <builderdev@builder.jc.rl.ac.uk> - 0.9.6-2.ceda
 - add manpages

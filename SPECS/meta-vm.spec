@@ -46,6 +46,7 @@ Requires: geany >= 0.21
 Requires: geos >= 3.3.6-2.ceda
 Requires: geos-devel >= 3.3.6-2.ceda
 Requires: git >= 1.7.1
+Requires: gitk >= 1.7.1
 Requires: gnuplot >= 4.2.6
 Requires: grib_api >= 1.12.1-1.ceda
 Requires: grib_api-devel >= 1.12.1-1.ceda
@@ -184,6 +185,7 @@ Adds configuration for Lotus VM
 -        python27-nose >= 1.3.4-1.ceda
 -        python27-pyspharm >= 1.0.8-1.ceda
 -        python27-windspharm >= 1.3.1-1.ceda
+-    gitk >= 1.7.1
 * Fri Jul 11 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-22.ceda
 - deprecate gedit
 - add gsl-devel and gsl-static

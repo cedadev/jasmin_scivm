@@ -1,5 +1,5 @@
 %define pname iris
-%define version 1.7.1
+%define version 1.7.2
 %define release 1.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets
@@ -46,6 +46,9 @@ mv $RPM_BUILD_ROOT/usr/iris $RPM_BUILD_ROOT/%{docdir}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Mon Nov  3 2014  <builderdev@builder.jc.rl.ac.uk> - 1.7.2-1.ceda%{?dist}
+- update to 1.7.2, no other changes needed
+
 * Thu Feb 20 2014  <builderdev@builder.jc.rl.ac.uk> - 1.6.1-1.ceda%{?dist}
 - upgrade to 1.6.1, adding a number of dependencies
 

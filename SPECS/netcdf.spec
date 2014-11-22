@@ -1,6 +1,6 @@
 Name: netcdf
 Version: 4.3.2
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-%{version}.tar.gz	
@@ -44,7 +44,7 @@ For further information see the description for the netcdf (non-devel) package.
 %setup -n netcdf-%{version}
 
 %build				
-%configure --enable-netcdf-4 --with-pic
+%configure --enable-netcdf-4 --with-pic --enable-pnetcdf
 make				
 
 %install			
@@ -97,6 +97,8 @@ fi
 %{_includedir}/netcdf.h
 
 %changelog
+* Tue Sep 30 2014  <builderdev@builder.jc.rl.ac.uk> - 4.3.2-1.ceda
+- --enable-pnetcdf
 * Thu Sep 11 2014 Alan Iwi - 4.3.1-2.ceda
 - update to 4.3.2
 * Thu Jan 23 2014 Alan Iwi - 4.3.1-1.ceda
