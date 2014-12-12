@@ -1,8 +1,8 @@
-%global netcdf_version 4.3.1
+%global netcdf_version 4.3.2
 
 Name: netcdf-fortran
 Version: 4.2
-Release: 2.ceda%{?dist}
+Release: 3.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-fortran-%{version}.tar.gz	

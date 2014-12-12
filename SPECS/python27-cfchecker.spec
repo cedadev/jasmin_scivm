@@ -3,8 +3,8 @@
 Summary: The NetCDF Climate Forcast Conventions compliance checker
 Name: python27-%{pname}
 Version: 2.0.5
-Release: 3.ceda%{?dist}
-Source0: %{pname}-9cb6a90.tar.gz
+Release: 4.ceda%{?dist}
+Source0: %{pname}-cd671f.tar.gz
 License: UNKNOWN
 Group: Scientific support
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 %{spooldir}
 
 %changelog
+* Thu Sep 11 2014  <builderdev@builder.jc.rl.ac.uk> - 2.0.5-4.ceda
+- move to git release cd671f
+
 * Tue Jan 14 2014  <builderdev@builder.jc.rl.ac.uk> - 2.0.5-2.ceda
 - nove to git release 9cb6a90
 

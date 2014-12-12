@@ -82,8 +82,8 @@ class TestNetCDF4(TestCase):
     def setUp(self):
         import netCDF4
 
-        test_file = os.path.join(TEST_DIR, 'my_string_file.nc')
-        self.d = netCDF4.open(test_file)
+        test_file = os.path.join(TESTS_DIR, 'data/my_string_file.nc')
+        self.d = netCDF4.Dataset(test_file)
 
     def test_format(self):
         # Quick sanity check

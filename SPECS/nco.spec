@@ -1,5 +1,5 @@
 Name: nco
-Version: 4.4.1
+Version: 4.4.2
 Release: 1.ceda%{?dist}
 License: GPL v3
 Group: Scientific support	
