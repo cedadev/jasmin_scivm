@@ -1,5 +1,5 @@
 %define pname iris
-%define version 1.7.2
+%define version 1.7.3
 %define release 1.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets

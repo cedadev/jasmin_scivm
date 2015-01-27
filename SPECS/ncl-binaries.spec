@@ -1,11 +1,12 @@
 Summary: NCAR Command Language
 Name: ncl
 Version: 6.1.2
-Release: 1.ceda%{dist}
+Release: 2.ceda%{dist}
 License: UCAR
 Group: Scientific support
 URL: http://www.ncl.ucar.edu/
 Source0: ncl_ncarg-6.1.2.Linux_RHEL6.2_x86_64_gcc446.tar.gz
+Patch0: ncl-shea_util.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix} 
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
@@ -25,6 +26,7 @@ rm -fr ncl
 mkdir ncl
 cd ncl
 tar xvfz %{SOURCE0}
+patch -p0 < %{PATCH0}
 
 %build
 

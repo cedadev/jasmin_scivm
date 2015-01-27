@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 23.ceda
+Release: 25.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -28,8 +28,10 @@ Requires: blas >= 3.2.1
 Requires: cdo >= 1.5.6.1-3.ceda
 Requires: cmor-devel >= 2.8.2-2.ceda
 Requires: ddd >= 3.3.12
+Requires: dvipng >= 1.11
 Requires: emacs >= 23.1
 Requires: emacs-gnuplot >= 4.2.6
+Requires: ferret >= 6.93-1.ceda
 Requires: fftw >= 3.2.1
 Requires: fftw-devel >= 3.2.1
 Requires: firefox >= 17.0.3
@@ -47,6 +49,7 @@ Requires: geos >= 3.3.6-2.ceda
 Requires: geos-devel >= 3.3.6-2.ceda
 Requires: git >= 1.7.1
 Requires: gitk >= 1.7.1
+Requires: glibc-static >= 2.12
 Requires: gnuplot >= 4.2.6
 Requires: grib_api >= 1.12.1-1.ceda
 Requires: grib_api-devel >= 1.12.1-1.ceda
@@ -60,15 +63,20 @@ Requires: hdf-devel >= 4.2.9-1.ceda
 Requires: hdf-devel >= 4.2.9-1.ceda
 Requires: hdf5 >= 1.8.9-2.ceda
 Requires: hdf5-devel >= 1.8.9-2.ceda
+# Requires: jasper-devel >= 1.900
 Requires: ksh >= 20100621
 Requires: lapack >= 3.2.1
 Requires: lapack-devel >= 3.2.1
 Requires: leafpad >= 0.8.18
 Requires: libuuid >= 2.17.2
 Requires: libuuid >= 2.17.2
+Requires: lxterminal >= 0.1.9-1.ceda
 Requires: mo_unpack >= 2.0.1-1.ceda
+Requires: mtk >= 1.4.3-1.ceda
+Requires: mtk-devel >= 1.4.3-1.ceda
+Requires: mtk-python27 >= 1.4.3-1.ceda
 Requires: ncBrowse >= 1.6.5
-Requires: ncl >= 6.1.2-1.ceda
+Requires: ncl >= 6.1.2-2.ceda
 Requires: nco >= 4.4.2-1.ceda
 Requires: nco-devel >= 4.4.2-1.ceda
 Requires: ncview >= 2.1.2-1.ceda
@@ -83,6 +91,7 @@ Requires: octave >= 3.6.4-1.ceda
 Requires: octave-devel >= 3.6.4-1.ceda
 Requires: octave-doc >= 3.6.4-1.ceda
 Requires: octave-octcdf >= 1.1.5-1.ceda
+Requires: perl-XML-Parser >= 2.36
 Requires: perl-core >= 5.10.1
 Requires: perl-devel >= 5.10.1
 Requires: python27 >= 2.7.3-3.ceda
@@ -95,12 +104,12 @@ Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-cartopy >= 0.7.0-2.ceda
 Requires: python27-cdat_lite >= 6.0rc2-4.ceda
-Requires: python27-cf >= 0.9.8.1-1.ceda
+Requires: python27-cf >= 0.9.8.3-1.ceda
 Requires: python27-cf-checker >= 2.0.5-4.ceda
 Requires: python27-cfplot >= 1.2-1.ceda
 Requires: python27-cmor >= 2.8.2-2.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 1.7.1-1.ceda
+Requires: python27-iris >= 1.7.3-1.ceda
 Requires: python27-jasmin_cis >= 0.7-1.ceda
 Requires: python27-matplotlib >= 1.2.0-1.ceda
 Requires: python27-nappy >= 1.1.2-1.ceda
@@ -150,8 +159,9 @@ You should install either jasmin-sci-vm or jasmin-lotus-vm, which depend on this
 %package -n jasmin-sci-vm
 Summary: Adds configuration for JASMIN science VM
 Requires: jasmin-common-vm = %{version}-%{release}
-Requires: mpich2 >= 1.2.1
-Requires: python27-mpi4py-mpich2 >= 1.3
+Requires: mpich >= 3.1-4
+Requires: python27-mpi4py-mpich >= 1.3-1.ceda
+
 %description -n jasmin-sci-vm
 Adds configuration for JASMIN science VM
 
@@ -171,6 +181,24 @@ Adds configuration for Lotus VM
 %files -n lotus-vm
 
 %changelog
+* Tue Jan 27 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1-25.ceda
+- perl-XML-Parser >= 2.37
+- dvipng >= 1.11
+- glibc-static >= 2.12
+  # - jasper-devel >= 1.900 - intended but problems so excluded for now
+- mtk >= 1.4.3-1.ceda
+- mtk-python27 >= 1.4.3-1.ceda
+- mtk-devel >= 1.4.3-1.ceda
+- ferret >= 6.93-1.ceda
+- ncl >= 6.1.2-2.ceda
+- python27-iris >= 1.7.3-1.ceda
+
+* Sat Nov 22 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-24.ceda
+-  lxterminal-0.1.9-1.ceda
+-  python27-cf-0.9.8.3-1.ceda
+-  python27-iris-1.7.2-1.ceda
+-  python27-mpi4py-mpich-1.3-1.ceda in jasmin-sci-vm
+
 * Fri Sep 12 2014  <builderdev@builder.jc.rl.ac.uk> - 1.1-23.ceda
 -        bbcp >= 140414.00.1-1.ceda
 -        bbcp-config >= 1-1.ceda
