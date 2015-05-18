@@ -9,7 +9,7 @@ from cStringIO import StringIO
 
 import autodoc
 import config
-from tracWikiClient import TracWikiClient
+from github_wiki_client import GithubWikiClient
 
 class UpdateWiki:
 
@@ -19,7 +19,7 @@ class UpdateWiki:
     def _write_autodoc_table_to_fh(self, fh):
         m = autodoc.MakeDocumentation(verbose = False)
         m.add_all_packages()
-        m.write_trac_table(fh)
+        m.write_markdown_table(fh)
 
     def _get_autodoc_table_as_string(self):
         if self.just_testing:
@@ -29,7 +29,7 @@ class UpdateWiki:
         return fh.getvalue()
 
     def _get_updated_content(self, content):
-        regexp = ("(.*%s.*?}}})(.*)({{{.*?%s.*)$" % 
+        regexp = ("(.*%s.*?-->)(.*)(<!--.*?%s.*)$" % 
                   (config.wiki_token_1, config.wiki_token_2))
         rem = re.match(regexp, content, flags=re.DOTALL)
         if not rem:
@@ -40,12 +40,14 @@ class UpdateWiki:
         return head + new_table + tail
 
     def update_wiki(self):
-        twc = TracWikiClient(top_level_url = config.wiki_top_url,
-                             creds_file = config.wiki_creds_file)
-        content = twc.read_page(config.wiki_page)
+        gwc = GithubWikiClient(path = config.wiki_path,
+                               local_path = config.wiki_workdir,                               
+                               creds_file = config.wiki_creds_file)
+        content = gwc.read_page(config.wiki_page)
         updated_content = self._get_updated_content(content)
-        twc.write_page(config.wiki_page, updated_content,
-                       comment="automated update")
+        if content != updated_content:
+            gwc.write_page(config.wiki_page, updated_content,
+                           message="automated update")
 
 if __name__ == '__main__':
     #u = UpdateWiki(just_testing = True)

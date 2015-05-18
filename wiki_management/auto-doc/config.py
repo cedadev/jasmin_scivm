@@ -23,9 +23,11 @@ yumdownloader_command = "sudo yumdownloader"
 # yumdownloader --urls)
 try_download_every_time = False
 
-# wiki editing stuff
-wiki_top_url = "http://proj.badc.rl.ac.uk/cedaservices/"
-wiki_page = "JASMIN/AnalysisPlatform/Packages"
-wiki_creds_file = "/home/jap/.wiki_auth"
+# wiki editing stuf
+wiki_path = "cedadev/jasmin_scivm"
+wiki_page = "Packages"
+wiki_creds_file = "/home/jap/.github_auth"
+wiki_workdir = "/home/jap/wiki_working_dir"
+
 wiki_token_1 = "__start_of_automated_list__"
 wiki_token_2 = "__end_of_automated_list__"

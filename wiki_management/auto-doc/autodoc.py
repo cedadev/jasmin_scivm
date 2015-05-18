@@ -282,35 +282,26 @@ class MakeDocumentation(object):
             print (r.name, r.path, r.is_local, r.version, r.summary, r.build_host,
                    r.dependencies, r.url)
     
-    def _write_trac_table_to_fh(self, fh):
+    def _write_markdown_table_to_fh(self, fh):
         """
-        (see write_trac_table)
+        (see write_markdown_table)
         """
-        fh.write("||= Package =||= Version =||= Release =||= Build date =||= Summary =||\n")
+        fh.write("| **Package** | Version | Release | Build date | Summary |\n")
+        fh.write("| ------- | ------- | ------- | ---------- | ------- |\n")
         for rpm in self.packages_in_name_order:
-            fh.write("|| %s || %s || %s || %s || %s ||\n" %
-                     (self._trac_link(rpm.name, rpm.url),
+            fh.write("| %s | %s | %s | %s | %s |\n" %
+                     (self._markdown_link(rpm.name, rpm.url),
                       rpm.version,
                       rpm.release,
                       rpm.build_time_ascii,
-                      self._trac_escape_upper_camel_case(rpm.summary)))
+                      rpm.summary))
 
-    def _trac_link(self, link_text, target):
+    def _markdown_link(self, link_text, target):
         if target:
-            return "[%s %s]" % (target, link_text)
+            return "[%s](%s)" % (link_text, target)
         return link_text
 
-    #-----
-    def _trac_escape_upper_camel_case(self, string_):
-        return self._re_ucc_sub(self._re_prepend_bang, string_)
-
-    _re_ucc_sub = re.compile(r"\b[A-Z][^\s]*[a-z][^\s]*[A-Z]").sub
-
-    def _re_prepend_bang(self, m):
-        return "!" + m.group(0)
-    #-----
-
-    def write_trac_table(self, out = sys.stdout):
+    def write_markdown_table(self, out = sys.stdout):
         """
         Write a table to specified output, which can be an open file handle
         or a filename
@@ -319,14 +310,14 @@ class MakeDocumentation(object):
         if isinstance(out, str):
             file_opened = out
             out = open(out, "w")
-        self._write_trac_table_to_fh(out)
+        self._write_markdown_table_to_fh(out)
         if file_opened:
             out.close()
 
 
 def main():
     """
-    writes a trac table for 
+    writes wiki page to specified file or to stdout
     """
     m = MakeDocumentation(verbose = False)
     m.add_all_packages()
@@ -334,7 +325,7 @@ def main():
         kwargs = {"out": sys.argv[1]}
     except IndexError:
         kwargs = {}
-    m.write_trac_table(**kwargs)
+    m.write_markdown_table(**kwargs)
 
 
 if __name__ == "__main__":
