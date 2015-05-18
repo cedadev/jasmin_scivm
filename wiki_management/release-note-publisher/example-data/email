@@ -1,0 +1,39 @@
+%# this file contains the email to be sent (headers and body)
+%# lines beginning "%#" will be stripped out
+%# other substitutions:
+%#    %V : version number of next release
+%#    %D : date of next update
+%#    %N : release notes for forthcoming releases
+%#
+From: CEDA Helpdesk <support@ceda.ac.uk>
+To: JASMIN Users list <JASMIN-USERS@JISCMAIL.AC.UK>
+Subject: Updates to JASMIN Analysis Platform on %D
+
+Dear JASMIN user,
+
+This is to let you know that on %D,
+the JASMIN Analysis Platform software on the JASMIN/CEMS machines
+(jasmin-sci1, jasmin-sci2, cems-sci1) and LOTUS will be upgraded 
+to version %V.
+
+Release notes are as follows:
+
+---------------------------------------------------------------------
+%N---------------------------------------------------------------------
+
+Users requiring earlier access to the updated software may log into 
+jasmin-sci1-test.ceda.ac.uk, where it is already installed.  Please 
+be aware that this test machine may be subject to later early upgrades
+or other disruption without warning.
+
+The packages are also already available on the JASMIN 'yum' repository, 
+so managers of project virtual machines within JASMIN can update the
+software with the command "yum update jasmin-sci-vm".  They are also
+available on the yum repository at http://dist.ceda.ac.uk/yumrepo/ 
+for installation on machines outside of JASMIN/CEMS (supported only on 
+Red Hat Enterprise Linux version 6).
+
+Regards,
+
+CEDA Team
+http://www.ceda.ac.uk/
