@@ -286,15 +286,25 @@ class MakeDocumentation(object):
         """
         (see write_markdown_table)
         """
-        fh.write("| **Package** | Version | Release | Build date | Summary |\n")
-        fh.write("| ------- | ------- | ------- | ---------- | ------- |\n")
+        # fh.write("| **Package** | Version | Release | Build date | Summary |\n")
+        # fh.write("| ------- | ------- | ------- | ---------- | ------- |\n")
+        # for rpm in self.packages_in_name_order:
+        #     fh.write("| %s | %s | %s | %s | %s |\n" %
+        #              (self._markdown_link(rpm.name, rpm.url),
+        #               rpm.version,
+        #               rpm.release,
+        #               rpm.build_time_ascii,
+        #               rpm.summary))
+
         for rpm in self.packages_in_name_order:
-            fh.write("| %s | %s | %s | %s | %s |\n" %
-                     (self._markdown_link(rpm.name, rpm.url),
+            fh.write("* **%s** - %s. _Version_ %s-%s, _build date_ %s.\n" % 
+                     (self._markdown_link(rpm.name, rpm.url), 
+                      rpm.summary,
                       rpm.version,
                       rpm.release,
-                      rpm.build_time_ascii,
-                      rpm.summary))
+                      rpm.build_time_ascii))
+            fh.write("\n")
+
 
     def _markdown_link(self, link_text, target):
         if target:
