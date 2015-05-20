@@ -271,8 +271,8 @@ class MakeDocumentation(object):
     @property
     def packages_in_name_order(self):
         names = self.packages.keys()
-        names.sort()
-        return map(lambda name: self.packages[name], names)        
+        names.sort(key = lambda s: s.lower())
+        return map(lambda name: self.packages[name], names)
 
     def list_packages(self):
         """
