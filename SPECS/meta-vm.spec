@@ -57,13 +57,19 @@ Requires: git >= 1.7.1
 Requires: gitk >= 1.7.1
 Requires: glibc-static >= 2.12
 Requires: gnuplot >= 4.2.6
-Requires: grass >= 6.4.4-1.ceda
-Requires: grass-devel >= 6.4.4-1.ceda
-Requires: grass-libs >= 6.4.4-1.ceda
-Requires: grib_api >= 1.12.1-1.ceda
-Requires: grib_api-devel >= 1.12.1-1.ceda
-Requires: grib_api-fortran >= 1.12.1-1.ceda
-Requires: grib_api-python27 >= 1.12.1-1.ceda
+
+# grass: force exact versions to avoid having to put epel in 
+# excludes
+Requires: grass = 6.4.4-1.ceda.el6
+Requires: grass-devel = 6.4.4-1.ceda.el6
+Requires: grass-libs = 6.4.4-1.ceda.el6
+
+# and likewise
+Requires: grib_api = 1.12.1-1.ceda.el6
+Requires: grib_api-devel = 1.12.1-1.ceda.el6
+Requires: grib_api-fortran = 1.12.1-1.ceda.el6
+Requires: grib_api-python27 = 1.12.1-1.ceda.el6
+
 Requires: gsl-devel >= 1.13
 Requires: gsl-static >= 1.13
 Requires: gv >= 3.7.1
