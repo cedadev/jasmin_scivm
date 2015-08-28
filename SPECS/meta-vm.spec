@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 25.ceda
+Release: 26.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -16,18 +16,24 @@ Source RPM for meta-RPMs for JASMIN science VM and for Lotus VM
 
 %package -n jasmin-common-vm
 Summary: Adds common configuration for JASMIN science VM and for Lotus VM
+
+Obsoletes: gdal-ruby
+
+# Requires: jasper-devel >= 1.900
 Requires: ImageMagick >= 6.5.4.7
 Requires: R >= 2.10.0
 Requires: R-devel >= 2.10.0
+Requires: R-ncdf >= 1.6.8-1.ceda
 Requires: arpack >= 3.0.1
 Requires: atlas >= 3.8.4
 Requires: atlas-devel >= 3.8.4
 Requires: bbcp >= 140414.00.1-1.ceda
 Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
-Requires: cdo >= 1.5.6.1-3.ceda
+Requires: cdo >= 1.6.9-1.ceda
 Requires: cmor-devel >= 2.8.2-2.ceda
 Requires: ddd >= 3.3.12
+Requires: diffuse >= 0.4.3-1
 Requires: dvipng >= 1.11
 Requires: emacs >= 23.1
 Requires: emacs-gnuplot >= 4.2.6
@@ -36,21 +42,24 @@ Requires: fftw >= 3.2.1
 Requires: fftw-devel >= 3.2.1
 Requires: firefox >= 17.0.3
 Requires: gcc-gfortran >= 4.4.7
-Requires: gdal >= 1.9.2-1.ceda
-Requires: gdal-devel >= 1.9.2-1.ceda
-Requires: gdal-doc >= 1.9.2-1.ceda
-Requires: gdal-java >= 1.9.2-1.ceda
-Requires: gdal-javadoc >= 1.9.2-1.ceda
-Requires: gdal-perl >= 1.9.2-1.ceda
-Requires: gdal-python27 >= 1.9.2-1.ceda
-Requires: gdal-ruby >= 1.9.2-1.ceda
+Requires: gdal >= 2.0.0-1.ceda
+Requires: gdal-devel >= 2.0.0-1.ceda
+Requires: gdal-doc >= 2.0.0-1.ceda
+Requires: gdal-java >= 2.0.0-1.ceda
+Requires: gdal-javadoc >= 2.0.0-1.ceda
+Requires: gdal-libs >= 2.0.0-1.ceda
+Requires: gdal-perl >= 2.0.0-1.ceda
+Requires: gdal-python27 >= 2.0.0-1.ceda
 Requires: geany >= 0.21
-Requires: geos >= 3.3.6-2.ceda
-Requires: geos-devel >= 3.3.6-2.ceda
+Requires: geos >= 3.5.0-1.ceda
+Requires: geos-devel >= 3.5.0-1.ceda
 Requires: git >= 1.7.1
 Requires: gitk >= 1.7.1
 Requires: glibc-static >= 2.12
 Requires: gnuplot >= 4.2.6
+Requires: grass >= 6.4.4-1.ceda
+Requires: grass-devel >= 6.4.4-1.ceda
+Requires: grass-libs >= 6.4.4-1.ceda
 Requires: grib_api >= 1.12.1-1.ceda
 Requires: grib_api-devel >= 1.12.1-1.ceda
 Requires: grib_api-fortran >= 1.12.1-1.ceda
@@ -60,16 +69,16 @@ Requires: gsl-static >= 1.13
 Requires: gv >= 3.7.1
 Requires: hdf >= 4.2.9-1.ceda
 Requires: hdf-devel >= 4.2.9-1.ceda
-Requires: hdf-devel >= 4.2.9-1.ceda
 Requires: hdf5 >= 1.8.9-2.ceda
 Requires: hdf5-devel >= 1.8.9-2.ceda
-# Requires: jasper-devel >= 1.900
+Requires: hdfeos2 >= 19.1.00-1.ceda
+Requires: jasper-devel >= 1.900.1-16
 Requires: ksh >= 20100621
 Requires: lapack >= 3.2.1
 Requires: lapack-devel >= 3.2.1
 Requires: leafpad >= 0.8.18
 Requires: libuuid >= 2.17.2
-Requires: libuuid >= 2.17.2
+Requires: llvm-devel >= 3.4.2-4
 Requires: lxterminal >= 0.1.9-1.ceda
 Requires: mo_unpack >= 2.0.1-1.ceda
 Requires: mtk >= 1.4.3-1.ceda
@@ -87,10 +96,12 @@ Requires: netcdf-c++-devel >= 4.2-3.ceda
 Requires: netcdf-devel >= 4.3.2-1.ceda
 Requires: netcdf-fortran >= 4.2-3.ceda
 Requires: netcdf-fortran-devel >= 4.2-3.ceda
-Requires: octave >= 3.6.4-1.ceda
-Requires: octave-devel >= 3.6.4-1.ceda
-Requires: octave-doc >= 3.6.4-1.ceda
-Requires: octave-octcdf >= 1.1.5-1.ceda
+Requires: octave >= 4.0.0-1.ceda
+Requires: octave-devel >= 4.0.0-1.ceda
+Requires: octave-doc >= 4.0.0-1.ceda
+Requires: octave-octcdf >= 1.1.8-1.ceda
+Requires: pdftk >= 2.02-1
+Requires: perl-Image-ExifTool >= 9.98-1.ceda
 Requires: perl-XML-Parser >= 2.36
 Requires: perl-core >= 5.10.1
 Requires: perl-devel >= 5.10.1
@@ -102,16 +113,17 @@ Requires: python27-Pydap >= 3.1.RC1-2.ceda
 Requires: python27-Pygments >= 1.5-3.ceda
 Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
-Requires: python27-cartopy >= 0.7.0-2.ceda
+Requires: python27-biggus >= 0.11.0-1.ceda
+Requires: python27-cartopy >= 0.11.2-1.ceda
 Requires: python27-cdat_lite >= 6.0rc2-4.ceda
-Requires: python27-cf >= 0.9.8.3-1.ceda
-Requires: python27-cf-checker >= 2.0.5-4.ceda
+Requires: python27-cf >= 1.0.3-1.ceda
+Requires: python27-cf-checker >= 2.0.6-1.ceda
 Requires: python27-cfplot >= 1.2-1.ceda
 Requires: python27-cmor >= 2.8.2-2.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 1.7.3-1.ceda
-Requires: python27-jasmin_cis >= 0.7-1.ceda
-Requires: python27-matplotlib >= 1.2.0-1.ceda
+Requires: python27-iris >= 1.8.1-1.ceda
+Requires: python27-jasmin_cis >= 1.0.0-1.ceda
+Requires: python27-matplotlib >= 1.4.3-1.ceda
 Requires: python27-nappy >= 1.1.2-1.ceda
 Requires: python27-netCDF4 >= 1.0.7-2.ceda
 Requires: python27-nose >= 1.3.4-1.ceda
@@ -127,7 +139,7 @@ Requires: python27-pyspharm >= 1.0.8-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
 Requires: python27-rpy2 >= 2.3.9-1.ceda
 Requires: python27-scipy >= 0.13.1-1.ceda
-Requires: python27-setuptools >= 0.6c12dev_r88846-2.ceda
+Requires: python27-setuptools >= 18.2-1.ceda
 Requires: python27-shapefile >= 1.1.4-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
 Requires: python27-tornado >= 3.2-1.ceda
@@ -141,11 +153,13 @@ Requires: thea >= 0.1
 Requires: tk >= 8.5.7
 Requires: tk-devel >= 8.5.7
 Requires: tkdiff >= 4.2
+Requires: tmux >= 1.6-3
 Requires: udunits >= 2.1.24
 Requires: udunits-devel >= 2.1.24
 Requires: umutil >= 20130102-1.ceda
 Requires: uuid >= 1.6.1
 Requires: uuid-devel >= 1.6.1
+Requires: valgrind >= 3.8.1-8
 Requires: vim-enhanced >= 7.2.411
 Requires: xconv >= 1.92dev-1.ceda
 Requires: xemacs >= 21.5.31
@@ -181,6 +195,43 @@ Adds configuration for Lotus VM
 %files -n lotus-vm
 
 %changelog
+* Fri Aug 28 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1-26.ceda
+- octave >= 4.0.0-1.ceda
+- octave-devel >= 4.0.0-1.ceda
+- octave-doc >= 4.0.0-1.ceda
+- octave-octcdf >= 1.1.8-1.ceda
+- grass >= 6.4.4-1.ceda
+- grass-libs >= 6.4.4-1.ceda
+- grass-devel >= 6.4.4-1.ceda
+- python27-cf >= 1.0.3-1.ceda
+- python27-cartopy >= 0.11.2-1.ceda
+- python27-matplotlib >= 1.4.3-1.ceda
+- python27-setuptools >= 18.2-1.ceda
+- python27-biggus >= 0.11.0-1.ceda
+- R-ncdf >= 1.6.8-1.ceda
+- cdo >= 1.6.9-1.ceda
+- hdfeos2 >= 19.1.00-1.ceda
+- perl-Image-ExifTool >= 9.98-1.ceda
+- python27-jasmin_cis >= 1.0.0-1.ceda
+- python27-iris >= 1.8.1-1.ceda
+- python27-cf-checker >= 2.0.6-1.ceda
+- gdal-devel >= 2.0.0-1.ceda
+- gdal >= 2.0.0-1.ceda
+- gdal-python27 >= 2.0.0-1.ceda
+- gdal-perl >= 2.0.0-1.ceda
+- gdal-libs >= 2.0.0-1.ceda
+- gdal-java >= 2.0.0-1.ceda
+- gdal-javadoc >= 2.0.0-1.ceda
+- gdal-doc >= 2.0.0-1.ceda
+- geos >= 3.5.0-1.ceda
+- geos-devel >= 3.5.0-1.ceda
+- llvm-devel >= 3.4.2-4
+- valgrind >= 3.8.1-8
+- jasper-devel >= 1.900.1-16
+- diffuse >= 0.4.3-1
+- tmux >= 1.6-3
+- pdftk >= 2.02-1
+
 * Tue Jan 27 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1-25.ceda
 - perl-XML-Parser >= 2.37
 - dvipng >= 1.11

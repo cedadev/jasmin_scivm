@@ -1,4 +1,4 @@
-%define vmaj 18
+%define vmaj 19
 %define vmin 1.00
 
 Summary: HDF-EOS2 libraries
@@ -30,8 +30,10 @@ tar xvfZ %{SOURCE0}
 
 %build
 cd hdfeos
-export CFLAGS="-I/usr/include/hdf"
+export CFLAGS="-I/usr/include/hdf -Df2cFortran"
 export LDFLAGS="-L/usr/lib64/hdf" 
+export F77=gfortran
+export FC=gfortran
 %configure --with-pic --enable-install-include
 make
 
@@ -47,7 +49,7 @@ if test `whoami` == root; then
 fi
 
 %clean				
-rm -rf $RPM_BUILD_ROOT		
+#rm -rf $RPM_BUILD_ROOT		
 
 %postun
 if test `whoami` == root; then
@@ -62,6 +64,9 @@ fi
 %{_libdir}/*.la
 
 %changelog
+* Mon Jul 13 2015  <builderdev@builder.jc.rl.ac.uk> - 19.1.00-1.ceda
+- update to v19 and compile with Fortran support
+
 * Tue Jan 27 2015  <builderdev@builder.jc.rl.ac.uk> - 
 - Initial build.
 

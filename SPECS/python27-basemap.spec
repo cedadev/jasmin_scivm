@@ -1,8 +1,8 @@
 %define pname basemap
 Summary: Plot data on map projections with matplotlib
 Name: python27-%{pname}
-Version: 1.0.5
-Release: 4.ceda%{?dist}
+Version: 1.0.7
+Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: OSI Approved
 Group: Development/Libraries
@@ -11,8 +11,8 @@ Prefix: %{_prefix}
 Vendor: Jeff Whitaker <jeffrey.s.whitaker@noaa.gov>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://matplotlib.sourceforge.net/toolkits.html
-BuildRequires: python27-matplotlib >= 1.2, geos-devel >= 3.3.6
-Requires: python27-matplotlib >= 1.2, geos >= 3.3.6
+BuildRequires: python27-matplotlib >= 1.4.3, geos-devel >= 3.5.0
+Requires: python27-matplotlib >= 1.4.3, geos >= 3.5.0
 Requires: python27
 BuildRequires: python27
 
@@ -37,6 +37,10 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Fri Aug 28 2015  <builderdev@builder.jc.rl.ac.uk> - 1.0.7-1.ceda
+- update to 1.0.7,
+-  updating deps to python27-matplotlib >= 1.4.3, geos >= 3.5.0
+
 * Tue Jan 22 2013  <builderdev@builder.jc.rl.ac.uk> - 1.0.5-4.ceda
 - require geos 3.3.6 (in order to use version built on JASMIN instead of one taken from Fedora)
 
@@ -45,5 +49,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
+%exclude /usr/lib/python2.7/site-packages/mpl_toolkits/__init__.py
 %exclude /usr/lib/python2.7/site-packages/mpl_toolkits/__init__.pyc
 %exclude /usr/lib/python2.7/site-packages/mpl_toolkits/__init__.pyo

@@ -1,6 +1,6 @@
 Name: geos
-Version: 3.3.6
-Release: 2.ceda%{?dist}
+Version: 3.5.0
+Release: 1.ceda%{?dist}
 License: LGPL v2.1
 Group: Development/Libraries
 Source: %{name}-%{version}.tar.bz2
@@ -68,9 +68,8 @@ fi
 
 %files				
 %defattr(-,root,root)
-%{_libdir}/libgeos_c.so.1.7.6
-%{_libdir}/libgeos_c.so.1
-%{_libdir}/libgeos-3.3.6.so
+%{_libdir}/libgeos_c.so.*
+%{_libdir}/libgeos-*.so
 
 %files devel
 %defattr(-,root,root)
@@ -86,6 +85,9 @@ fi
 
 
 %changelog
+* Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 3.5.0-1.ceda
+- upgrade to 3.5.0
+
 * Tue Jan 22 2013  <builderdev@builder.jc.rl.ac.uk> - 3.3.6-1.ceda
 - initial version
 
