@@ -11,7 +11,10 @@ Source2: ESMF_6_3_0rp1_doc.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Requires: python27 mpich
+Requires: netcdf-c++ netcdf-fortran lapack blas xerces-c
 BuildRequires: python27 mpich-devel
+BuildRequires: netcdf-c++-devel netcdf-fortran-devel lapack-devel blas-devel xerces-c-devel
+
 
 %description
 
@@ -62,14 +65,28 @@ export ESMF_CXX=/usr/lib64/mpich/bin/mpicxx
 export ESMF_MPIRUN=/usr/lib64/mpich/bin/mpirun
 export ESMF_MPIMPMDRUN=/usr/lib64/mpich/bin/mpiexec
 
-export CFLAGS="-fPIC -O2 "
-export CXXFLAGS="-fPIC -O2 "
-export FFLAGS="-fPIC -O2 "
-export FCFLAGS="-fPIC -O2 "
+export ESMF_CXXCOMPILEOPTS=-fPIC
+export ESMF_CXXLINKOPTS=-fPIC
+export ESMF_CXXOPTFLAG=-O2
+export ESMF_F90COMPILEOPTS=-fPIC
+export ESMF_F90LINKOPTS=-fPIC
+export ESMF_F90OPTFLAG=-O2
 
 export ESMF_DIR=`pwd`
 export ESMF_DIR=`pwd`
 export ESMF_INSTALL_PREFIX=$RPM_BUILD_ROOT/usr/lib/esmf
+
+export ESMF_NETCDF=split
+export ESMF_NETCDF_INCLUDE=/usr/include
+export ESMF_NETCDF_LIBPATH=/usr/lib64
+
+export ESMF_LAPACK=netlib
+export ESMF_LAPACK_LIBPATH=/usr/lib64
+
+export ESMF_XERCES=standard
+export ESMF_XERCES_INCLUDE=/usr/include
+export ESMF_XERCES_LIBPATH=/usr/lib64
+export ESMF_XERCES_LIBS=-lxerces-c
 EOF
 
 . ./envvars.sh
