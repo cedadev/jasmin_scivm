@@ -53,6 +53,7 @@ Documentation for the Earth System Modeling Framework software.
 
 %prep
 %setup -n esmf
+perl -p -i -e 's,python ,python2.7 ,' src/addon/ESMPy/setup.py
 
 %build
 
@@ -87,6 +88,7 @@ export ESMF_XERCES=standard
 export ESMF_XERCES_INCLUDE=/usr/include
 export ESMF_XERCES_LIBPATH=/usr/lib64
 export ESMF_XERCES_LIBS=-lxerces-c
+
 EOF
 
 . ./envvars.sh
