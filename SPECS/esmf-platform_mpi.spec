@@ -10,13 +10,17 @@ Source1: ESMF-license
 Source2: ESMF_6_3_0rp1_doc.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
-Requires: python27 platform_mpi
+# Noting that sct-platform-mpi is an STFC package that adds some scripts 
+# around platform_mpi.  Only really needed for bits in /etc/profile.d and 
+# /etc/ld.so.conf; the alternative is to set some environment variables
+# at run-time: MPI_ROOT and LD_LIBRARY_PATH.
+Requires: python27 sct-platform-mpi platform_mpi
 Requires: netcdf-c++ netcdf-fortran lapack blas xerces-c
 BuildRequires: python27 platform_mpi
 BuildRequires: netcdf-c++-devel netcdf-fortran-devel lapack-devel blas-devel xerces-c-devel
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-
+Provides: esmf
 
 %define mpi_lib_dir /opt/platform_mpi/lib/linux_amd64
 
@@ -52,6 +56,7 @@ Summary: Python 2.7 bindings for ESMF
 Group: Scientific support
 Requires: python27
 Requires: %{name} = %{version}-%{release}
+Provides: esmf-python27
 
 %description python27
 Python 2.7 bindings for the Earth System Modeling Framework software.
@@ -63,6 +68,13 @@ Group: Scientific support
 
 %description doc
 Documentation for the Earth System Modeling Framework software.
+
+
+# in autoreqs, exclude libraries that platform_mpi provides 
+# but which do not appear in the Provides metadata for platform_mpi
+%filter_from_requires /libmpi\.so/d;/libmpiCC\.so/d;/libmpio\.so/d
+%filter_setup
+
 
 %prep
 %setup -n esmf
@@ -115,7 +127,6 @@ make
 
 # and the python bindings
 pushd ./src/addon/ESMPy/
-
 python2.7 setup.py build --ESMFMKFILE=../../../lib/libO/Linux.gfortran.64.user.default/esmf.mk 
 popd
 
@@ -164,6 +175,7 @@ tar xvfz %{SOURCE2} -C $RPM_BUILD_ROOT/%{_docdir}/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
 
 %files
 %defattr(-,root,root,-)

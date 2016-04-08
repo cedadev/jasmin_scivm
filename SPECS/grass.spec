@@ -25,7 +25,7 @@
 
 Name:      grass
 Version:   6.4.4
-Release:   1.ceda%{?dist}
+Release:   3.ceda%{?dist}
 Summary:   GRASS - Geographic Resources Analysis Support System
 Group:     Applications/Engineering
 License:   GPLv2+
@@ -110,6 +110,7 @@ agencies and environmental consulting companies.
 %package libs
 Summary: GRASS (Geographic Resources Analysis Support System) runtime libraries
 Group: Applications/Engineering
+Requires: %{name} = %{version}-%{release}
 
 %description libs
 GRASS (Geographic Resources Analysis Support System) runtime libraries.
@@ -118,6 +119,7 @@ GRASS (Geographic Resources Analysis Support System) runtime libraries.
 Summary: GRASS (Geographic Resources Analysis Support System) development headers
 Group: Applications/Engineering
 Requires: %{name}%{?isa}-libs = %{version}-%{release}
+Requires: %{name} = %{version}-%{release}
 
 # Can be removed after EOL of EPEL5
 Requires: pkgconfig
@@ -376,6 +378,12 @@ fi
 
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 6.4.4-3.ceda
+- make -devel and -libs depend on exact base version
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 6.4.4-2.ceda
+- recompile with netcdf 4.4.0
+
 * Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 6.4.4-1.ceda
 - rebuilding from RedHat RPM on JASMIN
 

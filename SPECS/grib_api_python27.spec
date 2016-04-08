@@ -1,6 +1,6 @@
 # -*- Mode:rpm-spec -*-
 Summary: The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
-%define rel 1.ceda%{?dist}
+%define rel 2.ceda%{?dist}
 
 %define version 1.12.1
 %define pkgname grib_api
@@ -46,6 +46,11 @@ Packager: Software Support <software.support@ecmwf.int>
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda%{?dist}
+- xx
+- xx
+- xx
+
 * Thu Mar 15 2012 - Get the changelog from JIRA
 - Multiple bugfixes
 
@@ -96,7 +101,7 @@ exit 0
 %package devel
 Summary: Development files for %{pkgname}
 Group: Scientific/Libraries
-Requires: grib_api
+Requires: grib_api = %{version}
 %description devel
 Development files for %{pkgname}.
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
@@ -123,7 +128,7 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 %package %{_python_package}
 Summary: Python interface for %{pkgname}
 Group: Scientific/Libraries
-Requires: grib_api %{_python_package}
+Requires: grib_api = %{version} %{_python_package}
 %description %{_python_package}
 Python interface for %{pkgname}.
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
@@ -137,7 +142,7 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 %package fortran
 Summary: Fortran 90 interface for %{pkgname}
 Group: Scientific/Libraries
-Requires: grib_api
+Requires: grib_api = %{version}
 %description fortran
 Fortran 77 and 90 interface for %{pkgname}.
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1
@@ -150,3 +155,7 @@ and edition 2 messages.
 %prefix/lib*/*f77*
 %endif
 
+%changelog
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda
+- make -devel depend on exact version of base package

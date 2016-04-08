@@ -1,7 +1,7 @@
 Summary: netCDF access library for R
 Name: R-ncdf
 Version: 1.6.8
-Release: 1.ceda%{dist}
+Release: 2.ceda%{dist}
 License: GPLv2+
 Group: Applications/Engineering
 URL: http://cran.r-project.org/web/packages/ncdf/index.html
@@ -61,6 +61,9 @@ echo "install.packages('%{SOURCE0}', repo=NULL)" | R --no-save
 
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.6.8-2.ceda%{dist}
+- rebuild with netcdf 4.4.0
+
 * Wed Jul 15 2015  <builderdev@builder.jc.rl.ac.uk> - ncdf-1
 - Initial build.
 

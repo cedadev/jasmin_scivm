@@ -1,9 +1,10 @@
+%define full_version 4.4.0
 Name: netcdf
-Version: 4.3.2
-Release: 2.ceda%{?dist}
+Version: 4.4.0
+Release: 1.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
-Source: netcdf-%{version}.tar.gz	
+Source: netcdf-%{full_version}.tar.gz	
 URL: http://www.unidata.ucar.edu/software/netcdf/
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
 BuildRequires: gcc, hdf5-devel, zlib-devel, openssl-devel
@@ -41,10 +42,10 @@ This package contains the libraries needed to build other code requiring netCDF.
 For further information see the description for the netcdf (non-devel) package.
 
 %prep				
-%setup -n netcdf-%{version}
+%setup -n netcdf-%{full_version}
 
 %build				
-%configure --enable-netcdf-4 --with-pic --enable-pnetcdf
+%configure --enable-netcdf-4 --with-pic
 make				
 
 %install			
@@ -80,10 +81,10 @@ fi
 %{_bindir}/ncgen
 %{_bindir}/ncgen3
 %defattr(0644,root,root)			
-%{_libdir}/libnetcdf.so.7.2.0
 %{_libdir}/pkgconfig/netcdf.pc
 %{_libdir}/libnetcdf.so
-%{_libdir}/libnetcdf.so.7
+%{_libdir}/libnetcdf.so.*
+%{_libdir}/libnetcdf.settings
 %doc %{_mandir}/man1/nccopy.1.gz
 %doc %{_mandir}/man1/ncdump.1.gz
 %doc %{_mandir}/man1/ncgen.1.gz
@@ -95,8 +96,14 @@ fi
 %{_libdir}/libnetcdf.a
 %{_libdir}/libnetcdf.la
 %{_includedir}/netcdf.h
+%{_includedir}/netcdf_meta.h
+%{_includedir}/netcdf_mem.h
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.0-1.ceda
+- update to 4.4.0
+* Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 4.3.3-1.ceda
+- roll back pnetcdf, bump version (4.3.3.1), and recompile against hdf5-1.8.12
 * Tue Sep 30 2014  <builderdev@builder.jc.rl.ac.uk> - 4.3.2-1.ceda
 - --enable-pnetcdf
 * Thu Sep 11 2014 Alan Iwi - 4.3.1-2.ceda

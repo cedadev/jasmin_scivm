@@ -1,8 +1,8 @@
-%global netcdf_version 4.3.2
+%global netcdf_version 4.4.0
 
 Name: netcdf-fortran
-Version: 4.2
-Release: 3.ceda%{?dist}
+Version: 4.4.3
+Release: 1.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-fortran-%{version}.tar.gz	
@@ -77,26 +77,20 @@ fi
 %{_bindir}/nf-config
 %defattr(0644,root,root)			
 %{_libdir}/pkgconfig/netcdf-fortran.pc
-%{_libdir}/libnetcdff.so.5.3.1
-%{_libdir}/libnetcdff.so.5
+%{_libdir}/libnetcdff.so.*
 %{_libdir}/libnetcdff.so
-%doc %{_infodir}/netcdf-f90.info.gz
-%doc %{_infodir}/netcdf-f77.info.gz
-%doc %{_infodir}/netcdf-f77.info-1.gz
-%doc %{_infodir}/netcdf-f77.info-2.gz
-%exclude %{_infodir}/dir
-%doc %{_mandir}/man3/netcdf_f77.3.gz
-%doc %{_mandir}/man3/netcdf_f90.3.gz
+%doc %{_mandir}/man3/netcdf_fortran.3.gz
 
 %files devel
 %defattr(0644,root,root)			
 %{_libdir}/libnetcdff.la
 %{_libdir}/libnetcdff.a
 %{_includedir}/netcdf.inc
-%{_includedir}/typesizes.mod
-%{_includedir}/netcdf.mod
+%{_includedir}/*.mod
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.3-1.ceda
+- update to 4.4.3 and build against netcdf 4.4.0 (tweak file lists)
 * Thu Jan 23 2014  <builderdev@builder.jc.rl.ac.uk> - 4.2-1.ceda
 - update netcdf_version to 4.3.1
 * Fri Dec 14 2012 Alan Iwi

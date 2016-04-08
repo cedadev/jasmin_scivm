@@ -1,7 +1,7 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 1.0.3
+Version: 1.1.5
 Release: 1.ceda%{?dist}
 Source0: cf-python-%{version}.tar.gz
 Source1: cfa.1
@@ -13,7 +13,7 @@ Prefix: %{_prefix}
 Vendor: David Hassell <d.c.hassell at reading.ac.uk>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://cfpython.bitbucket.org/
-Requires: python27-netCDF4
+Requires: python27-netCDF4 esmf-python27
 BuildRequires: python27-netCDF4
 Requires: python27 python27-psutil
 BuildRequires: python27
@@ -90,6 +90,17 @@ rm -rf $RPM_BUILD_ROOT
 %{clibdir}/umfile.so
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1.5-1.ceda
+- update to 1.1.5
+
+
+* Tue Dec  1 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1.2-1.ceda
+- upgrade to 1.1.2 (1.1.1 wasn't released in JAP)
+- add dependency esmf-python27
+
+* Tue Nov 17 2015  <a.j.heaps@reading.ac.uk> - 1.1.1-1.ceda
+- upgrade to 1.1.1
+
 * Mon Aug 24 2015  <builderdev@builder.jc.rl.ac.uk> - 1.0.3-1.ceda
 - upgrade to 1.0.3
 

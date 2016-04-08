@@ -1,13 +1,14 @@
 Name: cdo
-Version: 1.6.9
+Version: 1.7.1
 Release: 1.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
 Source: cdo-%{version}.tar.gz	
+Patch0: cdo-utread.patch
 URL: https://code.zmaw.de/projects/cdo/wiki
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
-BuildRequires: gcc, gcc-c++, netcdf-devel
-Requires: netcdf
+BuildRequires: gcc, gcc-c++, netcdf-devel, grib_api-devel, fftw-devel, proj-devel, libcurl-devel, udunits-devel, hdf5-devel, uuid-devel, cmor-libs
+Requires: netcdf, grib_api, fftw, proj, libcurl, udunits, hdf5, uuid
 Summary:  Climate Data Operators is a set of operators for working on climate and NWP model data. 
 Prefix: /usr
 
@@ -26,9 +27,11 @@ Public License v2 (GPL).
 %prep				
 
 %setup
+%patch0 -p1
 
 %build				
-%configure --with-netcdf=/usr
+export LIBS="-ludunits2 -lnetcdf -lossp-uuid"
+%configure --with-netcdf=/usr --with-cmor=/usr --with-grib_api=/usr --with-fftw3 --with-proj=/usr --with-curl=/usr --with-udunits2=/usr
 make				
 
 %install			
@@ -53,6 +56,16 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.7.1-1.ceda
+- update to 1.7.1, recompile against netCDF 4.4.0
+- patch to fix ut_read issue
+
+* Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 1.7.0-2.ceda
+- recompile against hdf5-1.8.12
+
+* Fri Dec  4 2015  <builderdev@builder.jc.rl.ac.uk> - 1.7.0-1.ceda
+- bump version and add support for grib, cmor, fftw, proj, curl, udunits2
+
 * Fri May 22 2015  <builderdev@builder.jc.rl.ac.uk> - 1.6.9-1.ceda
 - version upgrade
 

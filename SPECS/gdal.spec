@@ -44,7 +44,7 @@
 
 Name:      gdal
 Version:   2.0.0
-Release:   1.ceda%{?dist}
+Release:   5.ceda%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -216,6 +216,7 @@ This package contains development files for GDAL.
 Summary: GDAL file format library
 Group: System Environment/Libraries
 Obsoletes: %{name}-ruby < 1.11.0-1
+Requires: %{name} = %{version}-%{release}
 
 %description libs
 This package contains the GDAL file format library.
@@ -387,6 +388,9 @@ sed -i "s|^mandir=.*|mandir='\${prefix}/share/man'|" configure
 # Remove man dir, as it blocks a build target.
 # It obviously slipped into the tarball and is not in Trunk (April 17th, 2011)
 #rm -rf man
+
+# fix all the python scripts to use explicitly python2.7
+find . -name '*.py' -type f | xargs sed -i 's,^#!/usr/bin/env python$,#!/usr/bin/env python2.7,'
 
 
 %build
@@ -789,6 +793,18 @@ rm -rf $RPM_BUILD_ROOT
 #Or as before, using ldconfig
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.0.0-5.ceda
+- make -libs depend on exact version of base package
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.0.0-4.ceda
+- modify python scripts to run explicitly under python 2.7
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.0.0-3.ceda
+- recompile against netCDF 4.4.0
+
+* Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 2.0.0-2.ceda
+- recompile against hdf5-1.8.12
+
 * Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 2.0.0-1.ceda
 - require patched hdf and use python 2.7
 - removed some maven stuff - per http://lists.ovirt.org/pipermail/users/2012-July/002795.html

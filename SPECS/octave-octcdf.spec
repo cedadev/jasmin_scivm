@@ -2,7 +2,7 @@
 
 Name:           octave-%{octpkg}
 Version:        1.1.8
-Release:        1.ceda%{?dist}
+Release:        3.ceda%{?dist}
 Summary:        A NetCDF interface for octave
 Group:          Applications/Engineering
 License:        GPLv2+
@@ -11,7 +11,7 @@ Source0:        http://downloads.sourceforge.net/octave/%{octpkg}-%{version}.tar
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  octave-devel >= 4.0.0
-BuildRequires:  netcdf-devel >= 4.3.2
+BuildRequires:  netcdf-devel >= 4.4.0
 
 Requires:       octave(api) = %{octave_api}
 Requires(post): octave
@@ -31,6 +31,7 @@ A NetCDF interface for octave.
 %install
 rm -fr %{buildroot}
 %octave_pkg_install
+touch $RPM_BUILD_ROOT/%{octpkgdir}/packinfo/.autoload
 
 %post
 %octave_cmd pkg rebuild
@@ -55,6 +56,12 @@ rm -fr %{buildroot}
 
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1.8-3.ceda
+- compile against netcdf 4.4.0
+
+* Mon Dec  7 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1.8-2.ceda
+- add .autoload (per ticket #32)
+
 * Fri Aug 28 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1.8-1.ceda
 - upgrade to 1.1.8 and rebuild against octave 4.0.0 and netcdf 4.3.2
 

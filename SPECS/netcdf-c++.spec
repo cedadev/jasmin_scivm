@@ -1,4 +1,4 @@
-%global netcdf_version 4.3.2
+%global netcdf_version 4.4.0
 
 Name: netcdf-c++
 Version: 4.2
@@ -92,6 +92,8 @@ fi
 
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.2-3.ceda
+- update netcdf version to 4.4.0
 * Thu Jan 23 2014  <builderdev@builder.jc.rl.ac.uk> - 4.2-2.ceda
 - update netcdf_version to 4.3.1
 * Fri Jun 21 2013 Alan Iwi
