@@ -2,7 +2,7 @@
 
 Name: netcdf-c++
 Version: 4.2
-Release: 3.ceda%{?dist}
+Release: 4.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-cxx4-%{version}.tar.gz	
@@ -92,7 +92,7 @@ fi
 
 
 %changelog
-* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.2-3.ceda
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.2-4.ceda
 - update netcdf version to 4.4.0
 * Thu Jan 23 2014  <builderdev@builder.jc.rl.ac.uk> - 4.2-2.ceda
 - update netcdf_version to 4.3.1

@@ -1,7 +1,7 @@
 Summary: nccmp compares two NetCDF files bitwise. 
 Name: nccmp
 Version: 1.7.5.1
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: GPL v2
 Group: Scientific support
 URL: http://nccmp.sourceforge.net/
@@ -60,6 +60,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc %{_mandir}/man1/nccmp.1.gz
 
 %changelog
+* Fri Apr  8 2016  <builderdev@builder.jc.rl.ac.uk> - 1.7.5.1-2.ceda
+- rebuild against netcdf 4.4.0
+
 * Sat Nov  7 2015  <builderdev@builder.jc.rl.ac.uk> - 
 - Initial build.
 

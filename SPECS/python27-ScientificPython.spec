@@ -2,7 +2,7 @@
 Summary: Various Python modules for scientific computing
 Name: python27-%{pname}
 Version: 2.9.4
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: CeCILL-C
 Group: Development/Libraries
@@ -37,6 +37,11 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Fri Apr  8 2016  <builderdev@builder.jc.rl.ac.uk> - 2.9.4-2.ceda
+- recompile against netcdf 4.4.0
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)

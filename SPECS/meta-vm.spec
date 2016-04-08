@@ -32,7 +32,6 @@ Requires: bbcp >= 140414.00.1-1.ceda
 Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
 Requires: cdo >= 1.7.1-1.ceda
-Requires: cmor-devel >= 2.9.2-2.ceda
 Requires: cmor-libs >= 2.9.2-3.ceda
 Requires: ddd >= 3.3.12
 Requires: diffuse >= 0.4.3-1
@@ -55,7 +54,6 @@ Requires: gdal-javadoc >= 2.0.0-5.ceda
 Requires: gdal-libs >= 2.0.0-5.ceda
 Requires: gdal-perl >= 2.0.0-5.ceda
 Requires: gdal-python27 >= 2.0.0-5.ceda
-Requires: gdl
 Requires: geany >= 0.21
 Requires: geos >= 3.5.0-2.ceda
 Requires: geos-devel >= 3.5.0-2.ceda
@@ -65,19 +63,19 @@ Requires: glibc-static >= 2.12
 Requires: gnuplot >= 4.2.6
 
 # force GraphicsMagick version for Octave
-Requires: GraphicsMagick-c++ = 1.3.20-3
+Requires: GraphicsMagick-c++ = 1.3.20-3.el6
 
 # grass: force exact versions to avoid having to put epel in 
 # excludes
-Requires: grass = 6.4.4-3.ceda
-Requires: grass-devel = 6.4.4-3.ceda
-Requires: grass-libs = 6.4.4-3.ceda
+Requires: grass = 6.4.4-3.ceda.el6
+Requires: grass-devel = 6.4.4-3.ceda.el6
+Requires: grass-libs = 6.4.4-3.ceda.el6
 
 # and likewise
-Requires: grib_api = 1.12.1-2.ceda
-Requires: grib_api-devel = 1.12.1-2.ceda
-Requires: grib_api-fortran = 1.12.1-2.ceda
-Requires: grib_api-python27 = 1.12.1-2.ceda
+Requires: grib_api = 1.12.1-2.ceda.el6
+Requires: grib_api-devel = 1.12.1-2.ceda.el6
+Requires: grib_api-fortran = 1.12.1-2.ceda.el6
+Requires: grib_api-python27 = 1.12.1-2.ceda.el6
 
 Requires: gsl-devel >= 1.13
 Requires: gsl-static >= 1.13
@@ -104,15 +102,15 @@ Requires: mtk >= 1.4.3-1.ceda
 Requires: mtk-devel >= 1.4.3-1.ceda
 Requires: mtk-python27 >= 1.4.3-1.ceda
 Requires: ncBrowse >= 1.6.5
-Requires: nccmp >= 1.7.5.1-1.ceda
+Requires: nccmp >= 1.7.5.1-2.ceda
 Requires: ncl >= 6.3.0-2.ceda
 Requires: nco >= 4.5.5-1.ceda
 Requires: nco-devel >= 4.5.5-1.ceda
 Requires: ncview >= 2.1.7-1.ceda
 Requires: nedit >= 5.5
 Requires: netcdf >= 4.4.0-1.ceda
-Requires: netcdf-c++ >= 4.2-3.ceda
-Requires: netcdf-c++-devel >= 4.2-3.ceda
+Requires: netcdf-c++ >= 4.2-4.ceda
+Requires: netcdf-c++-devel >= 4.2-4.ceda
 Requires: netcdf-devel >= 4.4.0-1.ceda
 Requires: netcdf-fortran >= 4.4.3-1.ceda
 Requires: netcdf-fortran-devel >= 4.4.3-1.ceda
@@ -134,7 +132,7 @@ Requires: python27-Jug >= 0.9.6-1.ceda
 Requires: python27-PIL >= 1.1.7-2.ceda
 Requires: python27-Pydap >= 3.1.RC1-2.ceda
 Requires: python27-Pygments >= 1.5-3.ceda
-Requires: python27-ScientificPython >= 2.9.4-1.ceda
+Requires: python27-ScientificPython >= 2.9.4-2.ceda
 Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-biggus >= 0.11.0-1.ceda
@@ -149,7 +147,6 @@ Requires: python27-cis >= 1.3.4-1.ceda
 Requires: python27-cmor >= 2.9.2-3.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
 Requires: python27-iris >= 1.9.2-1.ceda
-Requires: python27-jasmin_cis >= 1.0.0-1.ceda
 Requires: python27-matplotlib >= 1.4.3-1.ceda
 Requires: python27-nappy >= 1.1.2-2.ceda
 Requires: python27-netCDF4 >= 1.0.7-4.ceda
@@ -191,7 +188,7 @@ Requires: uuid >= 1.6.1
 Requires: uuid-devel >= 1.6.1
 Requires: valgrind >= 3.8.1-8
 Requires: vim-enhanced >= 7.2.411
-Requires: wkGTK-devel
+Requires: wxGTK-devel
 Requires: xconv >= 1.93-1.ceda
 Requires: xemacs >= 21.5.31
 Requires: xorg-x11-util-macros
@@ -234,7 +231,6 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %changelog
 * Fri Apr 8 2016 <alan.iwi@stfc.ac.uk> - 1.1-27.ceda
 -  cdo >= 1.7.1-1.ceda
--  cmor-devel >= 2.9.2-2.ceda
 -  cmor-libs >= 2.9.2-3.ceda
 -  emacs-common-ess >= 15.03.1-1.ceda
 -  emacs-ess >= 15.03.1-1.ceda
@@ -267,14 +263,14 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 -  hdfeos5 >= 1.15-1.ceda
 -  libcdms >= 6.0rc2-6.ceda
 -  libdrs >= 20130102-3.ceda
--  nccmp >= 1.7.5.1-1.ceda
+-  nccmp >= 1.7.5.1-2.ceda
 -  ncl >= 6.3.0-2.ceda
 -  nco >= 4.5.5-1.ceda
 -  nco-devel >= 4.5.5-1.ceda
 -  ncview >= 2.1.7-1.ceda
 -  netcdf >= 4.4.0-1.ceda
--  netcdf-c++ >= 4.2-3.ceda
--  netcdf-c++-devel >= 4.2-3.ceda
+-  netcdf-c++ >= 4.2-4.ceda
+-  netcdf-c++-devel >= 4.2-4.ceda
 -  netcdf-devel >= 4.4.0-1.ceda
 -  netcdf-fortran >= 4.4.3-1.ceda
 -  netcdf-fortran-devel >= 4.4.3-1.ceda
@@ -298,7 +294,7 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 -  python27-numpy >= 1.11.0-1.ceda
 -  python27-pygeode >= 1.0.4a-1.ceda
 -  python27-pygrib >= 2.0.1-1.ceda
--  python27-ScientificPython >= 2.9.4-1.ceda
+-  python27-ScientificPython >= 2.9.4-2.ceda
 -  python27-scipy >= 0.17.0-1.ceda
 -  R-ncdf >= 1.6.8-2.ceda
 -  udunits >= 2.1.24-3.ceda
@@ -308,13 +304,15 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 -  xconv >= 1.93-1.ceda
 
 and also 
-- gdl
 - gtk2-devel
 - p7zip
-- wkGTK-devel
+- wxGTK-devel
 - xorg-x11-util-macros
 
 - and GraphicsMagick-c++ version
+
+- and removing cmor-devel (obsoleted by cmor-libs)
+- and removing python27-jasmin_cis (obsoleted by python27-cis)
 
 * Fri Aug 28 2015  <builderdev@builder.jc.rl.ac.uk> - 1.1-26.ceda
 - octave >= 4.0.0-1.ceda
