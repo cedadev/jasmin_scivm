@@ -1,6 +1,6 @@
 Name: cdo
 Version: 1.7.1
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
 Source: cdo-%{version}.tar.gz	
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Tue May  3 2016  <builderdev@builder.jc.rl.ac.uk> - 1.7.1-2.ceda
+- rebuild against new grib_api
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.7.1-1.ceda
 - update to 1.7.1, recompile against netCDF 4.4.0
 - patch to fix ut_read issue

@@ -2,7 +2,7 @@
 
 Name: netcdf-fortran
 Version: 4.4.3
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-fortran-%{version}.tar.gz	
@@ -57,6 +57,9 @@ make
 rm -rf $RPM_BUILD_ROOT		
 make install DESTDIR=$RPM_BUILD_ROOT	
 
+# it is falsely claiming it has no f90, even though it does and it works...
+sed -i 's/has_f90="no"/has_f90="yes"/' $RPM_BUILD_ROOT/%{_bindir}/nf-config
+
 %post
 if test `whoami` == root; then
    echo "Running /sbin/ldconfig"
@@ -89,6 +92,8 @@ fi
 %{_includedir}/*.mod
 
 %changelog
+* Fri Apr  8 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.3-2.ceda
+- hard-code fix to has-f90 in nf-config
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.3-1.ceda
 - update to 4.4.3 and build against netcdf 4.4.0 (tweak file lists)
 * Thu Jan 23 2014  <builderdev@builder.jc.rl.ac.uk> - 4.2-1.ceda
