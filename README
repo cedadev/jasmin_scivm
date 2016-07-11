@@ -5,10 +5,9 @@ This repository contains configuration for the JASMIN Scientific Analysis Platfo
  * A system for populating JASMIN wiki pages with the status of supported rpms.
 
 http://www.jasmin.ac.uk/
-http://proj.badc.rl.ac.uk/cedaservices/wiki/JASMIN/AnalysisPlatform
+https://github.com/cedadev/jasmin_scivm
 
 Running the Test Suite
 ======================
 
   $ nosetests-2.7
-
