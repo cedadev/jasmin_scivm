@@ -1,7 +1,7 @@
 %define pname matplotlib
 Summary: Python plotting package
 Name: python27-%{pname}
-Version: 1.4.3
+Version: 1.5.3
 # see matplotlibrc below when upgrading to >=1.5
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
@@ -12,7 +12,7 @@ Prefix: %{_prefix}
 Vendor: John D. Hunter <jdh2358@gmail.com>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://matplotlib.sourceforge.net
-Requires: python27 python27-dateutil python27-pyparsing
+Requires: python27 python27-dateutil python27-pyparsing python27-cycler
 BuildRequires: python27
 
 %description
@@ -36,12 +36,14 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 # temporary fix to matplotlibrc - should apparently be able to remove once 
 # 1.5.0 released - per https://github.com/matplotlib/matplotlib/issues/4883
-perl -p -i -e 's/^(backend\s*:).*$/$1 TkAgg/' $RPM_BUILD_ROOT/usr/lib/python2.7/site-packages/matplotlib/mpl-data/matplotlibrc
+#perl -p -i -e 's/^(backend\s*:).*$/$1 TkAgg/' $RPM_BUILD_ROOT/usr/lib/python2.7/site-packages/matplotlib/mpl-data/matplotlibrc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.5.3-1.ceda
+- update to 1.5.3
 
 * Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 1.4.3-1.ceda
 - upgrade to 1.4.3. Add requires python27-dateutil python27-pyparsing. Force TkAgg backend.

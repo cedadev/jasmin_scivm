@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 27.ceda
+Release: 28.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -22,8 +22,8 @@ Obsoletes: gdal-ruby
 # Requires: jasper-devel >= 1.900
 
 Requires: ImageMagick >= 6.5.4.7
-Requires: R >= 2.10.0
-Requires: R-devel >= 2.10.0
+Requires: R >= 3.3.1
+Requires: R-devel >= 3.3.1
 Requires: R-ncdf >= 1.6.8-2.ceda
 Requires: arpack >= 3.0.1
 Requires: atlas >= 3.8.4
@@ -135,7 +135,7 @@ Requires: python27-Pygments >= 1.5-3.ceda
 Requires: python27-ScientificPython >= 2.9.4-2.ceda
 Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
-Requires: python27-biggus >= 0.11.0-1.ceda
+Requires: python27-biggus >= 0.13.0-1.ceda
 Requires: python27-cartopy >= 0.11.2-1.ceda
 Requires: python27-cdat_lite >= 6.0rc2-6.ceda
 Requires: python27-cf >= 1.1.5-1.ceda
@@ -229,6 +229,9 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Wed May 25 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-28.ceda
+- python27-biggus >= 0.13.0-1.ceda
+
 * Fri Apr 8 2016 <alan.iwi@stfc.ac.uk> - 1.1-27.ceda
 -  cdo >= 1.7.1-1.ceda
 -  cmor-libs >= 2.9.2-3.ceda
@@ -468,3 +471,4 @@ and also
 
 * Fri Feb 22 2013 Alan Iwi <alan.iwi@stfc.ac.uk> 1.0
 Auto-generated spec from package list by rpm_tools.py
+

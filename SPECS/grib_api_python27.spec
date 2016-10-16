@@ -1,8 +1,9 @@
 # -*- Mode:rpm-spec -*-
 Summary: The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
-%define rel 2.ceda%{?dist}
+%define rel 1.ceda%{?dist}
 
-%define version 1.12.1
+%define version 1.17.0
+%define automake_version 1.13.4
 %define pkgname grib_api
 %define prefix /usr
 %define _prefix /usr
@@ -23,11 +24,11 @@ Name: %{pkgname}
 Version: %{version}
 Release: %{rel}
 Distribution: Red Hat Enterprise Linux Server release 6.4 (Santiago) 
-
 Vendor: ECMWF
 License: Apache Licence version 2.0 
 Group: Scientific/Libraries
-Source: %{pkgname}-%{version}.tar.gz
+Source: %{pkgname}-%{version}-Source.tar.gz
+Source1: automake-%{automake_version}.tar.gz
 #Patch1: gribapi-python-requires.diff
 Patch2: gribapi-python-site-packages-dir-aclocal.diff
 # %if %{_requires_jasper}
@@ -46,10 +47,12 @@ Packager: Software Support <software.support@ecmwf.int>
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
 
 %changelog
-* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda%{?dist}
-- xx
-- xx
-- xx
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.17.0-1.ceda%{?dist}
+- update to 1.17.0
+- automake now bundled in source
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda
+- make -devel depend on exact version of base package
 
 * Thu Mar 15 2012 - Get the changelog from JIRA
 - Multiple bugfixes
@@ -58,16 +61,27 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 - Added kmymoney-ofx package
 
 %prep
-%setup
+%setup -n %{pkgname}-%{version}-Source
 #%patch1 -p1
 %patch2 -p1 -F2
 autoconf
+tar xvfz %{SOURCE1}
 
 %build
 export PYTHON=/usr/bin/python2.7
-%GNUconfigure %{?configure_args}
+%configure %{?configure_args}
 # This is why we copy the CFLAGS to the CXXFLAGS in configure.in
 # CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" ./configure %{_target_platform} --prefix=%{prefix}
+
+am_dir=`pwd`/automake
+mkdir $am_dir
+pushd automake-%{automake_version}
+./configure --prefix=$am_dir
+make
+make install
+popd
+export PATH=$am_dir/bin:$PATH
+
 make
 
 %install
@@ -109,6 +123,8 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 %defattr(-, root, root)
 #%doc doc
 %prefix/include/grib_api.h
+%prefix/include/grib_api_windef.h
+%prefix/include/grib_api_version.h
 %prefix/lib*/libgrib_api.a
 %prefix/lib*/libgrib_api.la
 %prefix/lib*/pkgconfig/*
@@ -155,7 +171,3 @@ and edition 2 messages.
 %prefix/lib*/*f77*
 %endif
 
-%changelog
-
-* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda
-- make -devel depend on exact version of base package

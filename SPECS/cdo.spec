@@ -1,10 +1,10 @@
 Name: cdo
-Version: 1.7.1
-Release: 2.ceda%{?dist}
+Version: 1.7.2
+Release: 1.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
 Source: cdo-%{version}.tar.gz	
-Patch0: cdo-utread.patch
+#Patch0: cdo-utread.patch
 URL: https://code.zmaw.de/projects/cdo/wiki
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
 BuildRequires: gcc, gcc-c++, netcdf-devel, grib_api-devel, fftw-devel, proj-devel, libcurl-devel, udunits-devel, hdf5-devel, uuid-devel, cmor-libs
@@ -27,7 +27,7 @@ Public License v2 (GPL).
 %prep				
 
 %setup
-%patch0 -p1
+#%patch0 -p1
 
 %build				
 export LIBS="-ludunits2 -lnetcdf -lossp-uuid"
@@ -56,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.7.2-1.ceda
+- bump version, also rebuilding against grib_api 1.17.0
+- "utread" patch no longer needed
+
 * Tue May  3 2016  <builderdev@builder.jc.rl.ac.uk> - 1.7.1-2.ceda
 - rebuild against new grib_api
 

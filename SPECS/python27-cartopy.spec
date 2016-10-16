@@ -1,5 +1,5 @@
 %define pname cartopy
-%define version 0.11.2
+%define version 0.14.2
 %define release 1.ceda%{?dist}
 
 Summary: a cartographic python library with matplotlib support
@@ -14,9 +14,9 @@ Prefix: %{_prefix}
 Vendor: UK Met Office
 Url: https://github.com/SciTools/cartopy
 Requires: python27, python27-matplotlib >= 1.2, proj, python27-Cython
-Requires: python27-numpy >= 1.7.0, proj >= 4.7.0
-BuildRequires: python27, python27-matplotlib >= 1.2, proj-devel, python27-Cython
-BuildRequires: python27-numpy >= 1.7.0, proj-devel >= 4.7.0
+Requires: python27-numpy >= 1.7.0, proj >= 4.9.0
+BuildRequires: python27, python27-matplotlib >= 1.2, python27-Cython
+BuildRequires: python27-numpy >= 1.7.0, proj-devel >= 4.9.0
 BuildRequires: python27-setuptools >= 18.2
 
 %description
@@ -47,6 +47,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 0.14.2-1.ceda%{?dist}
+- update to 0.14.2, with proj dependency now 4.9.0
+
 * Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 0.13.0-1.ceda%{?dist}
 - update to 0.13
 

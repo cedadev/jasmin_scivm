@@ -1,11 +1,12 @@
 Summary: NCAR Command Language
 Name: ncl
 Version: 6.3.0
-Release: 2.ceda%{dist}
+Release: 3.ceda%{dist}
 License: UCAR
 Group: Scientific support
 URL: http://www.ncl.ucar.edu/
 Source0: ncl_ncarg-6.3.0.Linux_RHEL6.4_x86_64_gcc472.tar.gz
+Patch0: ncl-mreg.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix} 
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
@@ -26,7 +27,7 @@ rm -fr ncl
 mkdir ncl
 cd ncl
 tar xvfz %{SOURCE0}
-#patch -p0 < %{PATCH0}
+patch -p1 < %{PATCH0}
 
 %build
 
@@ -49,6 +50,9 @@ echo "NCARG_ROOT=%{root} ; export NCARG_ROOT" > $RPM_BUILD_ROOT/%{profile_sh}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 6.3.0-3.ceda%{dist}
+- add patch per github issue 71
+
 * Sun Dec 6 2015 <alan.iwi@stfc.ac.uk> - 6.3.0-2.ceda%{dist}
 - remove ESMF_RegridWeightGen and add esmf package dependency,
   per https://github.com/cedadev/jasmin_scivm/issues/40

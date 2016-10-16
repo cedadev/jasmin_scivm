@@ -2,8 +2,8 @@
 #%define snapshot 74b1e5b
 Summary: Virtual Python Environment builder
 Name: python27-%{pname}
-Version: 1.10.1
-Release: 2.ceda%{?dist}
+Version: 15.0.3
+Release: 3.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 #Source0: pypa-virtualenv-1.8.1-6-g%{snapshot}.tar.gz
 License: MIT
@@ -14,8 +14,8 @@ BuildArch: noarch
 Vendor: Jannis Leidel, Carl Meyer and Brian Rosner <python-virtualenv@groups.google.com>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://www.virtualenv.org
-Requires: python27
-BuildRequires: python27
+Requires: python27 python27-setuptools
+BuildRequires: python27 python27-setuptools
 
 %description
 
@@ -54,6 +54,8 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 15.0.3-3.ceda
+- bump version and add setuptools dependency
 
 * Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-2.ceda
 - comment out renaming of executable

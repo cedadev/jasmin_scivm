@@ -1,0 +1,10 @@
+*.tar.gz
+*.tar.bz2
+*.tar.Z
+*.tar.xz
+*.tar
+*.zip
+*.tgz
+*.bin
+*.jar
+*.pdf
