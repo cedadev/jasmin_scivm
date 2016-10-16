@@ -1,0 +1,61 @@
+diff -up Python-2.6.6/Lib/socket.py.fix-EINTR-check-for-nonstandard-exceptions Python-2.6.6/Lib/socket.py
+--- Python-2.6.6/Lib/socket.py.fix-EINTR-check-for-nonstandard-exceptions	2011-03-04 17:35:36.425676635 -0500
++++ Python-2.6.6/Lib/socket.py	2011-03-04 17:37:50.894540249 -0500
+@@ -223,6 +223,12 @@ class _socketobject(object):
+ 
+ socket = SocketType = _socketobject
+ 
++def _exception_was_EINTR(exc):
++    if len(exc.args) > 0:
++        if exc.args[0] == EINTR:
++            return 1
++    return 0
++
+ class _fileobject(object):
+     """Faux file object attached to a socket object."""
+ 
+@@ -347,7 +353,7 @@ class _fileobject(object):
+                 try:
+                     data = self._sock.recv(rbufsize)
+                 except error, e:
+-                    if e.args[0] == EINTR:
++                    if _exception_was_EINTR(e):
+                         continue
+                     raise
+                 if not data:
+@@ -376,7 +382,7 @@ class _fileobject(object):
+                 try:
+                     data = self._sock.recv(left)
+                 except error, e:
+-                    if e.args[0] == EINTR:
++                    if _exception_was_EINTR(e):
+                         continue
+                     raise
+                 if not data:
+@@ -431,7 +437,7 @@ class _fileobject(object):
+                     except error, e:
+                         # The try..except to catch EINTR was moved outside the
+                         # recv loop to avoid the per byte overhead.
+-                        if e.args[0] == EINTR:
++                        if _exception_was_EINTR(e):
+                             continue
+                         raise
+                     break
+@@ -443,7 +449,7 @@ class _fileobject(object):
+                 try:
+                     data = self._sock.recv(self._rbufsize)
+                 except error, e:
+-                    if e.args[0] == EINTR:
++                    if _exception_was_EINTR(e):
+                         continue
+                     raise
+                 if not data:
+@@ -472,7 +478,7 @@ class _fileobject(object):
+                 try:
+                     data = self._sock.recv(self._rbufsize)
+                 except error, e:
+-                    if e.args[0] == EINTR:
++                    if _exception_was_EINTR(e):
+                         continue
+                     raise
+                 if not data:

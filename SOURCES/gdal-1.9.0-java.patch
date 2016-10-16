@@ -1,0 +1,11 @@
+diff -Nur gdal-1.9.0-fedora/swig/java/java.opt gdal-1.9.0-fedora-java/swig/java/java.opt
+--- gdal-1.9.0-fedora/swig/java/java.opt	2012-01-04 08:03:40.000000000 +0100
++++ gdal-1.9.0-fedora-java/swig/java/java.opt	2012-02-03 08:44:55.837978697 +0100
+@@ -5,6 +5,6 @@
+ JAVAC=$(JAVA_HOME)/bin/javac
+ JAVA=$(JAVA_HOME)/bin/java
+ JAR=$(JAVA_HOME)/bin/jar
+-JAVA_INCLUDE=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
++JAVA_INCLUDE=-I/usr/lib/jvm/java/include/ -I/usr/lib/jvm/java/include/linux
+ 
+ 

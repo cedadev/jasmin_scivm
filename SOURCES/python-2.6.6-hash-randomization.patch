@@ -1,0 +1,1380 @@
+diff -up Python-2.6.6/Doc/library/sys.rst.hash-randomization Python-2.6.6/Doc/library/sys.rst
+--- Python-2.6.6/Doc/library/sys.rst.hash-randomization	2010-08-01 18:10:15.000000000 -0400
++++ Python-2.6.6/Doc/library/sys.rst	2012-02-24 17:18:25.318950743 -0500
+@@ -289,6 +289,11 @@ always available.
+    +------------------------------+------------------------------------------+
+    | :const:`bytes_warning`       | -b                                       |
+    +------------------------------+------------------------------------------+
++   +------------------------------+------------------------------------------+
++   | :const:`hash_randomization`  | -R                                       |
++   |                              |                                          |
++   |                              | .. versionadded:: 2.6.8                  |
++   +------------------------------+------------------------------------------+
+ 
+    .. versionadded:: 2.6
+ 
+diff -up Python-2.6.6/Doc/reference/datamodel.rst.hash-randomization Python-2.6.6/Doc/reference/datamodel.rst
+--- Python-2.6.6/Doc/reference/datamodel.rst.hash-randomization	2010-05-19 10:04:44.000000000 -0400
++++ Python-2.6.6/Doc/reference/datamodel.rst	2012-02-24 17:18:25.320945662 -0500
+@@ -1273,6 +1273,8 @@ Basic customization
+       modules are still available at the time when the :meth:`__del__` method is
+       called.
+ 
++   See also the :option:`-R` command-line option.
++
+ 
+ .. method:: object.__repr__(self)
+ 
+diff -up Python-2.6.6/Doc/using/cmdline.rst.hash-randomization Python-2.6.6/Doc/using/cmdline.rst
+--- Python-2.6.6/Doc/using/cmdline.rst.hash-randomization	2010-07-09 03:51:43.000000000 -0400
++++ Python-2.6.6/Doc/using/cmdline.rst	2012-02-24 18:16:19.490808308 -0500
+@@ -21,7 +21,7 @@ Command line
+ 
+ When invoking Python, you may specify any of these options::
+ 
+-    python [-BdEiOQsStuUvVWxX3?] [-c command | -m module-name | script | - ] [args]
++    python [-BdEiOQsRStuUvVWxX3?] [-c command | -m module-name | script | - ] [args]
+ 
+ The most common use case is, of course, a simple invocation of a script::
+ 
+@@ -239,6 +239,29 @@ Miscellaneous options
+       :pep:`238` -- Changing the division operator
+ 
+ 
++.. cmdoption:: -R
++
++   Turn on hash randomization, so that the :meth:`__hash__` values of str,
++   unicode, buffer and datetime objects are "salted" with an unpredictable
++   random value. Although they remain constant within an individual Python
++   process, they are not predictable between repeated invocations of Python.
++
++   This is intended to provide protection against a denial-of-service caused by
++   carefully-chosen inputs that exploit the worst case performance of a dict
++   construction, O(n^2) complexity.  See
++   http://www.ocert.org/advisories/ocert-2011-003.html for details.
++
++   Changing hash values affects the order in which keys are retrieved from a
++   dict.  Although Python has never made guarantees about this ordering (and it
++   typically varies between 32-bit and 64-bit builds), enough real-world code
++   implicitly relies on this non-guaranteed behavior that the randomization is
++   disabled by default.
++
++   See also :envvar:`PYTHONHASHSEED`.
++
++   .. versionadded:: 2.6.8
++
++
+ .. cmdoption:: -s
+ 
+    Don't add user site directory to sys.path
+@@ -501,6 +524,27 @@ These environment variables influence Py
+ 
+    .. versionadded:: 2.6
+ 
++.. envvar:: PYTHONHASHSEED
++
++   If this variable is set to ``random``, the effect is the same as specifying
++   the :option:`-R` option: a random value is used to seed the hashes of str,
++   unicode, buffer and datetime objects.
++
++   If :envvar:`PYTHONHASHSEED` is set to an integer value, it is used as a
++   fixed seed for generating the hash() of the types covered by the hash
++   randomization.
++
++   Its purpose is to allow repeatable hashing, such as for selftests for the
++   interpreter itself, or to allow a cluster of python processes to share hash
++   values.
++
++   The integer must be a decimal number in the range [0,4294967295].
++   Specifying the value 0 will lead to the same hash values as when hash
++   randomization is disabled.
++
++   .. versionadded:: 2.6.8
++
++
+ .. envvar:: PYTHONIOENCODING
+ 
+    Overrides the encoding used for stdin/stdout/stderr, in the syntax
+diff -up Python-2.6.6/Include/object.h.hash-randomization Python-2.6.6/Include/object.h
+--- Python-2.6.6/Include/object.h.hash-randomization	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Include/object.h	2012-02-24 17:18:25.322946158 -0500
+@@ -506,6 +506,13 @@ PyAPI_FUNC(void) Py_ReprLeave(PyObject *
+ PyAPI_FUNC(long) _Py_HashDouble(double);
+ PyAPI_FUNC(long) _Py_HashPointer(void*);
+ 
++typedef struct {
++    long prefix;
++    long suffix;
++} _Py_HashSecret_t;
++PyAPI_DATA(_Py_HashSecret_t) _Py_HashSecret;
++PyAPI_DATA(int) _Py_HashSecret_Initialized;
++
+ /* Helper for passing objects to printf and the like */
+ #define PyObject_REPR(obj) PyString_AS_STRING(PyObject_Repr(obj))
+ 
+diff -up Python-2.6.6/Include/pydebug.h.hash-randomization Python-2.6.6/Include/pydebug.h
+--- Python-2.6.6/Include/pydebug.h.hash-randomization	2008-05-06 18:41:46.000000000 -0400
++++ Python-2.6.6/Include/pydebug.h	2012-02-24 17:18:25.322946158 -0500
+@@ -26,6 +26,7 @@ PyAPI_DATA(int) Py_NoUserSiteDirectory;
+ PyAPI_DATA(int) _Py_QnewFlag;
+ /* Warn about 3.x issues */
+ PyAPI_DATA(int) Py_Py3kWarningFlag;
++PyAPI_DATA(int) Py_HashRandomizationFlag;
+ 
+ /* this is a wrapper around getenv() that pays attention to
+    Py_IgnoreEnvironmentFlag.  It should be used for getting variables like
+diff -up Python-2.6.6/Include/pygetopt.h.hash-randomization Python-2.6.6/Include/pygetopt.h
+--- Python-2.6.6/Include/pygetopt.h.hash-randomization	2002-08-12 03:21:58.000000000 -0400
++++ Python-2.6.6/Include/pygetopt.h	2012-02-24 17:18:25.323949407 -0500
+@@ -9,6 +9,7 @@ PyAPI_DATA(int) _PyOS_opterr;
+ PyAPI_DATA(int) _PyOS_optind;
+ PyAPI_DATA(char *) _PyOS_optarg;
+ 
++PyAPI_FUNC(void) _PyOS_ResetGetOpt(void);
+ PyAPI_FUNC(int) _PyOS_GetOpt(int argc, char **argv, char *optstring);
+ 
+ #ifdef __cplusplus
+diff -up Python-2.6.6/Include/pythonrun.h.hash-randomization Python-2.6.6/Include/pythonrun.h
+--- Python-2.6.6/Include/pythonrun.h.hash-randomization	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Include/pythonrun.h	2012-02-24 17:18:25.323949407 -0500
+@@ -125,6 +125,7 @@ PyAPI_FUNC(int) _PyFrame_Init(void);
+ PyAPI_FUNC(int) _PyInt_Init(void);
+ PyAPI_FUNC(void) _PyFloat_Init(void);
+ PyAPI_FUNC(int) PyByteArray_Init(void);
++PyAPI_FUNC(void) _PyRandom_Init(void);
+ 
+ /* Various internal finalizers */
+ PyAPI_FUNC(void) _PyExc_Fini(void);
+@@ -168,6 +169,8 @@ typedef void (*PyOS_sighandler_t)(int);
+ PyAPI_FUNC(PyOS_sighandler_t) PyOS_getsig(int);
+ PyAPI_FUNC(PyOS_sighandler_t) PyOS_setsig(int, PyOS_sighandler_t);
+ 
++/* Random */
++PyAPI_FUNC(int) _PyOS_URandom (void *buffer, Py_ssize_t size);
+ 
+ #ifdef __cplusplus
+ }
+diff -up Python-2.6.6/Lib/json/__init__.py.hash-randomization Python-2.6.6/Lib/json/__init__.py
+--- Python-2.6.6/Lib/json/__init__.py.hash-randomization	2008-06-13 18:38:33.000000000 -0400
++++ Python-2.6.6/Lib/json/__init__.py	2012-02-24 17:18:25.324948037 -0500
+@@ -29,7 +29,7 @@ Encoding basic Python object hierarchies
+ Compact encoding::
+ 
+     >>> import json
+-    >>> json.dumps([1,2,3,{'4': 5, '6': 7}], separators=(',',':'))
++    >>> json.dumps([1,2,3,{'4': 5, '6': 7}], sort_keys=True, separators=(',',':'))
+     '[1,2,3,{"4":5,"6":7}]'
+ 
+ Pretty printing (using repr() because of extraneous whitespace in the output)::
+diff -up Python-2.6.6/Lib/os.py.hash-randomization Python-2.6.6/Lib/os.py
+--- Python-2.6.6/Lib/os.py.hash-randomization	2010-01-31 11:47:55.000000000 -0500
++++ Python-2.6.6/Lib/os.py	2012-02-24 17:18:25.325949153 -0500
+@@ -742,22 +742,3 @@ try:
+                      _make_statvfs_result)
+ except NameError: # statvfs_result may not exist
+     pass
+-
+-if not _exists("urandom"):
+-    def urandom(n):
+-        """urandom(n) -> str
+-
+-        Return a string of n random bytes suitable for cryptographic use.
+-
+-        """
+-        try:
+-            _urandomfd = open("/dev/urandom", O_RDONLY)
+-        except (OSError, IOError):
+-            raise NotImplementedError("/dev/urandom (or equivalent) not found")
+-        try:
+-            bs = b""
+-            while n - len(bs) >= 1:
+-                bs += read(_urandomfd, n - len(bs))
+-        finally:
+-            close(_urandomfd)
+-        return bs
+diff -up Python-2.6.6/Lib/test/test_cmd_line.py.hash-randomization Python-2.6.6/Lib/test/test_cmd_line.py
+--- Python-2.6.6/Lib/test/test_cmd_line.py.hash-randomization	2007-11-18 06:56:28.000000000 -0500
++++ Python-2.6.6/Lib/test/test_cmd_line.py	2012-02-24 17:18:25.326950462 -0500
+@@ -103,6 +103,20 @@ class CmdLineTest(unittest.TestCase):
+             self.exit_code('-c', 'pass'),
+             0)
+ 
++    def test_hash_randomization(self):
++        # Verify that -R enables hash randomization:
++        self.verify_valid_flag('-R')
++        hashes = []
++        for i in range(2):
++            code = 'print(hash("spam"))'
++            data = self.start_python('-R', '-c', code)
++            hashes.append(data)
++        self.assertNotEqual(hashes[0], hashes[1])
++
++        # Verify that sys.flags contains hash_randomization
++        code = 'import sys; print sys.flags'
++        data = self.start_python('-R', '-c', code)
++        self.assertTrue('hash_randomization=1' in data)
+ 
+ def test_main():
+     test.test_support.run_unittest(CmdLineTest)
+diff -up Python-2.6.6/Lib/test/test_hash.py.hash-randomization Python-2.6.6/Lib/test/test_hash.py
+--- Python-2.6.6/Lib/test/test_hash.py.hash-randomization	2008-12-29 20:36:00.000000000 -0500
++++ Python-2.6.6/Lib/test/test_hash.py	2012-02-24 17:18:25.327946996 -0500
+@@ -3,10 +3,18 @@
+ #
+ # Also test that hash implementations are inherited as expected
+ 
++import os
++import sys
++import struct
++import datetime
+ import unittest
++import subprocess
++
+ from test import test_support
+ from collections import Hashable
+ 
++IS_64BIT = (struct.calcsize('l') == 8)
++
+ 
+ class HashEqualityTestCase(unittest.TestCase):
+ 
+@@ -133,10 +141,106 @@ class HashBuiltinsTestCase(unittest.Test
+         for obj in self.hashes_to_check:
+             self.assertEqual(hash(obj), _default_hash(obj))
+ 
++class HashRandomizationTests(unittest.TestCase):
++
++    # Each subclass should define a field "repr_", containing the repr() of
++    # an object to be tested
++
++    def get_hash_command(self, repr_):
++        return 'print(hash(%s))' % repr_
++
++    def get_hash(self, repr_, seed=None):
++        env = os.environ.copy()
++        if seed is not None:
++            env['PYTHONHASHSEED'] = str(seed)
++        else:
++            env.pop('PYTHONHASHSEED', None)
++        cmd_line = [sys.executable, '-c', self.get_hash_command(repr_)]
++        p = subprocess.Popen(cmd_line, stdin=subprocess.PIPE,
++                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
++                             env=env)
++        out, err = p.communicate()
++        out = test_support.strip_python_stderr(out)
++        return int(out.strip())
++
++    def test_randomized_hash(self):
++        # two runs should return different hashes
++        run1 = self.get_hash(self.repr_, seed='random')
++        run2 = self.get_hash(self.repr_, seed='random')
++        self.assertNotEqual(run1, run2)
++
++class StringlikeHashRandomizationTests(HashRandomizationTests):
++    def test_null_hash(self):
++        # PYTHONHASHSEED=0 disables the randomized hash
++        if IS_64BIT:
++            known_hash_of_obj = 1453079729188098211
++        else:
++            known_hash_of_obj = -1600925533
++
++        # Randomization is disabled by default:
++        self.assertEqual(self.get_hash(self.repr_), known_hash_of_obj)
++
++        # It can also be disabled by setting the seed to 0:
++        self.assertEqual(self.get_hash(self.repr_, seed=0), known_hash_of_obj)
++
++    def test_fixed_hash(self):
++        # test a fixed seed for the randomized hash
++        # Note that all types share the same values:
++        if IS_64BIT:
++            if sys.byteorder == 'little':
++                h = -4410911502303878509
++            else:
++                h = -3570150969479994130
++        else:
++            if sys.byteorder == 'little':
++                h = -206076799
++            else:
++                h = -1024014457
++        self.assertEqual(self.get_hash(self.repr_, seed=42), h)
++
++class StrHashRandomizationTests(StringlikeHashRandomizationTests):
++    repr_ = repr('abc')
++
++    def test_empty_string(self):
++        self.assertEqual(hash(""), 0)
++
++class UnicodeHashRandomizationTests(StringlikeHashRandomizationTests):
++    repr_ = repr(u'abc')
++
++    def test_empty_string(self):
++        self.assertEqual(hash(u""), 0)
++
++class BufferHashRandomizationTests(StringlikeHashRandomizationTests):
++    repr_ = 'buffer("abc")'
++
++    def test_empty_string(self):
++        self.assertEqual(hash(buffer("")), 0)
++
++class DatetimeTests(HashRandomizationTests):
++    def get_hash_command(self, repr_):
++        return 'import datetime; print(hash(%s))' % repr_
++
++class DatetimeDateTests(DatetimeTests):
++    repr_ = repr(datetime.date(1066, 10, 14))
++
++class DatetimeDatetimeTests(DatetimeTests):
++    repr_ = repr(datetime.datetime(1, 2, 3, 4, 5, 6, 7))
++
++class DatetimeTimeTests(DatetimeTests):
++    repr_ = repr(datetime.time(0))
++
++
+ def test_main():
+     test_support.run_unittest(HashEqualityTestCase,
+                               HashInheritanceTestCase,
+-                              HashBuiltinsTestCase)
++                              HashBuiltinsTestCase,
++                              StrHashRandomizationTests,
++                              UnicodeHashRandomizationTests,
++                              BufferHashRandomizationTests,
++                              DatetimeDateTests,
++                              DatetimeDatetimeTests,
++                              DatetimeTimeTests)
++
+ 
+ 
+ if __name__ == "__main__":
+diff -up Python-2.6.6/Lib/test/test_os.py.hash-randomization Python-2.6.6/Lib/test/test_os.py
+--- Python-2.6.6/Lib/test/test_os.py.hash-randomization	2012-02-24 17:18:25.292970538 -0500
++++ Python-2.6.6/Lib/test/test_os.py	2012-02-24 17:18:25.328944967 -0500
+@@ -6,6 +6,8 @@ import os
+ import unittest
+ import warnings
+ import sys
++import subprocess
++
+ from test import test_support
+ 
+ warnings.filterwarnings("ignore", "tempnam", RuntimeWarning, __name__)
+@@ -499,18 +501,50 @@ class DevNullTests (unittest.TestCase):
+ 
+ class URandomTests (unittest.TestCase):
+     def test_urandom(self):
+-        try:
+-            with test_support.check_warnings():
+-                self.assertEqual(len(os.urandom(1)), 1)
+-                self.assertEqual(len(os.urandom(10)), 10)
+-                self.assertEqual(len(os.urandom(100)), 100)
+-                self.assertEqual(len(os.urandom(1000)), 1000)
+-                # see http://bugs.python.org/issue3708
+-                self.assertEqual(len(os.urandom(0.9)), 0)
+-                self.assertEqual(len(os.urandom(1.1)), 1)
+-                self.assertEqual(len(os.urandom(2.0)), 2)
+-        except NotImplementedError:
+-            pass
++        with test_support.check_warnings():
++            self.assertEqual(len(os.urandom(1)), 1)
++            self.assertEqual(len(os.urandom(10)), 10)
++            self.assertEqual(len(os.urandom(100)), 100)
++            self.assertEqual(len(os.urandom(1000)), 1000)
++            # see http://bugs.python.org/issue3708
++            self.assertEqual(len(os.urandom(0.9)), 0)
++            self.assertEqual(len(os.urandom(1.1)), 1)
++            self.assertEqual(len(os.urandom(2.0)), 2)
++
++    def test_urandom_length(self):
++        self.assertEqual(len(os.urandom(0)), 0)
++        self.assertEqual(len(os.urandom(1)), 1)
++        self.assertEqual(len(os.urandom(10)), 10)
++        self.assertEqual(len(os.urandom(100)), 100)
++        self.assertEqual(len(os.urandom(1000)), 1000)
++
++    def test_urandom_value(self):
++        data1 = os.urandom(16)
++        data2 = os.urandom(16)
++        self.assertNotEqual(data1, data2)
++
++    def get_urandom_subprocess(self, count):
++        # We need to use repr() and eval() to avoid line ending conversions
++        # under Windows.
++        code = '\n'.join((
++            'import os, sys',
++            'data = os.urandom(%s)' % count,
++            'sys.stdout.write(repr(data))',
++            'sys.stdout.flush()',
++            'print >> sys.stderr, (len(data), data)'))
++        cmd_line = [sys.executable, '-c', code]
++        p = subprocess.Popen(cmd_line, stdin=subprocess.PIPE,
++                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++        out, err = p.communicate()
++        self.assertEqual(p.wait(), 0, (p.wait(), err))
++        out = eval(out)
++        self.assertEqual(len(out), count, err)
++        return out
++
++    def test_urandom_subprocess(self):
++        data1 = self.get_urandom_subprocess(16)
++        data2 = self.get_urandom_subprocess(16)
++        self.assertNotEqual(data1, data2)
+ 
+ class Win32ErrorTests(unittest.TestCase):
+     def test_rename(self):
+diff -up Python-2.6.6/Lib/test/test_set.py.hash-randomization Python-2.6.6/Lib/test/test_set.py
+--- Python-2.6.6/Lib/test/test_set.py.hash-randomization	2010-08-03 04:41:02.000000000 -0400
++++ Python-2.6.6/Lib/test/test_set.py	2012-02-24 17:18:25.330089429 -0500
+@@ -6,7 +6,6 @@ import weakref
+ import operator
+ import copy
+ import pickle
+-import os
+ from random import randrange, shuffle
+ import sys
+ import collections
+@@ -688,6 +687,17 @@ class TestBasicOps(unittest.TestCase):
+         if self.repr is not None:
+             self.assertEqual(repr(self.set), self.repr)
+ 
++    def check_repr_against_values(self):
++        text = repr(self.set)
++        self.assertTrue(text.startswith('{'))
++        self.assertTrue(text.endswith('}'))
++
++        result = text[1:-1].split(', ')
++        result.sort()
++        sorted_repr_values = [repr(value) for value in self.values]
++        sorted_repr_values.sort()
++        self.assertEqual(result, sorted_repr_values)
++
+     def test_print(self):
+         fo = open(test_support.TESTFN, "wb")
+         try:
+@@ -837,6 +847,46 @@ class TestBasicOpsTriple(TestBasicOps):
+         self.length = 3
+         self.repr   = None
+ 
++#------------------------------------------------------------------------------
++
++class TestBasicOpsString(TestBasicOps):
++    def setUp(self):
++        self.case   = "string set"
++        self.values = ["a", "b", "c"]
++        self.set    = set(self.values)
++        self.dup    = set(self.values)
++        self.length = 3
++
++    def test_repr(self):
++        self.check_repr_against_values()
++
++#------------------------------------------------------------------------------
++
++class TestBasicOpsUnicode(TestBasicOps):
++    def setUp(self):
++        self.case   = "unicode set"
++        self.values = [u"a", u"b", u"c"]
++        self.set    = set(self.values)
++        self.dup    = set(self.values)
++        self.length = 3
++
++    def test_repr(self):
++        self.check_repr_against_values()
++
++#------------------------------------------------------------------------------
++
++class TestBasicOpsMixedStringUnicode(TestBasicOps):
++    def setUp(self):
++        self.case   = "string and bytes set"
++        self.values = ["a", "b", u"a", u"b"]
++        self.set    = set(self.values)
++        self.dup    = set(self.values)
++        self.length = 4
++
++    def test_repr(self):
++        with test_support.check_warnings():
++            self.check_repr_against_values()
++
+ #==============================================================================
+ 
+ def baditer():
+diff -up Python-2.6.6/Lib/test/test_support.py.hash-randomization Python-2.6.6/Lib/test/test_support.py
+--- Python-2.6.6/Lib/test/test_support.py.hash-randomization	2010-08-02 18:01:34.000000000 -0400
++++ Python-2.6.6/Lib/test/test_support.py	2012-02-24 17:18:25.331074896 -0500
+@@ -24,7 +24,7 @@ __all__ = ["Error", "TestFailed", "TestS
+            "captured_stdout", "TransientResource", "transient_internet",
+            "run_with_locale", "set_memlimit", "bigmemtest", "bigaddrspacetest",
+            "BasicTestRunner", "run_unittest", "run_doctest", "threading_setup",
+-           "threading_cleanup", "reap_children"]
++           "threading_cleanup", "reap_children", "strip_python_stderr"]
+ 
+ class Error(Exception):
+     """Base class for regression test exceptions."""
+@@ -893,3 +893,13 @@ def reap_children():
+                     break
+             except:
+                 break
++
++def strip_python_stderr(stderr):
++    """Strip the stderr of a Python process from potential debug output
++    emitted by the interpreter.
++
++    This will typically be run on the result of the communicate() method
++    of a subprocess.Popen object.
++    """
++    stderr = re.sub(br"\[\d+ refs\]\r?\n?$", b"", stderr).strip()
++    return stderr
+diff -up Python-2.6.6/Lib/test/test_symtable.py.hash-randomization Python-2.6.6/Lib/test/test_symtable.py
+--- Python-2.6.6/Lib/test/test_symtable.py.hash-randomization	2010-08-02 19:34:49.000000000 -0400
++++ Python-2.6.6/Lib/test/test_symtable.py	2012-02-24 17:18:25.332100293 -0500
+@@ -105,10 +105,11 @@ class SymtableTest(unittest.TestCase):
+ 
+     def test_function_info(self):
+         func = self.spam
+-        self.assertEqual(func.get_parameters(), ("a", "b", "kw", "var"))
+-        self.assertEqual(func.get_locals(),
++        self.assertEqual(
++            tuple(sorted(func.get_parameters())), ("a", "b", "kw", "var"))
++        self.assertEqual(tuple(sorted(func.get_locals())),
+                          ("a", "b", "bar", "internal", "kw", "var", "x"))
+-        self.assertEqual(func.get_globals(), ("bar", "glob"))
++        self.assertEqual(tuple(sorted(func.get_globals())), ("bar", "glob"))
+         self.assertEqual(self.internal.get_frees(), ("x",))
+ 
+     def test_globals(self):
+diff -up Python-2.6.6/Lib/test/test_sys.py.hash-randomization Python-2.6.6/Lib/test/test_sys.py
+--- Python-2.6.6/Lib/test/test_sys.py.hash-randomization	2010-08-02 14:40:55.000000000 -0400
++++ Python-2.6.6/Lib/test/test_sys.py	2012-02-24 17:18:25.333099096 -0500
+@@ -384,7 +384,7 @@ class SysModuleTest(unittest.TestCase):
+         attrs = ("debug", "py3k_warning", "division_warning", "division_new",
+                  "inspect", "interactive", "optimize", "dont_write_bytecode",
+                  "no_site", "ignore_environment", "tabcheck", "verbose",
+-                 "unicode", "bytes_warning")
++                 "unicode", "bytes_warning", "hash_randomization")
+         for attr in attrs:
+             self.assert_(hasattr(sys.flags, attr), attr)
+             self.assertEqual(type(getattr(sys.flags, attr)), int, attr)
+diff -up Python-2.6.6/Makefile.pre.in.hash-randomization Python-2.6.6/Makefile.pre.in
+--- Python-2.6.6/Makefile.pre.in.hash-randomization	2012-02-24 17:18:25.186806075 -0500
++++ Python-2.6.6/Makefile.pre.in	2012-02-24 17:18:25.334101067 -0500
+@@ -281,6 +281,7 @@ PYTHON_OBJS=	\
+ 		Python/pymath.o \
+ 		Python/pystate.o \
+ 		Python/pythonrun.o \
++                Python/random.o \
+ 		Python/structmember.o \
+ 		Python/symtable.o \
+ 		Python/sysmodule.o \
+@@ -724,7 +725,7 @@ buildbottest:	all platform
+ 		-@if which pybuildbot.identify >/dev/null 2>&1; then \
+ 			pybuildbot.identify "CC='$(CC)'" "CXX='$(CXX)'"; \
+ 		fi
+-		$(TESTPYTHON) $(TESTPROG) -uall -rw $(TESTOPTS)
++		$(TESTPYTHON) -R $(TESTPROG) -uall -rw $(TESTOPTS)
+ 
+ QUICKTESTOPTS=	$(TESTOPTS) -x test_thread test_signal test_strftime \
+ 		test_unicodedata test_re test_sre test_select test_poll \
+diff -up Python-2.6.6/Misc/NEWS.hash-randomization Python-2.6.6/Misc/NEWS
+--- Python-2.6.6/Misc/NEWS.hash-randomization	2012-02-24 17:18:24.951930893 -0500
++++ Python-2.6.6/Misc/NEWS	2012-02-24 17:18:25.349677041 -0500
+@@ -12,6 +12,11 @@ What's New in Python 2.6.6?
+ Core and Builtins
+ -----------------
+ 
++- Issue #13703: oCERT-2011-003: add -R command-line option and PYTHONHASHSEED
++  environment variable, to provide an opt-in way to protect against denial of
++  service attacks due to hash collisions within the dict and set types.  Patch
++  by David Malcolm, based on work by Victor Stinner.
++
+ Library
+ -------
+ 
+diff -up Python-2.6.6/Misc/python.man.hash-randomization Python-2.6.6/Misc/python.man
+--- Python-2.6.6/Misc/python.man.hash-randomization	2010-01-31 11:09:16.000000000 -0500
++++ Python-2.6.6/Misc/python.man	2012-02-24 18:13:48.192935770 -0500
+@@ -34,6 +34,9 @@ python \- an interpreted, interactive, o
+ .B \-O0
+ ]
+ [
++.B \-R
++]
++[
+ .B -Q
+ .I argument
+ ]
+@@ -151,6 +154,18 @@ to \fI.pyo\fP.  Given twice, causes docs
+ .B \-O0
+ Discard docstrings in addition to the \fB-O\fP optimizations.
+ .TP
++.B \-R
++Turn on "hash randomization", so that the hash() values of str, unicode, 
++buffer and datetime objects are "salted" with an unpredictable pseudo-random
++value. Although they remain constant within an individual Python process, they
++are not predictable between repeated invocations of Python.
++.IP
++This is intended to provide protection against a denial of service
++caused by carefully-chosen inputs that exploit the worst case performance
++of a dict construction, O(n^2) complexity.  See
++http://www.ocert.org/advisories/ocert-2011-003.html
++for details.
++.TP
+ .BI "\-Q " argument
+ Division control; see PEP 238.  The argument must be one of "old" (the
+ default, int/int and long/long return an int or long), "new" (new
+@@ -411,6 +426,20 @@ the \fB\-u\fP option.
+ If this is set to a non-empty string it is equivalent to specifying
+ the \fB\-v\fP option. If set to an integer, it is equivalent to
+ specifying \fB\-v\fP multiple times. 
++.IP PYTHONHASHSEED
++If this variable is set to "random", the effect is the same as specifying
++the \fB-R\fP option: a random value is used to seed the hashes of str,
++unicode, buffer and datetime objects.
++
++If PYTHONHASHSEED is set to an integer value, it is used as a fixed seed for
++generating the hash() of the types covered by the hash randomization.  Its
++purpose is to allow repeatable hashing, such as for selftests for the
++interpreter itself, or to allow a cluster of python processes to share hash
++values.
++
++The integer must be a decimal number in the range [0,4294967295].  Specifying
++the value 0 will lead to the same hash values as when hash randomization is
++disabled.
+ .SH AUTHOR
+ The Python Software Foundation: http://www.python.org/psf
+ .SH INTERNET RESOURCES
+diff -up Python-2.6.6/Modules/main.c.hash-randomization Python-2.6.6/Modules/main.c
+--- Python-2.6.6/Modules/main.c.hash-randomization	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Modules/main.c	2012-02-24 18:15:14.994927060 -0500
+@@ -40,7 +40,7 @@ static char **orig_argv;
+ static int  orig_argc;
+ 
+ /* command line options */
+-#define BASE_OPTS "3bBc:dEhiJm:OQ:sStuUvVW:xX?"
++#define BASE_OPTS "3bBc:dEhiJm:OQ:RsStuUvVW:xX?"
+ 
+ #ifndef RISCOS
+ #define PROGRAM_OPTS BASE_OPTS
+@@ -71,6 +71,9 @@ static char *usage_2 = "\
+ -m mod : run library module as a script (terminates option list)\n\
+ -O     : optimize generated bytecode slightly; also PYTHONOPTIMIZE=x\n\
+ -OO    : remove doc-strings in addition to the -O optimizations\n\
++-R     : use a pseudo-random salt to make hash() values of various types be\n\
++         unpredictable between separate invocations of the interpreter, as\n\
++         a defense against denial-of-service attacks\n\
+ -Q arg : division options: -Qold (default), -Qwarn, -Qwarnall, -Qnew\n\
+ -s     : don't add user site directory to sys.path; also PYTHONNOUSERSITE\n\
+ -S     : don't imply 'import site' on initialization\n\
+@@ -101,6 +104,13 @@ PYTHONHOME   : alternate <prefix> direct
+ PYTHONCASEOK : ignore case in 'import' statements (Windows).\n\
+ PYTHONIOENCODING: Encoding[:errors] used for stdin/stdout/stderr.\n\
+ ";
++static char *usage_6 = "\
++PYTHONHASHSEED: if this variable is set to 'random', the effect is the same\n\
++   as specifying the -R option: a random value is used to seed the hashes of\n\
++   str, unicode, buffer and datetime objects.  It can also be set to an\n\
++   integer in the range [0,4294967295] to get hash values with a predictable\n\
++   seed.\n\
++";
+ 
+ 
+ static int
+@@ -117,6 +127,7 @@ usage(int exitcode, char* program)
+         fputs(usage_3, f);
+         fprintf(f, usage_4, DELIM);
+         fprintf(f, usage_5, DELIM, PYTHONHOMEHELP);
++        fputs(usage_6, f);
+     }
+ #if defined(__VMS)
+     if (exitcode == 0) {
+@@ -251,7 +262,33 @@ Py_Main(int argc, char **argv)
+     Py_RISCOSWimpFlag = 0;
+ #endif
+ 
++    /* Hash randomization needed early for all string operations
++       (including -W and -X options). */
++    while ((c = _PyOS_GetOpt(argc, argv, PROGRAM_OPTS)) != EOF) {
++        if (c == 'm' || c == 'c') {
++            /* -c / -m is the last option: following arguments are
++               not interpreter options. */
++            break;
++        }
++        switch (c) {
++        case 'E':
++            Py_IgnoreEnvironmentFlag++;
++            break;
++        case 'R':
++            Py_HashRandomizationFlag++;
++            break;
++        }
++    }
++    /* The variable is only tested for existence here; _PyRandom_Init will
++       check its value further. */
++    if (!Py_HashRandomizationFlag &&
++        (p = Py_GETENV("PYTHONHASHSEED")) && *p != '\0')
++        Py_HashRandomizationFlag = 1;
++
++    _PyRandom_Init();
++
+     PySys_ResetWarnOptions();
++    _PyOS_ResetGetOpt();
+ 
+     while ((c = _PyOS_GetOpt(argc, argv, PROGRAM_OPTS)) != EOF) {
+         if (c == 'c') {
+@@ -345,7 +382,7 @@ Py_Main(int argc, char **argv)
+             break;
+ 
+         case 'E':
+-            Py_IgnoreEnvironmentFlag++;
++            /* Already handled above */
+             break;
+ 
+         case 't':
+@@ -388,6 +425,10 @@ Py_Main(int argc, char **argv)
+             PySys_AddWarnOption(_PyOS_optarg);
+             break;
+ 
++        case 'R':
++            /* Already handled above */
++            break;
++
+         /* This space reserved for other options */
+ 
+         default:
+diff -up Python-2.6.6/Modules/posixmodule.c.hash-randomization Python-2.6.6/Modules/posixmodule.c
+--- Python-2.6.6/Modules/posixmodule.c.hash-randomization	2012-02-24 17:18:25.301938168 -0500
++++ Python-2.6.6/Modules/posixmodule.c	2012-02-24 17:18:25.356674407 -0500
+@@ -8301,117 +8301,35 @@ posix_getloadavg(PyObject *self, PyObjec
+ }
+ #endif
+ 
+-#ifdef MS_WINDOWS
+-
+-PyDoc_STRVAR(win32_urandom__doc__,
++PyDoc_STRVAR(posix_urandom__doc__,
+ "urandom(n) -> str\n\n\
+-Return a string of n random bytes suitable for cryptographic use.");
+-
+-typedef BOOL (WINAPI *CRYPTACQUIRECONTEXTA)(HCRYPTPROV *phProv,\
+-              LPCSTR pszContainer, LPCSTR pszProvider, DWORD dwProvType,\
+-              DWORD dwFlags );
+-typedef BOOL (WINAPI *CRYPTGENRANDOM)(HCRYPTPROV hProv, DWORD dwLen,\
+-              BYTE *pbBuffer );
+-
+-static CRYPTGENRANDOM pCryptGenRandom = NULL;
+-/* This handle is never explicitly released. Instead, the operating
+-   system will release it when the process terminates. */
+-static HCRYPTPROV hCryptProv = 0;
++Return n random bytes suitable for cryptographic use.");
+ 
+-static PyObject*
+-win32_urandom(PyObject *self, PyObject *args)
++static PyObject *
++posix_urandom(PyObject *self, PyObject *args)
+ {
+-    int howMany;
+-    PyObject* result;
++    Py_ssize_t size;
++    PyObject *result;
++    int ret;
+ 
+-    /* Read arguments */
+-    if (! PyArg_ParseTuple(args, "i:urandom", &howMany))
++     /* Read arguments */
++    if (!PyArg_ParseTuple(args, "n:urandom", &size))
+         return NULL;
+-    if (howMany < 0)
++    if (size < 0)
+         return PyErr_Format(PyExc_ValueError,
+                             "negative argument not allowed");
+-
+-    if (hCryptProv == 0) {
+-        HINSTANCE hAdvAPI32 = NULL;
+-        CRYPTACQUIRECONTEXTA pCryptAcquireContext = NULL;
+-
+-        /* Obtain handle to the DLL containing CryptoAPI
+-           This should not fail         */
+-        hAdvAPI32 = GetModuleHandle("advapi32.dll");
+-        if(hAdvAPI32 == NULL)
+-            return win32_error("GetModuleHandle", NULL);
+-
+-        /* Obtain pointers to the CryptoAPI functions
+-           This will fail on some early versions of Win95 */
+-        pCryptAcquireContext = (CRYPTACQUIRECONTEXTA)GetProcAddress(
+-                                        hAdvAPI32,
+-                                        "CryptAcquireContextA");
+-        if (pCryptAcquireContext == NULL)
+-            return PyErr_Format(PyExc_NotImplementedError,
+-                                "CryptAcquireContextA not found");
+-
+-        pCryptGenRandom = (CRYPTGENRANDOM)GetProcAddress(
+-                                        hAdvAPI32, "CryptGenRandom");
+-        if (pCryptGenRandom == NULL)
+-            return PyErr_Format(PyExc_NotImplementedError,
+-                                "CryptGenRandom not found");
+-
+-        /* Acquire context */
+-        if (! pCryptAcquireContext(&hCryptProv, NULL, NULL,
+-                                   PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+-            return win32_error("CryptAcquireContext", NULL);
+-    }
+-
+-    /* Allocate bytes */
+-    result = PyString_FromStringAndSize(NULL, howMany);
+-    if (result != NULL) {
+-        /* Get random data */
+-        memset(PyString_AS_STRING(result), 0, howMany); /* zero seed */
+-        if (! pCryptGenRandom(hCryptProv, howMany, (unsigned char*)
+-                              PyString_AS_STRING(result))) {
+-            Py_DECREF(result);
+-            return win32_error("CryptGenRandom", NULL);
+-        }
+-    }
+-    return result;
+-}
+-#endif
+-
+-#ifdef __VMS
+-/* Use openssl random routine */
+-#include <openssl/rand.h>
+-PyDoc_STRVAR(vms_urandom__doc__,
+-"urandom(n) -> str\n\n\
+-Return a string of n random bytes suitable for cryptographic use.");
+-
+-static PyObject*
+-vms_urandom(PyObject *self, PyObject *args)
+-{
+-    int howMany;
+-    PyObject* result;
+-
+-    /* Read arguments */
+-    if (! PyArg_ParseTuple(args, "i:urandom", &howMany))
++    result = PyBytes_FromStringAndSize(NULL, size);
++    if (result == NULL)
+         return NULL;
+-    if (howMany < 0)
+-        return PyErr_Format(PyExc_ValueError,
+-                            "negative argument not allowed");
+ 
+-    /* Allocate bytes */
+-    result = PyString_FromStringAndSize(NULL, howMany);
+-    if (result != NULL) {
+-        /* Get random data */
+-        if (RAND_pseudo_bytes((unsigned char*)
+-                              PyString_AS_STRING(result),
+-                              howMany) < 0) {
+-            Py_DECREF(result);
+-            return PyErr_Format(PyExc_ValueError,
+-                                "RAND_pseudo_bytes");
+-        }
++    ret = _PyOS_URandom(PyBytes_AS_STRING(result),
++                        PyBytes_GET_SIZE(result));
++    if (ret == -1) {
++        Py_DECREF(result);
++        return NULL;
+     }
+     return result;
+ }
+-#endif
+ 
+ static PyMethodDef posix_methods[] = {
+     {"access",          posix_access, METH_VARARGS, posix_access__doc__},
+@@ -8717,12 +8635,7 @@ static PyMethodDef posix_methods[] = {
+ #ifdef HAVE_GETLOADAVG
+     {"getloadavg",      posix_getloadavg, METH_NOARGS, posix_getloadavg__doc__},
+ #endif
+- #ifdef MS_WINDOWS
+-    {"urandom", win32_urandom, METH_VARARGS, win32_urandom__doc__},
+- #endif
+- #ifdef __VMS
+-    {"urandom", vms_urandom, METH_VARARGS, vms_urandom__doc__},
+- #endif
++    {"urandom",         posix_urandom,   METH_VARARGS, posix_urandom__doc__},
+     {NULL,              NULL}            /* Sentinel */
+ };
+ 
+diff -up Python-2.6.6/Objects/bufferobject.c.hash-randomization Python-2.6.6/Objects/bufferobject.c
+--- Python-2.6.6/Objects/bufferobject.c.hash-randomization	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Objects/bufferobject.c	2012-02-24 17:18:25.357676411 -0500
+@@ -334,10 +334,20 @@ buffer_hash(PyBufferObject *self)
+         return -1;
+     p = (unsigned char *) ptr;
+     len = size;
+-    x = *p << 7;
++    /*
++      We make the hash of the empty buffer be 0, rather than using
++      (prefix ^ suffix), since this slightly obfuscates the hash secret
++    */
++    if (len == 0) {
++        self->b_hash = 0;
++        return 0;
++    }
++    x = _Py_HashSecret.prefix;
++    x ^= *p << 7;
+     while (--len >= 0)
+         x = (1000003*x) ^ *p++;
+     x ^= size;
++    x ^= _Py_HashSecret.suffix;
+     if (x == -1)
+         x = -2;
+     self->b_hash = x;
+diff -up Python-2.6.6/Objects/object.c.hash-randomization Python-2.6.6/Objects/object.c
+--- Python-2.6.6/Objects/object.c.hash-randomization	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Objects/object.c	2012-02-24 17:18:25.359681731 -0500
+@@ -1101,6 +1101,8 @@ PyObject_HashNotImplemented(PyObject *se
+     return -1;
+ }
+ 
++_Py_HashSecret_t _Py_HashSecret;
++
+ long
+ PyObject_Hash(PyObject *v)
+ {
+diff -up Python-2.6.6/Objects/stringobject.c.hash-randomization Python-2.6.6/Objects/stringobject.c
+--- Python-2.6.6/Objects/stringobject.c.hash-randomization	2010-08-01 18:02:09.000000000 -0400
++++ Python-2.6.6/Objects/stringobject.c	2012-02-24 17:18:25.368680360 -0500
+@@ -1212,11 +1212,21 @@ string_hash(PyStringObject *a)
+     if (a->ob_shash != -1)
+         return a->ob_shash;
+     len = Py_SIZE(a);
++    /*
++      We make the hash of the empty string be 0, rather than using
++      (prefix ^ suffix), since this slightly obfuscates the hash secret
++    */
++    if (len == 0) {
++        a->ob_shash = 0;
++        return 0;
++    }
+     p = (unsigned char *) a->ob_sval;
+-    x = *p << 7;
++    x = _Py_HashSecret.prefix;
++    x ^= *p << 7;
+     while (--len >= 0)
+         x = (1000003*x) ^ *p++;
+     x ^= Py_SIZE(a);
++    x ^= _Py_HashSecret.suffix;
+     if (x == -1)
+         x = -2;
+     a->ob_shash = x;
+diff -up Python-2.6.6/Objects/unicodeobject.c.hash-randomization Python-2.6.6/Objects/unicodeobject.c
+--- Python-2.6.6/Objects/unicodeobject.c.hash-randomization	2010-08-01 17:48:47.000000000 -0400
++++ Python-2.6.6/Objects/unicodeobject.c	2012-02-24 17:18:25.374676146 -0500
+@@ -6695,11 +6695,21 @@ unicode_hash(PyUnicodeObject *self)
+     if (self->hash != -1)
+         return self->hash;
+     len = PyUnicode_GET_SIZE(self);
++    /*
++      We make the hash of the empty string be 0, rather than using
++      (prefix ^ suffix), since this slightly obfuscates the hash secret
++    */
++    if (len == 0) {
++        self->hash = 0;
++        return 0;
++    }
+     p = PyUnicode_AS_UNICODE(self);
+-    x = *p << 7;
++    x = _Py_HashSecret.prefix;
++    x ^= *p << 7;
+     while (--len >= 0)
+         x = (1000003*x) ^ *p++;
+     x ^= PyUnicode_GET_SIZE(self);
++    x ^= _Py_HashSecret.suffix;
+     if (x == -1)
+         x = -2;
+     self->hash = x;
+diff -up Python-2.6.6/PCbuild/pythoncore.vcproj.hash-randomization Python-2.6.6/PCbuild/pythoncore.vcproj
+--- Python-2.6.6/PCbuild/pythoncore.vcproj.hash-randomization	2008-06-10 17:23:22.000000000 -0400
++++ Python-2.6.6/PCbuild/pythoncore.vcproj	2012-02-24 17:18:25.375677357 -0500
+@@ -1779,6 +1779,10 @@
+ 				>
+ 			</File>
+ 			<File
++				RelativePath="..\Python\random.c"
++				>
++			</File>
++			<File
+ 				RelativePath="..\Python\structmember.c"
+ 				>
+ 			</File>
+diff -up Python-2.6.6/Python/getopt.c.hash-randomization Python-2.6.6/Python/getopt.c
+--- Python-2.6.6/Python/getopt.c.hash-randomization	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Python/getopt.c	2012-02-24 17:18:25.375677357 -0500
+@@ -37,10 +37,18 @@ extern "C" {
+ int _PyOS_opterr = 1;          /* generate error messages */
+ int _PyOS_optind = 1;          /* index into argv array   */
+ char *_PyOS_optarg = NULL;     /* optional argument       */
++static char *opt_ptr = "";
++
++void _PyOS_ResetGetOpt(void)
++{
++    _PyOS_opterr = 1;
++    _PyOS_optind = 1;
++    _PyOS_optarg = NULL;
++    opt_ptr = "";
++}
+ 
+ int _PyOS_GetOpt(int argc, char **argv, char *optstring)
+ {
+-    static char *opt_ptr = "";
+     char *ptr;
+     int option;
+ 
+diff -up Python-2.6.6/Python/pythonrun.c.hash-randomization Python-2.6.6/Python/pythonrun.c
+--- Python-2.6.6/Python/pythonrun.c.hash-randomization	2010-05-25 18:40:38.000000000 -0400
++++ Python-2.6.6/Python/pythonrun.c	2012-02-24 17:18:25.392673398 -0500
+@@ -89,6 +89,7 @@ int Py_IgnoreEnvironmentFlag; /* e.g. PY
+   true divisions (which they will be in 2.3). */
+ int _Py_QnewFlag = 0;
+ int Py_NoUserSiteDirectory = 0; /* for -s and site.py */
++int Py_HashRandomizationFlag = 0; /* for -R and PYTHONHASHSEED */
+ 
+ /* PyModule_GetWarningsModule is no longer necessary as of 2.6
+ since _warnings is builtin.  This API should not be used. */
+@@ -166,6 +167,12 @@ Py_InitializeEx(int install_sigs)
+         Py_OptimizeFlag = add_flag(Py_OptimizeFlag, p);
+     if ((p = Py_GETENV("PYTHONDONTWRITEBYTECODE")) && *p != '\0')
+         Py_DontWriteBytecodeFlag = add_flag(Py_DontWriteBytecodeFlag, p);
++    /* The variable is only tested for existence here; _PyRandom_Init will
++       check its value further. */
++    if ((p = Py_GETENV("PYTHONHASHSEED")) && *p != '\0')
++        Py_HashRandomizationFlag = add_flag(Py_HashRandomizationFlag, p);
++
++    _PyRandom_Init();
+ 
+     interp = PyInterpreterState_New();
+     if (interp == NULL)
+diff -up Python-2.6.6/Python/random.c.hash-randomization Python-2.6.6/Python/random.c
+--- Python-2.6.6/Python/random.c.hash-randomization	2012-02-24 17:18:25.393678359 -0500
++++ Python-2.6.6/Python/random.c	2012-02-24 17:18:25.393678359 -0500
+@@ -0,0 +1,302 @@
++#include "Python.h"
++#ifdef MS_WINDOWS
++#include <windows.h>
++#else
++#include <fcntl.h>
++#endif
++
++int _Py_HashSecret_Initialized = 0;
++
++#ifdef MS_WINDOWS
++typedef BOOL (WINAPI *CRYPTACQUIRECONTEXTA)(HCRYPTPROV *phProv,\
++              LPCSTR pszContainer, LPCSTR pszProvider, DWORD dwProvType,\
++              DWORD dwFlags );
++typedef BOOL (WINAPI *CRYPTGENRANDOM)(HCRYPTPROV hProv, DWORD dwLen,\
++              BYTE *pbBuffer );
++
++static CRYPTGENRANDOM pCryptGenRandom = NULL;
++/* This handle is never explicitly released. Instead, the operating
++   system will release it when the process terminates. */
++static HCRYPTPROV hCryptProv = 0;
++
++static int
++win32_urandom_init(int raise)
++{
++    HINSTANCE hAdvAPI32 = NULL;
++    CRYPTACQUIRECONTEXTA pCryptAcquireContext = NULL;
++
++    /* Obtain handle to the DLL containing CryptoAPI. This should not fail. */
++    hAdvAPI32 = GetModuleHandle("advapi32.dll");
++    if(hAdvAPI32 == NULL)
++        goto error;
++
++    /* Obtain pointers to the CryptoAPI functions. This will fail on some early
++       versions of Win95. */
++    pCryptAcquireContext = (CRYPTACQUIRECONTEXTA)GetProcAddress(
++                               hAdvAPI32, "CryptAcquireContextA");
++    if (pCryptAcquireContext == NULL)
++        goto error;
++
++    pCryptGenRandom = (CRYPTGENRANDOM)GetProcAddress(hAdvAPI32,
++                                                     "CryptGenRandom");
++    if (pCryptGenRandom == NULL)
++        goto error;
++
++    /* Acquire context */
++    if (! pCryptAcquireContext(&hCryptProv, NULL, NULL,
++                               PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
++        goto error;
++
++    return 0;
++
++error:
++    if (raise)
++        PyErr_SetFromWindowsErr(0);
++    else
++        Py_FatalError("Failed to initialize Windows random API (CryptoGen)");
++    return -1;
++}
++
++/* Fill buffer with size pseudo-random bytes generated by the Windows CryptoGen
++   API. Return 0 on success, or -1 on error. */
++static int
++win32_urandom(unsigned char *buffer, Py_ssize_t size, int raise)
++{
++    Py_ssize_t chunk;
++
++    if (hCryptProv == 0)
++    {
++        if (win32_urandom_init(raise) == -1)
++            return -1;
++    }
++
++    while (size > 0)
++    {
++        chunk = size > INT_MAX ? INT_MAX : size;
++        if (!pCryptGenRandom(hCryptProv, chunk, buffer))
++        {
++            /* CryptGenRandom() failed */
++            if (raise)
++                PyErr_SetFromWindowsErr(0);
++            else
++                Py_FatalError("Failed to initialized the randomized hash "
++                        "secret using CryptoGen)");
++            return -1;
++        }
++        buffer += chunk;
++        size -= chunk;
++    }
++    return 0;
++}
++#endif /* MS_WINDOWS */
++
++
++#ifdef __VMS
++/* Use openssl random routine */
++#include <openssl/rand.h>
++static int
++vms_urandom(unsigned char *buffer, Py_ssize_t size, int raise)
++{
++    if (RAND_pseudo_bytes(buffer, size) < 0) {
++        if (raise) {
++            PyErr_Format(PyExc_ValueError,
++                         "RAND_pseudo_bytes");
++        } else {
++            Py_FatalError("Failed to initialize the randomized hash "
++                          "secret using RAND_pseudo_bytes");
++        }
++        return -1;
++    }
++    return 0;
++}
++#endif /* __VMS */
++
++
++#if !defined(MS_WINDOWS) && !defined(__VMS)
++
++/* Read size bytes from /dev/urandom into buffer.
++   Call Py_FatalError() on error. */
++static void
++dev_urandom_noraise(char *buffer, Py_ssize_t size)
++{
++    int fd;
++    Py_ssize_t n;
++
++    assert (0 < size);
++
++    fd = open("/dev/urandom", O_RDONLY);
++    if (fd < 0)
++        Py_FatalError("Failed to open /dev/urandom");
++
++    while (0 < size)
++    {
++        do {
++            n = read(fd, buffer, (size_t)size);
++        } while (n < 0 && errno == EINTR);
++        if (n <= 0)
++        {
++            /* stop on error or if read(size) returned 0 */
++            Py_FatalError("Failed to read bytes from /dev/urandom");
++            break;
++        }
++        buffer += n;
++        size -= (Py_ssize_t)n;
++    }
++    close(fd);
++}
++
++/* Read size bytes from /dev/urandom into buffer.
++   Return 0 on success, raise an exception and return -1 on error. */
++static int
++dev_urandom_python(char *buffer, Py_ssize_t size)
++{
++    int fd;
++    Py_ssize_t n;
++
++    if (size <= 0)
++        return 0;
++
++    Py_BEGIN_ALLOW_THREADS
++    fd = open("/dev/urandom", O_RDONLY);
++    Py_END_ALLOW_THREADS
++    if (fd < 0)
++    {
++        PyErr_SetFromErrnoWithFilename(PyExc_OSError, "/dev/urandom");
++        return -1;
++    }
++
++    Py_BEGIN_ALLOW_THREADS
++    do {
++        do {
++            n = read(fd, buffer, (size_t)size);
++        } while (n < 0 && errno == EINTR);
++        if (n <= 0)
++            break;
++        buffer += n;
++        size -= (Py_ssize_t)n;
++    } while (0 < size);
++    Py_END_ALLOW_THREADS
++
++    if (n <= 0)
++    {
++        /* stop on error or if read(size) returned 0 */
++        if (n < 0)
++            PyErr_SetFromErrno(PyExc_OSError);
++        else
++            PyErr_Format(PyExc_RuntimeError,
++                         "Failed to read %zi bytes from /dev/urandom",
++                         size);
++        close(fd);
++        return -1;
++    }
++    close(fd);
++    return 0;
++}
++#endif /* !defined(MS_WINDOWS) && !defined(__VMS) */
++
++/* Fill buffer with pseudo-random bytes generated by a linear congruent
++   generator (LCG):
++
++       x(n+1) = (x(n) * 214013 + 2531011) % 2^32
++
++   Use bits 23..16 of x(n) to generate a byte. */
++static void
++lcg_urandom(unsigned int x0, unsigned char *buffer, size_t size)
++{
++    size_t index;
++    unsigned int x;
++
++    x = x0;
++    for (index=0; index < size; index++) {
++        x *= 214013;
++        x += 2531011;
++        /* modulo 2 ^ (8 * sizeof(int)) */
++        buffer[index] = (x >> 16) & 0xff;
++    }
++}
++
++/* Fill buffer with size pseudo-random bytes, not suitable for cryptographic
++   use, from the operating random number generator (RNG).
++
++   Return 0 on success, raise an exception and return -1 on error. */
++int
++_PyOS_URandom(void *buffer, Py_ssize_t size)
++{
++    if (size < 0) {
++        PyErr_Format(PyExc_ValueError,
++                     "negative argument not allowed");
++        return -1;
++    }
++    if (size == 0)
++        return 0;
++
++#ifdef MS_WINDOWS
++    return win32_urandom((unsigned char *)buffer, size, 1);
++#else
++# ifdef __VMS
++    return vms_urandom((unsigned char *)buffer, size, 1);
++# else
++    return dev_urandom_python((char*)buffer, size);
++# endif
++#endif
++}
++
++void
++_PyRandom_Init(void)
++{
++    char *env;
++    void *secret = &_Py_HashSecret;
++    Py_ssize_t secret_size = sizeof(_Py_HashSecret_t);
++
++    if (_Py_HashSecret_Initialized)
++        return;
++    _Py_HashSecret_Initialized = 1;
++
++    /*
++      By default, hash randomization is disabled, and only
++      enabled if PYTHONHASHSEED is set to non-empty or if
++      "-R" is provided at the command line:
++    */
++    if (!Py_HashRandomizationFlag) {
++        /* Disable the randomized hash: */
++        memset(secret, 0, secret_size);
++        return;
++    }
++
++    /*
++      Hash randomization is enabled.  Generate a per-process secret,
++      using PYTHONHASHSEED if provided.
++    */
++
++    env = Py_GETENV("PYTHONHASHSEED");
++    if (env && *env != '\0' && strcmp(env, "random") != 0) {
++        char *endptr = env;
++        unsigned long seed;
++        seed = strtoul(env, &endptr, 10);
++        if (*endptr != '\0'
++            || seed > 4294967295UL
++            || (errno == ERANGE && seed == ULONG_MAX))
++        {
++            Py_FatalError("PYTHONHASHSEED must be \"random\" or an integer "
++                          "in range [0; 4294967295]");
++        }
++        if (seed == 0) {
++            /* disable the randomized hash */
++            memset(secret, 0, secret_size);
++        }
++        else {
++            lcg_urandom(seed, (unsigned char*)secret, secret_size);
++        }
++    }
++    else {
++#ifdef MS_WINDOWS
++        (void)win32_urandom((unsigned char *)secret, secret_size, 0);
++#else /* #ifdef MS_WINDOWS */
++# ifdef __VMS
++        vms_urandom((unsigned char *)secret, secret_size, 0);
++# else
++        dev_urandom_noraise((char*)secret, secret_size);
++# endif
++#endif
++    }
++}
+diff -up Python-2.6.6/Python/sysmodule.c.hash-randomization Python-2.6.6/Python/sysmodule.c
+--- Python-2.6.6/Python/sysmodule.c.hash-randomization	2012-02-24 17:18:25.134834800 -0500
++++ Python-2.6.6/Python/sysmodule.c	2012-02-24 17:18:25.394678035 -0500
+@@ -1224,6 +1224,7 @@ static PyStructSequence_Field flags_fiel
+     {"unicode",                 "-U"},
+     /* {"skip_first",                   "-x"}, */
+     {"bytes_warning", "-b"},
++    {"hash_randomization", "-R"},
+     {0}
+ };
+ 
+@@ -1232,9 +1233,9 @@ static PyStructSequence_Desc flags_desc 
+     flags__doc__,       /* doc */
+     flags_fields,       /* fields */
+ #ifdef RISCOS
+-    16
++    17
+ #else
+-    15
++    16
+ #endif
+ };
+ 
+@@ -1271,6 +1272,7 @@ make_flags(void)
+     SetFlag(Py_UnicodeFlag);
+     /* SetFlag(skipfirstline); */
+     SetFlag(Py_BytesWarningFlag);
++    SetFlag(Py_HashRandomizationFlag);
+ #undef SetFlag
+ 
+     if (PyErr_Occurred()) {

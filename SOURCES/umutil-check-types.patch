@@ -1,0 +1,123 @@
+
+Patch to add a program that tests the compiled-in data types in some of the umutils programs
+to check that the Fortran to C interface is set up correctly - can be used to debug installation
+problems.
+
+diff -ru umutil/test_types.F90 umutil2/test_types.F90
+--- umutil/test_types.F90	1970-01-01 01:00:00.000000000 +0100
++++ umutil2/test_types.F90	2013-01-04 14:37:22.000000000 +0000
+@@ -0,0 +1,30 @@
++!==============================================================================!
++
++program test_types
++
++use getkind
++
++#define NTEST 12
++
++integer(itype) :: itest(NTEST)
++real(rtype)    :: rtest(NTEST)
++integer(otype) :: otest(NTEST)
++integer(ptype) :: ptest(NTEST)
++
++integer i, j
++
++do i = 1, NTEST
++   j = i - 1
++   itest(i) = j
++   rtest(i) = j
++   otest(i) = j
++   ptest(i) = j
++enddo
++
++! call the tests; any wrong compiled-in types should cause 
++! an abort with error message in the C code
++call check_types(itest, rtest, otest, ptest)
++
++print *,'compiled in data types are correct'
++
++end
+diff -ru umutil/ffio_conv32.c umutil2/ffio_conv32.c
+--- umutil/ffio_conv32.c	2009-08-07 15:25:39.000000000 +0100
++++ umutil2/ffio_conv32.c	2013-01-04 14:46:58.000000000 +0000
+@@ -46,6 +46,7 @@
+ #define wrtblkr WRTBLKR
+ #define skip    SKIP
+ #define fcopy   FCOPY
++#define check_types   CHECK_TYPES
+ #elif defined __sun || defined __sgi || defined __osf__ || defined __uxpv__ || defined __linux || defined _SX
+ #define openff  openff_
+ #define closeff closeff_
+@@ -58,6 +59,7 @@
+ #define wrtblkr wrtblkr_
+ #define skip    skip_
+ #define fcopy   fcopy_
++#define check_types  check_types_
+ #endif
+ 
+ #define BUFSIZE 4096
+@@ -82,6 +84,7 @@
+ void wrtblkr( float32 *, int32 *, int32 *, FILEINFO **, byteoff * );
+ void skip( FILEINFO **, byteoff *, byteoff * );
+ void fcopy( FILE ** , FILE ** );
++void check_types( int32 *, float32 *, byteoff *, FILEINFO ** );
+ 
+ /*
+   ------------------------------------------------------------------------------
+@@ -610,3 +613,56 @@
+ 
+     return;
+ }
++
++/*
++  ------------------------------------------------------------------------------
++*/
++/* now some routines to test if Fortran can send an ascending series of integers
++ * in arrays of different types - used by test_types.f90 to test compile-time
++ * type sizes.
++ */
++
++#define NTEST 12
++#define TEST_CODE(name) \
++    int i; \
++    for (i = 0; i < NTEST ; i++) \
++      if (data[i] != i) { \
++        printf("%s set wrong at compile time?\n", (name)); \
++        return 1; \ 
++      } \
++    return 0;
++
++static int check_rtype(float32 *data) {
++  TEST_CODE("RTYPE")
++}
++
++static int check_otype(byteoff *data) {
++  TEST_CODE("OTYPE")
++}
++
++static int check_ptype(FILEINFO **data) {
++  TEST_CODE("PTYPE")
++}
++
++static int check_itype(int32 *data) {
++  TEST_CODE("ITYPE")
++}
++
++void check_types(int32 *itest, float32 *rtest, byteoff *otest, FILEINFO **ptest) {
++  int nerror;
++  printf("i = %d %d %d ...\n", itest[0], itest[1], itest[2]);
++  printf("r = %f %f %f ...\n", rtest[0], rtest[1], rtest[2]);
++  printf("o = %ld %ld %ld ...\n", otest[0], otest[1], otest[2]);
++  printf("p = %p %p %p ...\n", ptest[0], ptest[1], ptest[2]);
++
++  nerror =   
++    check_itype(itest) + 
++    check_rtype(rtest) + 
++    check_otype(otest) +
++    check_ptype(ptest);
++
++  if (nerror != 0) {
++    puts("one or more types wrong - going to abort");
++    abort();
++  }
++}

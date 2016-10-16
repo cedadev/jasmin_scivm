@@ -1,0 +1,43 @@
+diff -up Python-2.6.6/Lib/lib2to3/tests/data/py2_test_grammar.py.install-missing-lib2to3-test-files Python-2.6.6/Lib/lib2to3/tests/data/py2_test_grammar.py
+--- Python-2.6.6/Lib/lib2to3/tests/data/py2_test_grammar.py.install-missing-lib2to3-test-files	2011-01-10 11:03:01.517478526 -0500
++++ Python-2.6.6/Lib/lib2to3/tests/data/py2_test_grammar.py	2011-01-10 11:03:36.793646594 -0500
+@@ -933,12 +933,6 @@ hello world
+             pass
+         with manager() as (x, y):
+             pass
+-        with manager(), manager():
+-            pass
+-        with manager() as x, manager() as y:
+-            pass
+-        with manager() as x, manager():
+-            pass
+ 
+     def testIfElseExpr(self):
+         # Test ifelse expressions in various cases
+diff -up Python-2.6.6/Makefile.pre.in.install-missing-lib2to3-test-files Python-2.6.6/Makefile.pre.in
+--- Python-2.6.6/Makefile.pre.in.install-missing-lib2to3-test-files	2011-01-10 11:01:12.147726256 -0500
++++ Python-2.6.6/Makefile.pre.in	2011-01-10 11:01:12.165730575 -0500
+@@ -813,6 +813,7 @@ LIBSUBDIRS=	lib-tk site-packages test te
+ 		sqlite3 sqlite3/test \
+ 		logging bsddb bsddb/test csv wsgiref \
+ 		lib2to3 lib2to3/fixes lib2to3/pgen2 lib2to3/tests \
++		lib2to3/tests/data lib2to3/tests/data/fixers lib2to3/tests/data/fixers/myfixes \
+ 		ctypes ctypes/test ctypes/macholib idlelib idlelib/Icons \
+ 		distutils distutils/command distutils/tests $(XMLLIBSUBDIRS) \
+ 		multiprocessing multiprocessing/dummy \
+@@ -877,11 +878,13 @@ libinstall:	build_all $(srcdir)/Lib/$(PL
+ 	PYTHONPATH=$(DESTDIR)$(LIBDEST)  $(RUNSHARED) \
+ 		./$(BUILDPYTHON) -Wi -tt $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST) -f \
+-		-x 'bad_coding|badsyntax|site-packages' $(DESTDIR)$(LIBDEST)
++		-x 'bad_coding|badsyntax|site-packages|py3_test_grammar' \
++		$(DESTDIR)$(LIBDEST)
+ 	PYTHONPATH=$(DESTDIR)$(LIBDEST) $(RUNSHARED) \
+ 		./$(BUILDPYTHON) -Wi -tt -O $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST) -f \
+-		-x 'bad_coding|badsyntax|site-packages' $(DESTDIR)$(LIBDEST)
++		-x 'bad_coding|badsyntax|site-packages|py3_test_grammar' \
++		$(DESTDIR)$(LIBDEST)
+ 	-PYTHONPATH=$(DESTDIR)$(LIBDEST)  $(RUNSHARED) \
+ 		./$(BUILDPYTHON) -Wi -t $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST)/site-packages -f \

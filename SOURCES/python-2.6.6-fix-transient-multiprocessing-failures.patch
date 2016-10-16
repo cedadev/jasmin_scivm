@@ -1,0 +1,27 @@
+
+# HG changeset patch
+# User Florent Xicluna <florent.xicluna@gmail.com>
+# Date 1268005743 0
+# Node ID 41aef062d52931f5c6e43389ad0be2c7335d2fec
+# Parent  4660387b9b35233168b8f7dd08dee671190b032b
+Backport the Popen.poll() protection from subprocess to multiprocessing. See #1731717.
+It should fix transient failures on test_multiprocessing.
+
+diff --git a/Lib/multiprocessing/forking.py b/Lib/multiprocessing/forking.py
+--- a/Lib/multiprocessing/forking.py
++++ b/Lib/multiprocessing/forking.py
+@@ -103,7 +103,12 @@ if sys.platform != 'win32':
+ 
+         def poll(self, flag=os.WNOHANG):
+             if self.returncode is None:
+-                pid, sts = os.waitpid(self.pid, flag)
++                try:
++                    pid, sts = os.waitpid(self.pid, flag)
++                except os.error:
++                    # Child process not yet created. See #1731717
++                    # e.errno == errno.ECHILD == 10
++                    return None
+                 if pid == self.pid:
+                     if os.WIFSIGNALED(sts):
+                         self.returncode = -os.WTERMSIG(sts)
+

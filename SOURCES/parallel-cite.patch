@@ -1,0 +1,260 @@
+diff -ru parallel-20160822/src/parallel parallel-20160822-no-citation-bullying/src/parallel
+--- parallel-20160822/src/parallel	2016-08-21 21:00:52.000000000 +0100
++++ parallel-20160822-no-citation-bullying/src/parallel	2016-09-18 13:39:39.000000000 +0100
+@@ -1136,7 +1136,6 @@
+     if(defined $opt::bar) {
+         $opt::progress = $opt::bar;
+     }
+-    citation_notice();
+ 
+     parse_halt();
+     parse_sshlogin();
+@@ -3693,51 +3692,13 @@
+ 	 "",
+ 	 "See 'man $Global::progname' for details",
+ 	 "",
+-	 "Academic tradition requires you to cite works you base your article on.",
+-	 "When using programs that use GNU Parallel to process data for publication",
+-	 "please cite:",
++	 "Citation:",
+ 	 "",
+ 	 "  O. Tange (2011): GNU Parallel - The Command-Line Power Tool,",
+ 	 "  ;login: The USENIX Magazine, February 2011:42-47.",
+-	 "",
+-	 "This helps funding further development; AND IT WON'T COST YOU A CENT.",
+-	 "If you pay 10000 EUR you should feel free to use GNU Parallel without citing.",
+-	 "",
+ 	 "",);
+ }
+ 
+-
+-sub citation_notice {
+-    # if --will-cite or --plain: do nothing
+-    # if stderr redirected: do nothing
+-    # if ~/.parallel/will-cite: do nothing
+-    # else: print citation notice to stderr
+-    if($opt::willcite
+-       or
+-       $opt::plain
+-       or
+-       not -t $Global::original_stderr
+-       or
+-       -e $ENV{'HOME'}."/.parallel/will-cite") {
+-	# skip
+-    } else {
+-	::status
+-	    ("Academic tradition requires you to cite works you base your article on.",
+-	     "When using programs that use GNU Parallel to process data for publication",
+-	     "please cite:",
+-	     "",
+-	     "  O. Tange (2011): GNU Parallel - The Command-Line Power Tool,",
+-	     "  ;login: The USENIX Magazine, February 2011:42-47.",
+-	     "",
+-	     "This helps funding further development; AND IT WON'T COST YOU A CENT.",
+-	     "If you pay 10000 EUR you should feel free to use GNU Parallel without citing.",
+-	     "",
+-	     "To silence the citation notice: run 'parallel --citation'.",
+-	     ""
+-	    );
+-    }
+-}
+-
+ sub status {
+     my @w = @_;
+     my $fh = $Global::status_fd || *STDERR;
+@@ -3790,16 +3751,14 @@
+                "",
+                "Web site: http://www.gnu.org/software/${Global::progname}\n",
+ 	       "When using programs that use GNU Parallel to process data for publication",
+-	       "please cite as described in 'parallel --citation'.\n",
++	       "please consider citing as described in 'parallel --citation'.\n",
+         );
+ }
+ 
+ sub citation {
+     # Returns: N/A
+     ::status(
+-	  "Academic tradition requires you to cite works you base your article on.",
+-	  "When using programs that use GNU Parallel to process data for publication",
+-	  "please cite:",
++	  "Citation:",
+ 	  "",
+ 	  "\@article{Tange2011a,",
+ 	  "  title = {GNU Parallel - The Command-Line Power Tool},",
+@@ -3817,46 +3776,11 @@
+ 	  "",
+ 	  "(Feel free to use \\nocite{Tange2011a})",
+ 	  "",
+-	  "This helps funding further development; AND IT WON'T COST YOU A CENT.",
+-	  "If you pay 10000 EUR you should feel free to use GNU Parallel without citing.",
+-	  "",
+ 	  "If you send a copy of your published article to tange\@gnu.org, it will be",
+ 	  "mentioned in the release notes of next version of GNU Parallel.",
+ 	  "",
+ 	  ""
+         );
+-    while(not -e $ENV{'HOME'}."/.parallel/will-cite") {
+-	print "\nType: 'will cite' and press enter.\n> ";
+-	my $input = <STDIN>;
+-	if(not defined $input) {
+-	    exit(255);
+-	}
+-	if($input =~ /will cite/i) {
+-	    mkdir $ENV{'HOME'}."/.parallel";
+-	    if(open (my $fh, ">", $ENV{'HOME'}."/.parallel/will-cite")) {
+-		close $fh;
+-		::status(
+-		    "",
+-		    "Thank you for your support. It is much appreciated. The citation",
+-		    "notice is now silenced.",
+-		    "");
+-	    } else {
+-		::status(
+-		      "",
+-		      "Thank you for your support. It is much appreciated. The citation",
+-		      "cannot permanently be silenced. Use '--will-cite' instead.",
+-		      "",
+-		      "If you use '--will-cite' in scripts to be run by others you are making",
+-		      "it harder for others to see the citation notice.  The development of",
+-		      "GNU parallel is indirectly financed through citations, so if users",
+-		      "do not know they should cite then you are making it harder to finance",
+-		      "development. However, if you pay 10000 EUR, you should feel free to",
+-		      "use '--will-cite' in scripts.",
+-		      "");
+-		last;
+-	    }
+-	}
+-    }
+ }
+ 
+ sub show_limits {
+diff -ru parallel-20160822/src/sem parallel-20160822-no-citation-bullying/src/sem
+--- parallel-20160822/src/sem	2016-08-21 21:00:52.000000000 +0100
++++ parallel-20160822-no-citation-bullying/src/sem	2016-09-18 13:25:39.000000000 +0100
+@@ -1136,7 +1136,6 @@
+     if(defined $opt::bar) {
+         $opt::progress = $opt::bar;
+     }
+-    citation_notice();
+ 
+     parse_halt();
+     parse_sshlogin();
+@@ -3693,51 +3692,13 @@
+ 	 "",
+ 	 "See 'man $Global::progname' for details",
+ 	 "",
+-	 "Academic tradition requires you to cite works you base your article on.",
+-	 "When using programs that use GNU Parallel to process data for publication",
+-	 "please cite:",
++	 "Citation:",
+ 	 "",
+ 	 "  O. Tange (2011): GNU Parallel - The Command-Line Power Tool,",
+ 	 "  ;login: The USENIX Magazine, February 2011:42-47.",
+-	 "",
+-	 "This helps funding further development; AND IT WON'T COST YOU A CENT.",
+-	 "If you pay 10000 EUR you should feel free to use GNU Parallel without citing.",
+-	 "",
+ 	 "",);
+ }
+ 
+-
+-sub citation_notice {
+-    # if --will-cite or --plain: do nothing
+-    # if stderr redirected: do nothing
+-    # if ~/.parallel/will-cite: do nothing
+-    # else: print citation notice to stderr
+-    if($opt::willcite
+-       or
+-       $opt::plain
+-       or
+-       not -t $Global::original_stderr
+-       or
+-       -e $ENV{'HOME'}."/.parallel/will-cite") {
+-	# skip
+-    } else {
+-	::status
+-	    ("Academic tradition requires you to cite works you base your article on.",
+-	     "When using programs that use GNU Parallel to process data for publication",
+-	     "please cite:",
+-	     "",
+-	     "  O. Tange (2011): GNU Parallel - The Command-Line Power Tool,",
+-	     "  ;login: The USENIX Magazine, February 2011:42-47.",
+-	     "",
+-	     "This helps funding further development; AND IT WON'T COST YOU A CENT.",
+-	     "If you pay 10000 EUR you should feel free to use GNU Parallel without citing.",
+-	     "",
+-	     "To silence the citation notice: run 'parallel --citation'.",
+-	     ""
+-	    );
+-    }
+-}
+-
+ sub status {
+     my @w = @_;
+     my $fh = $Global::status_fd || *STDERR;
+@@ -3790,16 +3751,14 @@
+                "",
+                "Web site: http://www.gnu.org/software/${Global::progname}\n",
+ 	       "When using programs that use GNU Parallel to process data for publication",
+-	       "please cite as described in 'parallel --citation'.\n",
++	       "please consider citing as described in 'parallel --citation'.\n",
+         );
+ }
+ 
+ sub citation {
+     # Returns: N/A
+     ::status(
+-	  "Academic tradition requires you to cite works you base your article on.",
+-	  "When using programs that use GNU Parallel to process data for publication",
+-	  "please cite:",
++	  "Citation:",
+ 	  "",
+ 	  "\@article{Tange2011a,",
+ 	  "  title = {GNU Parallel - The Command-Line Power Tool},",
+@@ -3817,46 +3776,10 @@
+ 	  "",
+ 	  "(Feel free to use \\nocite{Tange2011a})",
+ 	  "",
+-	  "This helps funding further development; AND IT WON'T COST YOU A CENT.",
+-	  "If you pay 10000 EUR you should feel free to use GNU Parallel without citing.",
+-	  "",
+ 	  "If you send a copy of your published article to tange\@gnu.org, it will be",
+ 	  "mentioned in the release notes of next version of GNU Parallel.",
+ 	  "",
+ 	  ""
+-        );
+-    while(not -e $ENV{'HOME'}."/.parallel/will-cite") {
+-	print "\nType: 'will cite' and press enter.\n> ";
+-	my $input = <STDIN>;
+-	if(not defined $input) {
+-	    exit(255);
+-	}
+-	if($input =~ /will cite/i) {
+-	    mkdir $ENV{'HOME'}."/.parallel";
+-	    if(open (my $fh, ">", $ENV{'HOME'}."/.parallel/will-cite")) {
+-		close $fh;
+-		::status(
+-		    "",
+-		    "Thank you for your support. It is much appreciated. The citation",
+-		    "notice is now silenced.",
+-		    "");
+-	    } else {
+-		::status(
+-		      "",
+-		      "Thank you for your support. It is much appreciated. The citation",
+-		      "cannot permanently be silenced. Use '--will-cite' instead.",
+-		      "",
+-		      "If you use '--will-cite' in scripts to be run by others you are making",
+-		      "it harder for others to see the citation notice.  The development of",
+-		      "GNU parallel is indirectly financed through citations, so if users",
+-		      "do not know they should cite then you are making it harder to finance",
+-		      "development. However, if you pay 10000 EUR, you should feel free to",
+-		      "use '--will-cite' in scripts.",
+-		      "");
+-		last;
+-	    }
+-	}
+-    }
+ }
+ 
+ sub show_limits {

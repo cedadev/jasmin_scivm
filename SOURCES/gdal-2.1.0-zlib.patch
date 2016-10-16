@@ -1,0 +1,12 @@
+diff -up ./frmts/mrf/mrf_band.cpp.zlib ./frmts/mrf/mrf_band.cpp
+--- ./frmts/mrf/mrf_band.cpp.zlib	2016-04-25 19:35:55.000000000 +0200
++++ ./frmts/mrf/mrf_band.cpp	2016-05-02 16:24:16.802790904 +0200
+@@ -57,7 +57,7 @@
+ 
+ #include <vector>
+ #include <assert.h>
+-#include "../zlib/zlib.h"
++#include <zlib.h>
+ 
+ using std::vector;
+ using std::string;

@@ -1,0 +1,21 @@
+
+# HG changeset patch
+# User Senthil Kumaran <orsenthil@gmail.com>
+# Date 1303822946 -28800
+# Node ID a3b4887edba4e26be1386addd2a4f14c6c772f2c
+# Parent  3ceeccbc2c3bb22ae3efb253d8456a55b5d9047c
+issue11236 getpass.getpass to respond ctrl-c or ctrl-z
+
+diff --git a/Lib/getpass.py b/Lib/getpass.py
+--- a/Lib/getpass.py
++++ b/Lib/getpass.py
+@@ -62,7 +62,7 @@ def unix_getpass(prompt='Password: ', st
+         try:
+             old = termios.tcgetattr(fd)     # a copy to save
+             new = old[:]
+-            new[3] &= ~(termios.ECHO|termios.ISIG)  # 3 == 'lflags'
++            new[3] &= ~termios.ECHO  # 3 == 'lflags'
+             tcsetattr_flags = termios.TCSAFLUSH
+             if hasattr(termios, 'TCSASOFT'):
+                 tcsetattr_flags |= termios.TCSASOFT
+

@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+#------------------------------
+# trimmed-down version of build_library (from that supplied with emos
+# 00082) without the prompting for certain variables requires these to
+# be set in the environment before running this script in particular:
+#
+#  CNAME
+#  R64
+#  A64
+#  GRIB_API
+#  JASPER_DIR
+#  INSTALL_DIR
+#
+# Alan Iwi, 3 Jan 2013
+#------------------------------
+
+set -e
+
+umask 0
+target=`uname -s | tr '[A-Z]' '[a-z]'`
+
+echo $R64 > .r64
+cat Makefile.in | sed s:reals:$R64: | sed s:glue:$GRIB_API: > Makefile
+
+for subdirs in gribex pbio bufrdc bufrtables crexdc interpolation fft
+do
+cat $subdirs/Makefile.in | sed s:reals:$R64: | sed s:arch:$target: | sed s:plat:$A64: | sed s:depl:emos: | sed s:comp:$CNAME: > $subdirs/Makefile
+done
+
+for subdirs in examples/gribex examples/bufr examples/crex examples/interpolation examples/fft
+do
+cat $subdirs/Makefile.in | sed s:reals:$R64: | sed s:arch:$target: | sed s:plat:$A64: | sed s:comp:$CNAME: > $subdirs/Makefile
+done
+
+#grib_api
+cat grib_api_merging/Makefile.in | sed s:reals:$R64: | sed s:arch:$target: | sed s:plat:$A64: | sed s:comp:$CNAME: | sed s:depl:emos: | sed s:glue:$GRIB_API_DIR: > grib_api_merging/Makefile
+cat examples/interpolation_grib_api/Makefile.in | sed s:reals:$R64: | sed s:arch:$target: | sed s:plat:$A64: | sed s:comp:$CNAME: | sed s:glue:$GRIB_API_DIR: | sed s:jasp:$JASPER_DIR: > examples/interpolation_grib_api/Makefile
+
+echo $INSTALL_DIR > .emos
+
+cat config/config.$target$CNAME$R64$A64.in  \
+  | perl -ple 's:emos:$INSTALL_DIR:; $_ .= " -fPIC" if /^[FC]FLAGS\s*=/' \
+  > config/config.$target$CNAME$R64$A64
+
+make
+
+chmod a-xw libemos$R64.a
+
+ls bufrtables/*000* > .list/bufrtables
+exit 0

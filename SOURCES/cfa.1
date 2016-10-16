@@ -1,0 +1,265 @@
+.TH "CFA" "1" "Version 0.9.8" "06 December 2013" "cfa"
+.
+.
+.
+.SH NAME
+cfa \- create aggregated CF datasets
+.
+.
+.
+.SH SYNOPSIS
+cfa [\-a options] [\-d dir] [\-f format] [\-h] [\-o file] [\-r options] [\-v] [\-w options] [FILE] ...
+.
+.
+.
+.SH DESCRIPTION
+The cfa tool creates and writes to disk the CF fields contained in the
+input files.
+.PP
+The input files are treated as a single CF dataset following the
+aggregation rules currently documented in CF ticket #78 and written to
+a single file (see the
+.ft B
+\-o
+.ft P
+option), or each input file is aggregated separately and 
+written to its own output file (see the
+.ft B
+\-d
+.ft P
+option).
+.PP
+.
+Accepts CF\-netCDF and CFA\-netCDF files (or URLs if DAP access is
+enabled) and Met Office (UK) PP format files as input. Multiple input
+files in a mixture of formats may be given and normal UNIX file
+globbing rules apply. For example:
+.PP
+.RS 
+.nf
+cfa \-o out.nc file1.nc file2.nc
+cfa \-o out.nc file[1\-9].nc
+cfa \-f NETCDF3_CLASSIC \-o out.nc data1/*.nc data2/*.nc
+cfa \-f CFA \-o out.nca data[12]/*.nc
+cfa \-o out.nc test?a.pp
+cfa \-f CFA \-o out.nca test?a.pp fileb.nca
+cfa \-d /data/archive ../test*.pp
+cfa \-o out.nc file.nca
+cfa \-o out.nc file.nca file?.nc
+cfa \-o out.nc http://test.opendap.org/dap/coads_climatology.nc
+cfa \-o out.nc http://test.opendap.org/dap/coads_climatology.nc file*.nc
+.fi
+.RE
+.PP
+The output file, or files, are in CF\-netCDF or CFA\-netCDF format
+(see the
+.ft B
+\-f
+.ft P
+option).
+.
+.
+.
+.SH OPTIONS
+.
+.
+.TP
+.B \-a options, \-\-aggregate=options 
+Configure the field aggregation process with the following options:
+.RS
+.TP
+.B 0
+Do not aggregate fields. By default fields are aggregated if possible.
+.
+.TP
+.B contiguous
+Requires that aggregated fields have adjacent dimension coordinate
+cells which partially overlap or share common boundary
+values. Ignored if the dimension coordinates do not have bounds.
+.TP
+.B no_overlap
+Requires that aggregated fields have adjacent dimension coordinate
+cells which do not overlap (but they may share common boundary values).
+Ignored if the dimension coordinates do not have bounds.
+.TP
+.B equal_all
+Requires that aggregated fields have the same set of non\-standard CF
+properties (including long_name), with the same values.
+.TP
+.B exist_all
+Requires that aggregated fields have the same set of non\-standard CF
+properties (including long_name), but not requiring the values to be
+the same.
+.TP
+.B dimension=properties
+Create new dimensions for each input field which has one or more of
+the given properties. For each CF property in the colon (:) separated
+list of property names, if an input field has the property then, prior
+to aggregation, a new dimension is created with an auxiliary
+coordinate whose datum is the property's value and the property itself
+is deleted from that field.
+.TP
+.B no_strict_units
+Assume that fields or their components (such as coordinates) with the
+same identity but missing units all have equivalent (but unspecified)
+units, so that aggregation may occur. This is the default for input PP
+files, but not for other formats.
+.TP
+.B messages
+Print messages giving reasons why particular fields have not been
+aggregated.
+.TP
+Multiple options are separated by commas. For example:
+.PP
+.RS
+.nf
+\-a 0
+\-a exist_all
+\-a contiguous,no_overlap,equal_all 
+\-a messages,dimension=ensemble_member
+\-a dimension=ensemble_member:model,no_strict_units
+.fi
+.RE
+.RE
+.
+.
+.TP
+.B \-d dir, \-\-directory=dir
+Set the directory for the output files. In this case there will one
+output file per input file and there will be no inter\-file
+aggregation, but the contents of each file will be aggregated
+independently of the others. Output file names will be the same as
+their input counterparts, but with the suffix .nc or .nca for
+CF\-netCDF and CFA\-netCDF output formats respectively.
+.
+.
+.TP
+.B \-f format, \-\-format=format
+Set the format of the output file(s). Valid choices are NETCDF4,
+NETCDF4_CLASSIC, NETCDF3_64BIT and NETCDF3_CLASSIC for outputting
+CF\-netCDF files in those netCDF formats; or CFA for outputting
+CFA\-netCDF files (in NETCDF3_CLASSIC format). Note that the NETCDF3
+and NETCDF4_CLASSIC formats may be slower than any of the other
+options.
+.PP
+.RS
+By default, NETCDF3_CLASSIC is assumed.
+.RE
+.
+.
+.
+.TP
+.B \-h, \-\-help
+Display the man page.
+.
+.
+..
+.TP
+.B \-o outfile, \-\-outfile=file
+Set the output netCDF file name. In this case the CF fields from all
+input files are written to this file.
+.
+.
+.TP
+.B \-r options, \-\-read=options
+Configure the file reading process with the following options:
+.RS
+.TP
+.B ignore_ioerror
+Ignore, without failing, any file which causes an I/O error
+whilst being read, as would be the case for an empty file,
+unknown file format, etc. By default, an error occurs and the
+return code is non\-zero.
+.TP
+.B umversion=version
+.
+For PP format files only, the Unified Model (UM) version to be used
+when decoding the PP header. Valid versions are, for example, 4.2,
+6.6.3 and 8.2.  The default version is 4.5. The version is ignored if
+it can be inferred from the PP headers, which will generally be the
+case for files created at versions 5.3 and later. Note that the PP
+header can not encode tertiary version elements (such as the 3 in
+6.6.3), so it may be necessary to provide a UM version in such cases.
+.PP
+.RS
+Ignored for input files of any other format.
+.RE
+.TP
+Multiple options are separated by commas. For example:
+.PP
+.RS
+.nf
+\-r ignore_ioerror
+\-r umversion=5.1
+\-r umversion=6.6.3,ignore_ioerror     
+.fi
+.RE
+.RE
+.
+.
+.TP
+.B \-v, \-\-verbose
+Display a one\-line summary of each output CF field.
+.
+.
+.TP
+.B \-w options, \-\-write=options
+.RS
+Configure the file writing process with the following options:
+.TP
+.B overwrite
+Allow pre\-existing output files to be overwritten.
+.TP
+.B base, base=value
+For output CFA\-netCDF files only. File names referenced by an output
+CFA\-netCDF file have relative, as opposed to absolute, paths or URL
+bases. This may be useful when relocating a CFA\-netCDF file together
+with the datasets referenced by it.
+.PP
+.RS
+If set with no value then file names are given relative to the
+directory or URL base containing the output CFA\-netCDF file. If set
+with a value then file names are given relative to the directory or
+URL base described by the value. By default, file names within
+CFA\-netCDF files are stored with absolute paths.
+.PP
+.RE
+.RS
+Ignored for output files of any other format.
+.RE
+.TP
+Multiple options are separated by commas. For example:
+.PP
+.RS
+.nf
+\-w overwrite
+\-w base=/data/archive
+\-w base=../archive,overwrite
+\-w base=$HOME
+\-w base
+.fi
+.RE
+.RE
+.
+.
+.
+.SH SEE ALSO
+cfdump(1)
+.
+.
+.
+.SH BUGS
+Reports of bugs are welcome at
+.ft I
+cfpython.bitbucket.org
+.ft P
+.
+.
+.
+.SH LICENSE
+Open Source Initiative MIT License
+.
+.
+.
+.SH AUTHOR
+David Hassell

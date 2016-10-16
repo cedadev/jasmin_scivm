@@ -1,0 +1,20 @@
+--- Makefile.orig	2015-01-27 03:54:08.000000000 +0000
++++ Makefile	2015-01-27 03:56:42.000000000 +0000
+@@ -334,7 +334,7 @@
+ python: $(PYTHONDIR) $(PYTHONENV)
+ 
+ $(PYTHONENV): $(STCLIB) $(DYNLIB) 
+-	cd wrappers/python; python setup.py build
++	cd wrappers/python; $(PYTHON) setup.py build
+ 	@echo "---------------------------------------------------------------"
+ 	@echo "To install MisrToolkit into Python's site-packages..."
+ 	@echo "cd wrappers/python; sudo python setup.py install"
+@@ -359,7 +359,7 @@
+ testpython: $(PYTHONENV)
+ 	export PYTHONPATH=$(shell echo $(MTKHOME)/wrappers/python/build/lib.*); \
+ 	export $(MTK_LD_PATH)=$(MTKHOME)/lib; \
+-	cd wrappers/python/test; python misrtoolkit_test.py
++	cd wrappers/python/test; $(PYTHON) misrtoolkit_test.py
+ 
+ #------------------------------------------------------------------------------
+ # Test targets

@@ -1,0 +1,2335 @@
+#!/usr/bin/env python2.7
+
+#Imports section
+import pygtk
+import gtk
+import cf
+import numpy as np
+import sys
+import cfplot as cfp
+import matplotlib.pyplot as plt
+import gtk, gobject, pango
+import unittest
+from collections import OrderedDict
+from distutils.version import StrictVersion
+
+#Check numpy version is okay
+numpy_version_min='1.8.1'
+numpy_errstr='\n numpy >= ' + numpy_version_min + ' needs to be installed to use cfplot,\n found numpy '+np.__version__ +'\n'
+if np.__version__ < StrictVersion(numpy_version_min): raise  Warning(numpy_errstr) 
+
+
+__version__='0.6.10'
+
+cfgPadding=5
+
+#Define a persistent pvars instance to store data across plotting
+class pvars(object):
+   ''' 
+      plotvars is a set of persistent variables to store various parameters
+      across plotting actions such as multiple plots.
+
+      pos=None - current plot position in multiple plot mode 
+      nplots=1 - number of plots in multiple plot mode
+      code='' - Python and cfplot commands used to make the present plot
+      vect_ufield=None - u field for vector plot
+      vect_key_length=5 - length of reference vector
+      vect_pts=None - number of point to impterpolate to for vectors
+      vect_scale=5 - data units per arrow unit length
+      vect_title='' - vector title 
+      plot_finish=0 - number of plots to make for this type of plot.  
+                      For graph and contour this is set to 1, vector to 2 and contour and vector to 3.
+      plot_counter=0 - present plot number
+      title='' - title for plot
+      field_selected='' - field selected from currently loaded data
+      file_selected='' - file currently selected
+      levs_min='' - user selected minimim level
+      levs_max='' - user selected maximim level
+      levs_step='' - user selected level step
+   '''
+   def __init__(self, **kwargs):
+      '''Initialize a new Pvars instance'''
+      for attr, value in kwargs.iteritems():
+         setattr(self, attr, value)
+
+   def __str__(self):
+      '''x.__str__() <==> str(x)'''
+      out = ['%s = %s' % (a, repr(v))]
+      for a, v in self.__dict__.iteritems():
+         return '\n'.join(out)
+
+
+plotvars=pvars(pos=0, nplots=1, code='', vect_ufield=None,vect_key_length=5, vect_pts=None, \
+               vect_scale=5, vect_title=None, plot_counter=0, title='', field_selected='',\
+               file_selected='', data=None, levs_min='1', levs_max='12', levs_step='2',\
+               levs_manual=None, levs_extend_lower=True, levs_extend_upper=True\
+               )
+
+    
+
+class guiFrame(gtk.Frame):
+    ''' Mixin to simplify framesetup with size and label '''
+    xsize,ysize=800,600
+    def __init__(self,title=None,xsize=None,ysize=None):
+        super(guiFrame,self).__init__()
+        
+        if title is not None: self.set_label(title)
+        
+        if xsize is not None: self.xsize=xsize
+        if ysize is not None: self.ysize=ysize
+        self.set_size_request(self.xsize,self.ysize)
+            
+class scrolledFrame(guiFrame):
+    ''' Provides a scrolled window inside a frame '''
+    def __init__(self,title=None,xsize=None,ysize=None):
+        ''' Initialise with optional title and size '''
+        super(scrolledFrame,self).__init__(title=title,xsize=xsize,ysize=ysize)
+        # now set up scrolled window    
+        self.sw=gtk.ScrolledWindow()
+        self.sw.set_border_width(5)
+        self.sw.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
+        # the following doesn't seem to get honoured, even
+        # though if we get it back, it's definitely set shadow_none
+        self.sw.set_shadow_type(gtk.SHADOW_NONE)
+        # print 'shadow',self.sw.get_shadow_type()
+        # if we have to have a frame drawn around the sw, 
+        # and it seems we do, we might as well have some space around it.
+       
+        self.add(self.sw)
+        # put a vbox in the scrolled window for content
+        self.vbox=gtk.VBox()
+        self.sw.add_with_viewport(self.vbox)
+    def show(self):
+        super(scrolledFrame,self).show_all()    
+        
+def smallLabel(text,size='small',wrap=True):
+    ''' Convenience method for providing a small multi-line gtk.Label '''
+    #Change any & characters in the text as these cause an error in 
+    string="<span size='%s'>%s</span>"%(size,text.replace('&', 'and'))
+    label=gtk.Label(string)
+    label.set_use_markup(True)
+    label.set_line_wrap(wrap)
+    if wrap:
+        label.set_justify(gtk.JUSTIFY_LEFT)
+    return label
+    
+def smallButton(text,size='small'):
+    ''' Makes a small button '''
+    text="<span size='small'>%s</span>"%text
+    b=gtk.Button(text)
+    label=b.get_child()
+    label.set_use_markup(True)
+    return b
+    
+class myCombo(gtk.HBox):
+    ''' Mixin convenience class for small combo boxes with labels '''
+    def __init__(self,content,label=None,initial=None, callback=None,fontSize=8,
+                 padding=2):
+        ''' Initialise with content, label, callback and fontsize '''
+        super(myCombo,self).__init__()
+        self._model=gtk.ListStore(gobject.TYPE_STRING)
+        self._box=gtk.ComboBox(self._model)
+        txt=gtk.CellRendererText()
+        self._box.pack_start(txt,True)
+        self._box.add_attribute(txt,'text',0)
+        txt.set_property('font','sans %s'%fontSize)
+        if label is not None:
+            mylabel=smallLabel(label)
+            self.pack_start(mylabel,padding=padding,expand=False)
+        if callback is not None:
+            self._callback=callback
+            self._box.connect('changed',self.__myComboCallback)
+        self.pack_start(self._box,padding=padding,expand=True) 
+        for item in content:
+            self._model.append([item])
+
+        #print 'ajh - myCombo - setting self.content to ', content, type(content)
+        #if type(content) is float: print 'ajh - myCombo - float is ', float(content)
+        self.content=content
+        if initial is not None: self.set_value(initial)
+    def set_value(self,v):
+        ''' Set active value of combobox '''
+        if v not in self.content:  
+
+            print 'ajh -self.content is ', self.content, type(self.content)
+            print 'ajh - v is ', v, type(v)        
+
+            raise ValueError('Attempt to set combobox to non valid value')
+        else:
+            #print 'ajh - myCombo - setting val to ', v
+            self._box.set_active(self.content.index(v))
+     
+
+
+    def get_value(self):
+        ''' Returns value in combobox '''
+        return self._model[self._box.get_active()][0]
+    def __myComboCallback(self,w):
+        ''' Return current value of widget as argument to the callback '''
+        self._callback(w,self.get_value())
+    def show(self):
+        super(myCombo,self).show_all()    
+        
+
+class collapseCombo(myCombo):
+    ''' Choose from the available collapse operators '''
+    options=OrderedDict([('range',None),('min','min'),('max','max'),
+                         ('mid','mid_range'),('sum','sum'),('mean','mean'),
+                         ('s.d.','standard_deviation'),('var','variance')])
+    def __init__(self,initial='None',callback=None,fontSize='8'):
+        ''' Initialise with the current value, a callback to be called if
+        the value changes, and if necessary, a font size '''
+        super(collapseCombo,self).__init__(
+            self.options.keys(),initial=initial,callback=callback,fontSize=fontSize)
+        # FIXME. I think I want the size request to be 20, but the
+        # problem is that the text on the button disappears. I need
+        # to shrink the container button, but I don't know how to do
+        # that, yet. (Which would hopefully fix the off-centred text
+        # as well.
+        self._box.set_size_request(40,22)
+    def get_value(self):
+        ''' Override mixin method so we get the long name, after combobox
+        only shows the short name. '''
+        r=super(collapseCombo,self).get_value()
+        return self.options[r]
+    
+class arrayCombo(myCombo):
+    ''' Returns a labeled array combobox widget which has set_value, get_value 
+    and show methods. '''
+    def __init__(self,vector,label=None,callback=None,initial=None,padding=3):
+        ''' Initialise with a vector to put in the combobox.
+        Optional arguments:
+            label - the combobox label
+            callback - a tuple with a callback to pass the current value to 
+                       after it has been changed and something else that the
+                       callback knows how to interpret, e.g. (callback, target)
+                       will result in a functional call to callback(target,value).
+            initial - is an initial value
+            padding - the typical hbox padding.
+            '''
+        self.callback=callback
+        # I think we can afford a copy
+        # convert to strings retaining the full precision of the data
+        options=[repr(i) for i in vector]
+
+
+        super(arrayCombo,self).__init__(options,initial=initial,label=label,
+                                        callback=self.__aCcallback)
+        # following magic sets the dropdown to use scrollbars (and is much faster)
+        style = gtk.rc_parse_string('''
+        style "my-style" { GtkComboBox::appears-as-list = 1 }
+        widget "*.mycombo" style "my-style" ''')
+        self._box.set_name('mycombo')
+        self._box.set_style(style)
+        
+        # the natural size request seems to be (106,25), but
+        # it could be much smaller given our smaller text
+        self._box.set_size_request(60,20)
+      
+    def set_value(self,v):
+        ''' Set active value of combobox '''
+        # need to override the mixin class to ensure type conversion from float
+        # take account of three different types of float that are input
+        # 
+
+        #print 'ajh - set_value passed is ', v, type(v), repr(v)
+
+        if type(v) is float or type(v) is np.float32 \
+           or type(v) is np.float64:
+            super(arrayCombo,self).set_value(repr(v))
+        else:
+            super(arrayCombo,self).set_value(str(v))
+
+
+    def get_value(self):
+        ''' Returns value in combobox '''
+        # Need to override the mixin class to ensure type conversion to float.
+        # Convert numbers with a lot of decimal places to a np.float64 so 
+        # that full precision is retained else return a float.
+
+        
+        ndecs=super(arrayCombo,self).get_value()[::-1].find('.')
+        if ndecs < 8:
+            return np.float(super(arrayCombo,self).get_value())
+        else:
+            return np.float64(super(arrayCombo,self).get_value())
+
+
+    def __aCcallback(self,entry,value):
+        ''' This is the internal component of the optional callback '''
+        if self.callback is not None:
+            self.callback[0](self.callback[1],value)  
+
+################################################################################
+# EVERYTHING ABOVE IS gtk aware, but not cf aware
+# EVERYTHING BELOW is *both* gtk aware and cf aware
+################################################################################    
+    
+def cfkeyvalue(f,p):
+    ''' Utility method for making a pango string from a cf object <f> and 
+    a specific property <p>. '''
+    s='<b>%s</b>'%p
+    if hasattr(f,p):
+        v=getattr(f,p)
+    else: return ''
+    if hasattr(v,'__call__'): v=str(v())
+    return '%s: %s'%(s,v)    
+    
+def cfdimprops(f):
+    ''' Utility method for obtaining dimension properties from a CF field
+    and converting them into a list of pango strings. '''
+    r=[]
+    
+    for p in ['X','Y','Z','T']:
+        s='<b>%s</b>:\n'%p
+        coord=f.coord(p)
+        if coord is None: continue
+        for k in coord.properties:
+            kv=cfkeyvalue(coord,k)
+            if kv<>'':s+='     %s\n'%kv
+        s+='     <b>Units: </b>%s'%str(f.coord(p).data.Units)
+        r.append(s)
+    return r
+            
+class fieldMetadata(scrolledFrame):
+    ''' Provides a frame widget for field metadata, and packs it with content
+    via the set_data method which takes one or more fields in a list. If 
+    multiple fields are provided, show the metadata common to the fields. '''
+    
+    size='small'   # font size for the content
+    
+    def __init__(self,title='Field Metadata',xsize=None,ysize=None):
+        ''' Initialise '''
+        super(fieldMetadata,self).__init__(title=title,xsize=xsize,ysize=ysize)
+        # Tell the set_data method when it's the first time through.
+        self.shown=False
+        
+    def set_data(self,fields):
+        ''' Show field metadata information for a specific field.
+        If more than one field in fields, show common metadata. '''
+        common=[]
+
+        if len(fields)>1:
+            string='<i>Common Field Metadata</i>\n'
+            # find intersection, don't you love python?
+            sets=[set([cfkeyvalue(f,p) for p in f.properties]) for f in fields]
+            u=set.intersection(*sets)
+        elif len(fields) == 1:
+            string=''
+            # just show the field properties
+            u=[cfkeyvalue(fields[0],p) for p in fields[0].properties]
+
+        if len(fields) >0:
+            for i in u: 
+                 if i<>'':string+='%s\n'%i
+            if self.shown:  
+                self.label.destroy()
+                self.hbox.destroy()  # we don't want it to be the old size
+            # now build the label
+            self.label=smallLabel(string)
+            # shove it in a box and make sure it doesn't expand.
+            self.hbox=gtk.HBox()
+            self.hbox.pack_start(self.label,expand=False,padding=5)
+            self.vbox.pack_start(self.hbox,expand=False,padding=5)
+            self.show()
+            self.shown=True
+        
+
+    
+class gridMetadata(scrolledFrame):
+    ''' Shows grid metadata for a field or set of fields '''
+    def __init__(self,title='Grid Metadata',xsize=None,ysize=None):
+        ''' Initialise as an empty vessel which gets populated
+        via the set data method.'''
+        super(gridMetadata,self).__init__(title=title,xsize=xsize,ysize=ysize)
+        self.shown=False
+    def set_data(self,fields):
+        ''' Takes a set of cf fields and extracts their grid information.
+        If their is common information is common, it says so. '''
+        common=[]
+        if len(fields)>1:
+            string='<i>Common Grid Metadata</i>\n'
+            # find intersection, don't you love python?
+            sets=[set(cfdimprops(f))for f in fields]
+            u=set.intersection(*sets)
+        elif len(fields) ==1:
+            string=''
+            # just show the field properties
+            u=cfdimprops(fields[0])
+
+        if len(fields) > 0:
+            for i in u: 
+                if i<>'':string+='%s\n'%i
+            if self.shown:  
+                self.label.destroy()
+                self.hbox.destroy()  # we don't want it to be the old size
+            # now build the label
+            self.label=smallLabel(string)
+            # shove it in a box and make sure it doesn't expand.
+            self.hbox=gtk.HBox()
+            self.hbox.pack_start(self.label,expand=False,padding=5)
+            self.vbox.pack_start(self.hbox,expand=False,padding=5)
+            self.show()
+            self.shown=True
+        
+class fieldSelector(guiFrame):
+    ''' Provides a widget for data discovery, depends on the CF api
+    to load data through the set_data method. '''
+    
+    def __init__(self, selection_callback,xsize=None,ysize=None):
+        ''' Initialise as an empty vessel which gets populated when
+        via the set_data method. Needs a selection callback for when
+        the selection is changed. '''
+        
+        super(fieldSelector,self).__init__(title='Field Selector',xsize=xsize,ysize=ysize)   
+        
+        self.selection_callback=selection_callback
+      
+        # use a scrolled window to hold a list store for examining variables
+        self.sw=gtk.ScrolledWindow()
+        self.sw.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
+        
+        # create a tree view list store
+        self.view=gtk.TreeView(None)
+        self.view.set_search_column(1)          # search on field names
+        self.view.set_rules_hint(True)          # nice alternating lines
+        self.view.set_headers_clickable(True)   # can reorder on column headers
+
+        # now set a liststore for the treeview.
+        # [Index, Field Name, Length of X Array, Length of Y Array, Length of Z Array and Length of T Array]
+        self.fieldStore = gtk.ListStore(int, str, int, int, int, int)
+        
+        # bind the store to the tree view
+        self.view.set_model(self.fieldStore)      
+        
+        #The cell renderer is used to display the text in list store.
+        self.fieldRenderer = gtk.CellRendererText() 
+        for k,v in (('xpad',10),('size-points',8)):
+            self.fieldRenderer.set_property(k,v)
+            
+        self.columns_are_setup=False
+        
+        # Allow multiple selections
+        self.treeselector=self.view.get_selection()
+        self.treeselector.set_mode(gtk.SELECTION_MULTIPLE)
+        
+        #Add the tree view to the scrolled window and the sw to self (frame)
+        self.sw.add(self.view)
+        self.add(self.sw)
+            
+    def _setColumns(self):
+        ''' Set's the columns. We do this as late as possible, so
+        the widget knows how big it is and get can the sizing right.'''
+        
+        #column headings
+        headings=['Index', 'Field Name', 'X', 'Y', 'Z', 'T'] 
+        i=0
+
+        # work out how big we are so we can get the right column sizes
+        allocation=self.get_allocation()
+        xsize=allocation[2]-allocation[0]
+        
+        for h in headings:
+            
+            col=gtk.TreeViewColumn(h,self.fieldRenderer,text=i)
+            col.set_sort_column_id(i)    # is sortable
+            col.set_alignment(0.5)  
+            i+=1
+                
+            #Each column is fixed width, dependant on screen size
+            col.set_property('sizing',gtk.TREE_VIEW_COLUMN_FIXED)
+            
+            if h=='Field Name': 
+                col.set_fixed_width(int(xsize * 0.5))
+            else:
+                col.set_fixed_width(int(xsize * 0.1))
+            
+            #Add the column created to the tree view
+            self.view.append_column(col)
+        
+        #When the selection is changed the function selectionChanged is called.
+        self.fieldChoice = self.view.get_selection()
+        self.fieldChoice.connect("changed", self.changed)
+        self.columns_are_setup=True
+    
+    def cf_field_to_columns(self,index,field):
+        ''' Given a CF field, convert to list store data structure ''' 
+
+        name='Unknown' #Catchall 
+        if hasattr(field, 'id'): name=field.id
+        if hasattr(field, 'ncvar'): name=field.ncvar
+        if hasattr(field, 'short_name'): name=field.short_name 
+        if hasattr(field, 'long_name'): name=field.long_name 
+        if hasattr(field, 'standard_name'): name=field.standard_name
+
+        nx=0
+        ny=0
+        nz=0
+        nt=0
+        #if field.coord('X') is not None: nx=len(field.item('X').array)
+        #if field.coord('Y') is not None: ny=len(field.item('Y').array)
+        #if field.coord('T') is not None: nt=len(field.item('T').array)
+
+        #There can be multiple matches for a dimension.  In this case 
+        #if len(field.items('Z')) == 1: 
+        #    nz=len(field.item('Z').array)
+        #elif len(field.items('Z')) > 1: 
+
+        #There can be multiple matches for a dimension as in a Z that has a match and
+        #also a Z that has a dimension.  
+        for k, v  in field.items('X').iteritems():
+            if v.isdimension is True: nx=len(field.item(k).array)
+        for k, v  in field.items('Y').iteritems():
+            if v.isdimension is True: ny=len(field.item(k).array)
+        for k, v  in field.items('Z').iteritems():
+            if v.isdimension is True: nz=len(field.item(k).array)
+        for k, v  in field.items('T').iteritems():
+            if v.isdimension is True: nt=len(field.item(k).array)
+
+        return (index,name,nx,ny,nz,nt)
+        
+    def set_data(self,data):
+        ''' Loop over fields in data file and display'''
+        
+        if not self.columns_are_setup: self._setColumns()
+        
+        # clear existing content, if any
+        if len(self.fieldStore)<>0:
+            self.fieldStore.clear()
+            
+        # loop over fields
+        i=0
+        for field in data:
+            self.fieldStore.append(self.cf_field_to_columns(i,field))
+            i+=1
+       
+        # Set the first row as selected straight away
+        firstRow=self.fieldStore.get_iter_first()
+        self.treeselector.select_iter(firstRow)
+        
+    def changed(self,treeSelection):
+        ''' Called when the liststore changes '''
+        (treestore, pathlist) = treeSelection.get_selected_rows()
+        # at this point pathlist is a list of tuples that looks like
+        # [((6,),(7,), ...]
+        # These indices are the field indexes in the file!
+        if len(pathlist) > 0:
+            indices=[i[0] for i in pathlist]
+            self.selection_callback(indices)
+    
+    def show(self):
+        ''' Show widgets '''
+        super(fieldSelector,self).show_all()
+        
+class cfGrid(object):
+    ''' This is the grid part of a CF field, basically
+    a convenience API into it. '''
+    def __init__(self,field):
+        ''' Initialise with a field. Provides two dictionaries
+        which are keyed by the grid dimension names:
+            .axes is the axes dictionary, and
+            .drange is a set of min,max tuples for each axis.
+        There must be a cleaner way to do this.
+        # FIXME DAVID
+        '''
+
+        self.domain=field.domain
+        self.axes={}
+        self.drange={}
+        self.names={}
+        # FIXME, use CF grid information, not this ...
+        #order=['X','Y','Z','T']
+        #for k in order ...field.dim[k]
+        self.shortNames={'dim0':'T','dim1':'Z','dim2':'Y','dim3':'X'}
+
+        for axis in ['X','Y','Z','T']:
+            if field.domain.axis(axis) is not None:  
+                k=field.domain.axis(axis)
+                cfdata=field.dim(k)
+                self.axes[k]=cfdata
+                self.drange[k]=min(cfdata.array),max(cfdata.array)
+                self.names[k]=self.domain.axis_name(k)
+
+        #Original code
+        #for k in self.domain.data_axes():
+        #    cfdata=field.dim(k)
+        #    self.axes[k]=cfdata
+        #    self.drange[k]=min(cfdata.array),max(cfdata.array)
+        #    self.names[k]=self.domain.axis_name(k)
+
+
+
+
+        
+class gridSelector(guiFrame):
+    ''' Provides a selector for choosing a sub-space in a multi-dimensional field'''
+    def __init__(self,xsize=None,ysize=None):
+        ''' Constuctor just sets some stuff up '''
+        super(gridSelector,self).__init__(title='Grid Selector',xsize=xsize,ysize=ysize)
+        self.vbox=gtk.VBox()
+        self.add(self.vbox)
+        self.shown=False
+        
+    def set_data(self,field):
+        ''' Set data with just one field '''
+        self.grid=cfGrid(field)
+        self._makeGui()
+        self.show()
+        
+    def _makeGui(self):
+        ''' Make the GUI for a specific domain '''
+        if self.shown:
+            for d in self.sliders:
+                self.sliders[d].destroy()
+        self.sliders={}
+        self.combos={}
+
+        #counter to display two ranges of values in the sliders.  Futher ranges are set
+        #to be the first value of the range
+        #Display the axes in the order X, Y, Z, T
+        dcount=0
+        for axis in 'X', 'Y', 'Z', 'T':
+           for dim in self.grid.axes:
+              com='res=self.grid.axes[dim].'+axis
+              exec(com)
+              if res is True:
+                 if len(self.grid.axes[dim].array) > 1: dcount = dcount + 1
+                 box=self._makeSlider(dim, dcount)
+                 self.sliders[dim]=box
+                 self.vbox.pack_start(box,expand=False)
+
+        self.shown=True
+            
+
+
+    def _makeSlider(self,dim, dcount):
+        ''' Makes an entry for choosing array max and minima and
+        for selecting a collapse operator. Note that the
+        max grid selector slaves from the min grid selector,
+        so users should always use that one first.'''
+        maxcombo=arrayCombo(self.grid.axes[dim].array,'Max:')
+        mincombo=arrayCombo(self.grid.axes[dim].array,'Min:',
+                    callback=(self._linkCallback,maxcombo),
+                    initial=self.grid.drange[dim][0])
+
+        colcombo=collapseCombo(initial='range')
+        self.combos[dim]=(mincombo,maxcombo,colcombo)        
+        # can't do this one at initial value coz it gets reset by the link
+        maxcombo.set_value(self.grid.drange[dim][1])
+
+        if dcount > 2:
+            #After the first two ranges set additional ranges to be the first value of the field.
+            #If the axis is a pressure of height coordinate set it to be the maximim value of
+            #the field i.e. that nearest the ground. 
+         
+            mincombo.set_value(self.grid.drange[dim][0])
+            maxcombo.set_value(self.grid.drange[dim][0])
+
+            height_units=['millibar', 'mbar', 'decibar', 'atmosphere', 'atm', 'pascal','Pa', 'hPa',\
+                 'meter', 'metre', 'm', 'kilometer', 'kilometre', 'km']
+            if hasattr(self.grid.axes[dim], 'Units'):
+                if str(self.grid.axes[dim].Units) in height_units:
+                    mincombo.set_value(max(self.grid.drange[dim]))
+                    maxcombo.set_value(max(self.grid.drange[dim]))
+
+
+
+
+        # all the box and border malarkey to make it look nice
+        vbox=gtk.VBox()
+        bbox=gtk.HBox()
+
+        if len(self.grid.axes[dim].array)>1:
+            bbox.pack_start(colcombo,padding=2)
+            bbox.pack_start(mincombo,padding=2)
+            bbox.pack_start(maxcombo,padding=2)
+        else:
+            bbox.pack_start(smallLabel('Value %s'%repr(self.grid.axes[dim].array[0])))
+
+        vbox.pack_start(bbox,padding=5)
+        frame=gtk.Frame(self.grid.names[dim])
+        frame.set_border_width(5)
+        frame.add(vbox)
+        return frame
+    
+    def _linkCallback(self,target,value):
+        ''' Takes a callback from a mincombo, which has been changed to value
+        and updates the maxcombo to this value as an initial condition. '''
+        target.set_value(value)
+        
+    def get_selected(self):
+        ''' Return the combobox selections as they currently stand '''
+        selections={}
+        if not self.shown: return None
+        for dim in self.combos:
+            selections[dim]=(self.combos[dim][0].get_value(),
+                             self.combos[dim][1].get_value(),
+                             self.combos[dim][2].get_value())
+        return selections
+    
+    def show(self):
+        ''' Show all widgets '''
+        super(gridSelector,self).show_all()
+            
+class guiInspect(guiFrame): 
+    ''' Provides a file inspection widget '''
+    def __init__(self,selector):
+        super(guiInspect,self).__init__()
+    def reset(self):
+        ''' Handle changing the data file '''
+        pass
+
+class guiGallery(guiFrame):
+    ''' Provides a gallery of plots '''
+    def __init__(self,selector):
+        super(guiGallery,self).__init__()
+    def reset(self):
+        ''' Handle changing the data file'''
+        pass
+        
+class QuarterFrame(guiFrame):
+    ''' Provides a frame with four sub-frames in the four quarters
+    topLeft, topRight, bottomLeft, bottomRight. Each of these
+    is exposed for use, e.g. self.topLeft ...
+    Optional arguments include the xsize and ysize of the overall frame,
+    otherwise defaults are used. '''
+    # these are the default window ratio splits
+    xsplit=[0.6,0.4]
+    ysplit=[0.7,0.3]
+    def __init__(self,xsize=None,ysize=None):
+        ''' Initialise with optional quarter frame size '''
+        super(QuarterFrame,self).__init__(xsize=xsize,ysize=ysize)
+        self.set_shadow_type(gtk.SHADOW_NONE)  # no border
+        # two boxes inside a vbox for the frames to sit in
+        vbox=gtk.VBox()
+        hboxTop=gtk.HBox()
+        hboxBottom=gtk.HBox()
+        vbox.pack_start(hboxTop)
+        vbox.pack_start(hboxBottom)
+        self.add(vbox)
+        # find out the frame sizes
+        ls,rs=int(self.xsplit[0]*self.xsize),int(self.xsplit[1]*self.xsize)
+        ts,bs=int(self.ysplit[0]*self.ysize),int(self.ysplit[1]*self.ysize)
+        # and then create them
+        self.topLeft=guiFrame(xsize=ls,ysize=ts)
+        self.topRight=guiFrame(xsize=rs,ysize=ts)
+        self.bottomLeft=guiFrame(xsize=ls,ysize=bs)
+        self.bottomRight=guiFrame(xsize=rs,ysize=bs)
+        # don't want borders around the subframes:
+        for f in [self.topLeft,self.topRight,self.bottomLeft,self.bottomRight]:
+            f.set_shadow_type(gtk.SHADOW_NONE)
+        # and place them in the boxes
+        hboxTop.pack_start(self.topLeft)
+        hboxTop.pack_start(self.topRight)
+        hboxBottom.pack_start(self.bottomLeft)
+        hboxBottom.pack_start(self.bottomRight)
+    def show(self):
+        ''' Show internal widgets '''
+        self.show_all()
+        
+def makeDummy(standardname,longname):
+    ''' Returns a dummy cf field object for testing, with
+    standardname <standardname> and variablename <longname> from
+    http://cfpython.bitbucket.org/docs/0.9.8.3/field_creation.html '''
+    #---------------------------------------------------------------------
+    # 1. Create the field's domain items
+    #---------------------------------------------------------------------
+    # Create a grid_latitude dimension coordinate
+    dim0 = cf.DimensionCoordinate(properties={'standard_name': 'grid_latitude'},
+                          data=cf.Data(np.arange(10.), 'degrees'))
+
+    # Create a grid_longitude dimension coordinate
+    dim1 = cf.DimensionCoordinate(data=cf.Data(np.arange(9.), 'degrees'))
+    dim1.standard_name = 'grid_longitude'
+    
+    # Create a time dimension coordinate (with bounds)
+    bounds = cf.CoordinateBounds(
+    data=cf.Data([0.5, 1.5], cf.Units('days since 2000-1-1', calendar='noleap')))
+    dim2 = cf.DimensionCoordinate(properties=dict(standard_name='time'),
+                                  data=cf.Data(1, cf.Units('days since 2000-1-1',
+                                                           calendar='noleap')),
+                                  bounds=bounds)
+    
+    # Create a longitude auxiliary coordinate
+    aux0 = cf.AuxiliaryCoordinate(data=cf.Data(np.arange(90).reshape(10, 9),
+                                               'degrees_north'))
+    aux0.standard_name = 'latitude'
+    
+    # Create a latitude auxiliary coordinate
+    aux1 = cf.AuxiliaryCoordinate(properties=dict(standard_name='longitude'),
+                                  data=cf.Data(np.arange(1, 91).reshape(9, 10),
+                                               'degrees_east'))
+    
+    # Create a rotated_latitude_longitude grid mapping transform
+    trans0 = cf.Transform(grid_mapping_name='rotated_latitude_longitude',
+                          grid_north_pole_latitude=38.0,
+                          grid_north_pole_longitude=190.0)
+    
+    # --------------------------------------------------------------------
+    # 2. Create the field's domain from the previously created items
+    # --------------------------------------------------------------------
+    domain = cf.Domain(dim=[dim0, dim1, dim2],
+                       aux=[aux0, aux1],
+                       trans=trans0,
+                       assign_axes={'aux1': ['dim1', 'dim0']})
+    
+    #---------------------------------------------------------------------
+    # 3. Create the field
+    #---------------------------------------------------------------------
+    # Create CF properties
+    properties = {'standard_name': standardname,
+                  'long_name'    : longname,
+                  'cell_methods' : cf.CellMethods('latitude: point')}
+    
+    # Create the field's data array
+    data = cf.Data(np.arange(90.).reshape(9, 10), 'm s-1')
+    
+    # Finally, create the field
+    f = cf.Field(properties=properties,
+                 domain=domain,
+                 data=data,
+                 axes=domain.axes(['grid_long', 'grid_lat'], ordered=True))
+                 
+    return f
+    
+class TestCFutilities(unittest.TestCase):
+    ''' Test methods for the CF utilities '''
+    def setUp(self):
+        ''' make some dummy CF data'''
+        self.sname,self.lname='eastward_wind','East Wind'
+        self.f=makeDummy(self.sname,self.lname)
+        
+    def test_cfkeyval(self):
+        ''' test the cfkeyval method '''
+        expecting={'long_name':'<b>long_name</b>: %s'%self.lname,
+                   'standard_name':'<b>standard_name</b>: %s'%self.sname,
+                   'cell_methods':'?'}
+        # currently cf python doesn't return cell_methods in properties
+        # even though I think it should. This test will break when it does,
+        # coz expected will need to be filled out correctly and I haven't
+        # gotten around to that.
+        for p in self.f.properties:
+            self.assertEqual(cfkeyvalue(self.f,p),expecting[p])
+            print p,cfkeyvalue(self.f,p)
+    def test_cfdimprops(self):
+        ''' test the cfdimprops method doesn't crash '''
+        p=cfdimprops(self.f)
+    def test_arrayCombo(self):
+        ''' Actually creates and runs a widget, so we turn this off
+        after testing it properly '''
+        win=gtk.Window()
+        vector=np.arange(100.)
+        x=arrayCombo(vector)
+        x.set_value(10.)
+        self.assertEqual(x.get_value(),10.)
+        #win.add(x.box)
+        #win.show_all()
+        #gtk.main()
+
+
+
+
+class cfview:
+    ''' Provides the main frame for cfview '''
+    def __init__(self, filename):
+        ''' Create main window as a notebook with three panes:
+                Discover
+                Inspect
+                Plot
+            Provide a status window underneath and a toolbar above.
+        '''
+        
+        window=gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.connect('delete_event',self.delete)
+        window.set_border_width(cfgPadding)
+        
+        # box for all main window elements
+        vbox=gtk.VBox()
+        window.add(vbox)
+        
+        # get menubar
+        menubar=self.get_mainMenu(window)
+        vbox.pack_start(menubar,expand=False)
+        
+        # script record of what is going on 
+        #self.script=script(debug=True)
+        self.script=script()
+        
+        # notebook
+        nb=gtk.Notebook()
+        nb.show_tabs=True
+        vbox.pack_start(nb,padding=cfgPadding)
+        self.nb=nb
+        for a,p,m in [ ('Select',xconvLike,self.script),
+                    ('Inspect',guiInspect,self.selector),
+                    ('Gallery',guiGallery,self.selector),
+                   ]:
+            label=gtk.Label(a)
+            w=p(m)
+            self.nb.append_page(w,label)
+            setattr(self,a,w)
+            w.show_all()
+        
+        # status window
+        statusbar=gtk.Statusbar()
+        statusbar.set_has_resize_grip(False)
+        vbox.pack_start(statusbar,padding=cfgPadding,expand=False)
+        
+        self.w=window
+        
+        self.default_title=' cfview %s'%__version__
+        self.set_title(self.default_title)
+        
+        window.show_all()
+        
+        if filename is not None:
+            self.reset_with(filename)
+        
+    def selector(self):
+        ''' Callback to mediate the various panes. May need to be
+        a class with methods ... '''
+        #FIXME
+        pass
+        
+    def get_mainMenu(self,w):
+        
+        ''' Build a menuBar toolbar using the gtk uimanager '''
+        
+        ui = '''<ui>
+            <menubar name="MenuBar">
+                <menu action="File">
+                    <menuitem action="Load"/>
+                    <separator/>
+                    <menuitem action="Save"/>
+                    <separator/>
+                    <menuitem action="Quit"/>
+                </menu>
+                <menu action="View">
+                    <menuitem action="Code"/>
+                    <separator/>
+                    <menuitem action="Data"/>
+                </menu>
+
+
+                <menu action="Help">
+                    <menuitem action="About"/>
+                </menu>
+            </menubar>
+            </ui>
+            '''
+        uimanager = gtk.UIManager()
+        
+        accelgroup = uimanager.get_accel_group()
+        w.add_accel_group(accelgroup)
+        
+        actiongroup=gtk.ActionGroup('cfview')
+
+        actiongroup.add_actions ([
+                ('File',None,'_File'),
+                ('Load',gtk.STOCK_OPEN,'Load File',None,
+                 'Load File',self.file_load),
+                ('Save',gtk.STOCK_OPEN,'Save code',None,
+                 'Save code',self.code_save),
+                 ('Quit',gtk.STOCK_QUIT,'Quit',None,
+                 'Quit',self.delete),
+                ('View',None,'_View'),
+                ('Code',gtk.STOCK_OPEN,'Code', None,
+                'View plot code', code_show),
+                ('Data',gtk.STOCK_OPEN,'Data', None,
+                'View data',data_show),
+                ('Help',None,'_Help'),
+                ('About',gtk.STOCK_HELP,'About', None,
+                'About cfview',self.help_about),
+                ])
+
+        
+        uimanager.insert_action_group(actiongroup, 0)
+        uimanager.add_ui_from_string(ui)
+        
+        widget=uimanager.get_widget('/MenuBar')
+        
+        # make sure the help menu is on the right
+        helpmenu = uimanager.get_widget('/MenuBar/Help')
+        helpmenu.set_right_justified(True)         
+        
+        return widget
+        
+    def file_load(self,b):
+        ''' Open a file for cfview. '''
+        chooser=gtk.FileChooserDialog(title='Open data file',
+                    action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                    buttons=(   gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+                                gtk.STOCK_OPEN,gtk.RESPONSE_OK),
+                    )
+        response=chooser.run()
+        if response==gtk.RESPONSE_OK:
+            newfile=chooser.get_filename()
+            self.reset_with(newfile)
+        chooser.destroy()
+
+    def code_save(self,b):
+        ''' Save code to make current plot'''
+        chooser=gtk.FileChooserDialog(title='Save code to make current plot',
+                    action=gtk.FILE_CHOOSER_ACTION_SAVE,
+                    buttons=(   gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,
+                                gtk.STOCK_SAVE,gtk.RESPONSE_OK),
+                    )
+        chooser.set_current_name('code.py')
+        response=chooser.run()
+        if response==gtk.RESPONSE_OK:
+            savefile=chooser.get_filename()
+            f=open(savefile, 'w')
+            f.write(plotvars.code)
+            f.close()
+        chooser.destroy()
+
+
+
+       
+
+           
+
+
+        # Apply any operators
+        opstring=' '
+        op_counter=0
+        for d in grid:
+            if grid[d][2]<>None:
+                op_counter=op_counter+1
+                axis_name=getattr(sfield.item(d), 'standard_name', d)
+                code="sfield=sfield.collapse('%s',axes='%s')"%(grid[d][2],axis_name)
+                exec(code)
+                if op_counter == 1: plotvars.code=plotvars.code+'#Apply operators\n'
+                plotvars.code=plotvars.code+code+'\n'
+                opstring+='%s:%s '%(grid[d][2],sfield.domain.axis_name(d))
+
+
+        print sfield
+
+        
+    def reset_with(self,filename):
+        ''' Open dataset filename '''
+        data=cf.read(filename)
+        self.Select.set_data(data)
+        self.Inspect.reset()
+        self.Gallery.reset()
+        #Reset any existing data
+        self.domain={}
+        self.axes={}
+        self.drange={}
+        self.names={}
+
+        #self.script.open(filename)
+        #self.script.start()
+        plotvars.plot_code=''
+        
+    def help_about(self,b):
+        ''' Provide an about dialog '''
+        m=gtk.AboutDialog()
+        m.set_program_name('cfview')
+        m.set_copyright ( '(c) National Centre for Atmospheric Science')
+        m.set_version(__version__)
+        m.set_comments('''
+This is a pre-release version of NCAS cfview
+
+Credits to:
+    David Hassell - for cf-python
+    Andy Heaps - for cfplot
+    Mudit Gupta - for the prototype pygtk interface to cf-python/cfplot
+    Bryan Lawrence - for the initial version of cfview
+            
+            ''')
+        m.run()
+        m.destroy()
+
+
+
+        
+    def delete(self,w=None,b=None):
+        ''' Delete menu '''
+        gtk.main_quit()
+        return False
+        
+    def set_title(self,title):
+        ''' Set window title '''
+        self.w.set_title(title)
+
+class xconvLike(QuarterFrame):
+    ''' Set up an xconv like set of panels with 
+            field selection on the top left
+            field metadata on the bottom left
+            grid metadata on the bottom right
+            and a combination of grid selection and actions on the top right
+        which of course isn't like xconv, but is more cf-like ...
+        
+        '''
+    def __init__(self,script):
+        ''' Initialise with the script recorder '''
+        super(xconvLike,self).__init__()
+        self.script=script
+        self.fieldSelector=fieldSelector(self.selection)
+        self.fieldMetadata=fieldMetadata()
+        self.gridMetadata=gridMetadata()
+        self.gridSelector=gridSelector(ysize=200)
+        self.topLeft.add(self.fieldSelector)
+        self.bottomLeft.add(self.fieldMetadata)
+        self.bottomRight.add(self.gridMetadata)
+        self._topRight()
+        
+    def _topRight(self):
+        ''' Combination frame for the top right '''
+        topRv=gtk.VBox()
+        topRv.pack_start(self._actionBox(),padding=2)
+        topRv.pack_start(self.gridSelector,expand=True,fill=True)
+        self.topRight.add(topRv)
+        
+    def _actionBox(self):
+        ''' Provides the buttons and callbacks to the actual actions which 
+        the routine supports. '''
+        #actionBox=pcw.plotChoices(callback=self._plot,ysize=90)
+        actionBox=plotChoices(callback=self._plot,ysize=90)
+        actionBox.show()
+        return actionBox
+        
+    def _plot(self,w,plotOptions):
+        ''' Executes a plot given the information returned from the various
+        selectors and configuration widgets. In practice we have
+            - the grid selector telling us about the data slicing,
+            - the field selector telling us about what data to plot, and
+            - the plot choices widget giving us the cf plot arguments.
+        All we have to do here is configure the plot (possibly including
+        dealing with multiple plots on one page). 
+        '''
+
+        #Define the start of the plotting script 
+        script_start="#\n# script generated by cfview version "+__version__+"\n#\
+                      \nimport cf, cfplot as cfp\n\n"
+        
+
+        #Extract data
+        code='sfield=self.fields[0]'
+        exec(code)
+
+
+
+
+
+
+        #Single plot
+        if plotOptions['nup'] == '1': 
+           plotvars.nplots=1
+           if plotvars.plot_counter == 0: plotvars.code=script_start
+
+
+        #Multiple plots
+        if plotOptions['nup'] != '1' and plotvars.pos == 0:
+           #Set number of plots in gplot from interface nup parameter
+           if plotOptions['nup'] == '2x1': 
+              code="cfp.gopen(columns=2, rows=1)"
+              plotvars.nplots=2
+           if plotOptions['nup'] == '1x2': 
+              code="cfp.gopen(columns=1, rows=2, orientation='portrait')"
+              plotvars.nplots=2
+           if plotOptions['nup'] == '2x2': 
+              code="cfp.gopen(columns=2, rows=2)"
+              plotvars.nplots=4
+           if plotOptions['nup'] == '3x2':
+              code="cfp.gopen(columns=3, rows=2)"
+              plotvars.nplots=6
+           if plotOptions['nup'] == '2x3':
+              code="cfp.gopen(columns=2, rows=3, orientation='portrait')"
+              plotvars.nplots=6
+           if plotOptions['nup'] == '3x3':
+              code="cfp.gopen(columns=3, rows=3)"
+              plotvars.nplots=9
+           exec("\n"+code)
+           plotvars.code=script_start
+           plotvars.code=plotvars.code+code+'\n'
+
+           #Position at first plot
+           plotvars.pos=1
+           code="cfp.gpos(pos=1)"
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n\n'
+           plotvars.title=''
+
+
+        
+
+        grid=self.gridSelector.get_selected()
+        # check we have some data
+        if grid is None:
+            dialog=gtk.MessageDialog(None,gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_ERROR,gtk.BUTTONS_CLOSE,
+                    'Please select some data before trying to plot!')
+            dialog.run()
+            dialog.destroy()
+            return
+       
+        # Operate on the first field
+        plotvars.code=plotvars.code+'#Read data\n'
+        plotvars.code=plotvars.code+"sfield=cf.read('"+sfield.file+"')"+\
+                      plotvars.field_selected+'\n\n'
+
+
+
+
+        #Bryan's original code
+        # first let's do the subspace selection (if any):
+        #kwargs={}
+        #self.script.add('kwargs={}',hash=True)
+        #for d in grid:
+        #    kwargs[d]=cf.wi(grid[d][0],grid[d][1])
+        #    self.script.add("kwargs['%s']=cf.wi(%s,%s)"%(d,grid[d][0],grid[d][1]))
+        #sfield=sfield.subspace(**kwargs)
+        #self.script.add('sfield=sfield.subspace(**kwargs)')
+
+
+        #Check if field is subsetted by the user
+        subset_counter=0
+        subset_string=''
+        for d in grid:
+            dmin=np.min(sfield.item(d).array)
+            dmax=np.max(sfield.item(d).array)
+            tol=abs((dmin-int(dmin))/1e3)
+
+            axis_name=getattr(sfield.item(d), 'standard_name', d)
+
+            if len(sfield.item(d).array) == 1: subset_string=subset_string+\
+               ' '+axis_name+':'+str(grid[d][0])+' '
+
+            #Take account of multiple axes with almost the same name
+            #by adding the 'exact' keyword to the subset
+            naxes=len(sfield.items(axis_name))
+            exact_str=''
+            if naxes > 1: exact_str="'exact',"
+
+
+            if (abs(dmin-grid[d][0]) > tol) or (abs(dmax-grid[d][1]) > tol):
+               subset_counter=subset_counter+1
+               if (abs(grid[d][1]-grid[d][0]) <= tol):
+                  #Single value
+                  code="sfield=sfield.subspace(%s%s=%s)"%(exact_str,axis_name,repr(grid[d][0]))
+                  subset_string=subset_string+' '+axis_name+':'+repr(grid[d][0])+' '
+               else:
+                  #Range of values
+                  code="sfield=sfield.subspace(%s%s=cf.wi(%s,%s))"%(exact_str,axis_name,repr(grid[d][0]),repr(grid[d][1]))
+               
+               exec(code)
+               if subset_counter == 1: plotvars.code=plotvars.code+'#Subspace the data\n'
+               plotvars.code=plotvars.code+code+'\n'
+
+            
+
+        if subset_counter > 0: plotvars.code=plotvars.code+'\n'
+
+
+        #Do we have to apply any operators?
+        #Apply these all together to sfield as if longitude and latitude are meaned at the same
+        #time this is a global area weighted mean.  If applied individually it is a linear mean in
+        #longitude followed by a linear mean in latitude.
+        opstring=' '
+        op_counter=0
+        for d in grid:
+            if grid[d][2]<>None:
+                op_counter=op_counter+1
+                if op_counter > 1: opstring=opstring+' '
+                axis_name=getattr(sfield.item(d), 'standard_name', d)
+                opstring+='%s: %s'%(axis_name,grid[d][2])
+
+        if op_counter >0 :
+           code="sfield=sfield.collapse('"+opstring+"')"
+           plotvars.code=plotvars.code+'#Apply operators\n'
+           plotvars.code=plotvars.code+code+'\n\n'
+           exec(code)
+ 
+
+        plotvars.data=sfield
+
+        #Error message if data not of right dimensionality
+        ndim=len(sfield.axes(size=cf.gt(1)))
+        plot_type=plotOptions['con']['ptype']
+        if ndim == 1: plot_type=0
+        if ndim < 1 or ndim >2:
+           dialog=gtk.MessageDialog(None,gtk.DIALOG_DESTROY_WITH_PARENT,
+                  gtk.MESSAGE_ERROR,gtk.BUTTONS_CLOSE,
+                  'Please select  1 or 2 dimensional data to plot')
+           dialog.run()
+           dialog.destroy()
+           return
+
+        #Work out the type of plot requested
+        if plot_type == 0 or plot_type == 1:  plotvars.plot_finish=1
+        if plot_type == 2:  plotvars.plot_finish=2
+        if plot_type == 3:  plotvars.plot_finish=3
+
+
+        # now we know the shape we can check that the plotting options
+        # and data shape are consistent.
+        #message=pcw.checkConsistency(sfield,plotOptions)
+        message=checkConsistency(sfield,plotOptions)
+
+        if message <>'':
+            # We currently don't know how to plot it
+            dialog=gtk.MessageDialog(None,gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_ERROR,gtk.BUTTONS_CLOSE,message)
+            dialog.run()
+            dialog.destroy()
+            return
+        
+        # ok we really can plot this thing!
+        
+        # get more titles, and slicing information for multiple plots
+        #tsList=pcw.getSlicesAndTitles(sfield,plotOptions)
+        tsList=getSlicesAndTitles(sfield,plotOptions)
+
+        #reset cfplot before any plot to clear previous settings
+        if plotvars.pos == 0: cfp.reset()
+
+
+         
+ 
+        if plot_type == 0:
+           #Plot a graph if 1D            
+           plotvars.code=plotvars.code+'#Select data for plot\n'
+           code='import numpy as np'
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           xtitle=''                 
+           yunits='Value'
+           code="xvals=np.squeeze(sfield.array)"
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           plotvars.title=sfield.file+opstring+subset_string
+           for mydim in sfield.items():
+              vals=np.squeeze(sfield.item(mydim).array)                 
+              if np.size(vals) > 1: 
+                 xpts=vals
+                 #code="xpts=np.squeeze(sfield.item('%s').array)"%mydim
+                 axis_name=getattr(sfield.item(mydim), 'standard_name', mydim)
+                 code="xpts=np.squeeze(sfield.item('%s').array)"%axis_name
+                 plotvars.code=plotvars.code+code+'\n'
+                 units='Value'
+                 #xtitle
+                 xtitle=getattr(sfield.item(mydim), 'standard_name', 'NoName')
+                 if xtitle == 'NoName': xtitle=getattr(sfield.item(mydim), 'long_name', 'NoName')
+                 if xtitle == 'NoName': xtitle=getattr(sfield.item(mydim), 'short_name', 'NoName')
+                 if xtitle == 'NoName': xtitle=getattr(sfield.item(mydim), 'ncvar', 'NoName')
+                 xunits=getattr(sfield.item(mydim), 'units', 'No units')
+                 #ytitle
+                 if hasattr(sfield, 'id'): ytitle=sfield.id
+                 if hasattr(sfield, 'ncvar'): ytitle=sfield.ncvar
+                 if hasattr(sfield, 'short_name'): ytitle=sfield.short_name 
+                 if hasattr(sfield, 'long_name'): ytitle=sfield.long_name 
+                 if hasattr(sfield, 'standard_name'): ytitle=sfield.standard_name
+                 if hasattr(sfield, 'Units'): yunits=sfield.Units
+             
+
+           plotvars.code=plotvars.code+'\n#Make a graph plot\n'
+
+           #Open the plot if a single plot
+           if plotvars.nplots == 1:
+              code="cfp.gopen()"
+              exec("\n"+code)
+              plotvars.code=plotvars.code+code+'\n'
+
+           #Plot the graph
+           code="cfp.plotvars.plot.tick_params(direction='out', which='both')"
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           code="cfp.plotvars.plot.set_xlabel('%s(%s)')"%(xtitle,xunits)
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           code="cfp.plotvars.plot.set_ylabel('%s(%s)')"%(ytitle,yunits)
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           code="cfp.plotvars.plot.plot(xpts, xvals)"
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           code="cfp.plotvars.plot.set_title('%s')"%plotvars.title
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+           #Close the plot if a single plot
+           if plotvars.nplots == 1:
+              code="cfp.gclose()"
+              exec(code)
+              plotvars.code=plotvars.code+code+'\n'
+           else:
+              #Move onto next plot
+              plotvars.pos=plotvars.pos+1
+              if plotvars.pos <= plotvars.nplots: 
+                 code="cfp.gpos(pos=%s)"%plotvars.pos
+                 exec(code)
+                 plotvars.code=plotvars.code+'\n#Move to next plot position\n'
+                 plotvars.code=plotvars.code+code+'\n\n'
+
+
+
+        #vector plot
+        if ndim == 2 and (plot_type == 2 or plot_type == 3):
+           fname=''
+           units=''
+           if hasattr(sfield, 'ncvar'): fname=sfield.ncvar
+           if hasattr(sfield, 'short_name'): fname=sfield.short_name 
+           if hasattr(sfield, 'long_name'): fname=sfield.long_name 
+           if hasattr(sfield, 'standard_name'): fname=sfield.standard_name
+           if hasattr(sfield, 'Units'): units=str(sfield.Units)
+
+
+           #Work out whether to store the u vector data or to make the vector plot
+           make_vector=0
+           store_vector=0
+           if plot_type == 2 and plotvars.plot_counter == 1:  make_vector=1
+           if plot_type == 2 and plotvars.plot_counter == 0:  store_vector=1
+           if plot_type == 3 and plotvars.plot_counter == 2:  make_vector=1
+           if plot_type == 3 and plotvars.plot_counter == 1:  store_vector=1
+
+              
+           
+           if make_vector == 1:
+              #Make the vector plot
+              plotvars.title=plotvars.title+plotvars.vect_title+sfield.file+' '+fname+'('+units+')'+\
+                             opstring+subset_string
+              
+              ufield=plotvars.vect_ufield
+              vfield=sfield
+              plotvars.code=plotvars.code+'vfield=sfield\n\n'
+              code="cfp.vect(u=ufield, v=vfield, key_length=10, scale=100, stride=5, title='%s')"%plotvars.title
+              exec(code)
+              plotvars.code=plotvars.code+'\n#Make vector plot\n'
+              plotvars.code=plotvars.code+code+'\n\n'
+
+              #reset counters and move on to the next plot
+              plotvars.vect_ufield=None
+              plotvars.vect_title=''
+              plotvars.title=''
+              plotvars.pos=plotvars.pos+1
+              if plotvars.pos <= plotvars.nplots and plotvars.nplots > 1: 
+                 code="cfp.gpos(pos=%s)"%plotvars.pos
+                 exec(code)                    
+                 plotvars.code=plotvars.code+'\n#Move to next plot position\n'
+                 plotvars.code=plotvars.code+code+'\n\n'
+              plotvars.plot_counter=plotvars.plot_counter+1
+
+
+           if store_vector == 1:
+              #Store u field in plotvars for use next time around
+              plotvars.vect_ufield=sfield
+              if plot_type == 3: plotvars.title=plotvars.title+'\\n'
+              plotvars.vect_title=sfield.file+' '+fname+'('+units+')'+opstring+subset_string+'\\n'
+              plotvars.plot_counter=plotvars.plot_counter+1
+              plotvars.code=plotvars.code+'ufield=sfield\n\n'
+
+
+
+        #Contour plot
+        if ndim == 2 and (plot_type == 1 or plot_type == 3):
+           proceed=1
+           if plot_type == 3 and plotvars.plot_counter > 1: proceed=0
+           if proceed == 1:
+              if plotvars.nplots == 1 and plot_type == 3: 
+                 code="cfp.gopen()"
+                 exec("\n"+code)
+                 plotvars.code=plotvars.code+code+'\n'
+
+                 
+              if plotOptions['mapset']['proj']<>'cyl': 
+                 code="cfp.mapset(proj='%s')"%(plotOptions['mapset']['proj'])
+                 exec(code)
+                 plotvars.code=plotvars.code+'\n#Set mapping\n'
+                 plotvars.code=plotvars.code+code+'\n\n'
+
+
+              plotvars.title=sfield.file+opstring+subset_string
+              
+              
+              #Assemble contour command from plotOptions
+              code="cfp.con(sfield"
+              if plotOptions['con']['blockfill']==1:code=code+",blockfill=1"
+              if plotOptions['con']['lines']<>1:code=code+",lines=0"
+              if plotOptions['con']['fill']<>1:code=code+",fill=0"
+              if plotOptions['con']['negative_linestyle']is not None:
+                 code=code+",negative_linestyle=%s"%plotOptions['con']['negative_linestyle']
+              code=code+",title='%s'"%plotvars.title
+              if plotOptions['con']['colorbar_orientation']=='vertical': \
+                 code=code+",colorbar_orientation='vertical'"
+              if plotOptions['con']['colorbar'] is None: code=code+",colorbar=None"
+              if plotOptions['con']['xlog'] is True: code=code+", xlog=1"
+              if plotOptions['con']['ylog'] is True: code=code+", ylog=1"
+              code=code+')'
+
+              #old command
+              #code="cfp.con(sfield,**plotOptions['con'])"
+              
+              exec(code)
+              plotvars.code=plotvars.code+'#Make contour plot\n'
+              plotvars.code=plotvars.code+code+'\n\n'
+
+              if plot_type ==1: plotvars.title=''
+              plotvars.plot_counter=plotvars.plot_counter+1
+              if plot_type == 1:  
+                 plotvars.pos=plotvars.pos+1
+                 if plotvars.pos <= plotvars.nplots and plotvars.nplots > 1: 
+                    code="cfp.gpos(pos=%s)"%plotvars.pos
+                    exec(code)
+                    plotvars.code=plotvars.code+'\n#Move to next plot position\n'
+                    plotvars.code=plotvars.code+code+'\n\n'
+
+
+
+        #Reset counters if a single plot
+        if plotvars.nplots == 1:
+           plot_reset=0
+           if plot_type == 0 or plot_type == 1:  plot_reset=1
+           if plot_type == 2 and plotvars.plot_counter == 2: plot_reset=1
+           if plot_type == 3 and plotvars.plot_counter == 3: 
+              code="cfp.gclose()"
+              exec(code)
+              plotvars.code=plotvars.code+code+'\n'
+              plot_reset=1
+
+           if plot_reset == 1:
+              plotvars.nplots=1
+              plotvars.pos=0
+              plotvars.plot_counter=0
+              plotvars.plot_finish=0
+              plotvars.title=''
+
+
+        #Reset counter if the last plot of a contour and vector plot
+        if plotvars.nplots > 1 and plot_type == 3 and plotvars.plot_counter == 3:
+           plotvars.plot_counter=0
+
+        #Close and view if multiple plot and it is also the last plot
+        if plotvars.nplots > 1 and plotvars.pos > plotvars.nplots:
+           plotvars.nplots=1
+           plotvars.pos=0
+           plotvars.plot_counter=0
+           plotvars.plot_finish=0
+           code="cfp.gclose()"
+           exec(code)
+           plotvars.code=plotvars.code+code+'\n'
+
+
+
+
+
+        
+
+
+
+          
+
+
+    def set_data(self,data):
+        ''' Set with an open cf dataset object '''
+        self.cf_dataset=data
+        self.fieldSelector.set_data(data)
+        #print 'In data selection'
+
+
+    def selection(self,data):
+        ''' Provided to fieldSelector as a callback, so that when
+        fields are selected, the metadata and grid selectors are
+        updated. '''
+        fields=[self.cf_dataset[i] for i in data]
+        plotvars.field_selected='%s'%data
+        self.fieldMetadata.set_data(fields)
+        self.gridMetadata.set_data(fields)
+        self.gridSelector.set_data(fields[0]) 
+        self.fields=fields
+        
+class script:
+    ''' Provides a scriptable copy of what the gui is doing '''
+    #def __init__(self,debug=True):
+    def __init__(self):
+        ''' Construct the file header. If debug, write actions 
+        as we go along. '''
+        self.content=''
+
+    def start(self):
+       self.content=\
+'''
+import cf
+import cfplot as cfp
+#
+# script generated by cfview version %s
+#
+                    '''%__version__
+
+
+
+    def add(self,command,hash=False):
+        ''' Add a command to the script, preceded by a hash if hash true '''
+        if hash: self.content+='\n#\n'
+        # we have to parse the command for things that need escaping
+        command=command.replace('\n','\\n')
+        self.content+='%s\n'%command
+        #if self.debug:self.debug.write('%s\n'%command)
+
+    def clear(self):
+       self.content=''
+
+
+
+#Show code for making plot in a text window
+class code_show:
+    def close_application(self, widget):
+        #widget.destroy()
+        self.text_window.destroy()
+
+    def __init__(self, widget):
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.set_resizable(True)  
+        window.connect("destroy", self.close_application)
+        window.set_title("cfview - code to make plot")
+        window.set_border_width(0)
+        window.set_size_request(700, 900)
+
+        box1 = gtk.VBox(False, 0)
+        window.add(box1)
+        box1.show()
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)        
+        box1.pack_start(box2, True, True, 0)
+        box2.show()
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        textview = gtk.TextView()
+        textbuffer = textview.get_buffer()
+        sw.add(textview)
+        sw.show()
+        textview.show()
+
+        box2.pack_start(sw)
+        
+        #Set the text view to be plot code.
+        textbuffer.set_text(plotvars.code)
+
+        hbox = gtk.HButtonBox()
+        hbox.set_size_request(200,100)
+        box2.pack_start(hbox, False, False, 0)
+        box2.set_size_request(200,100)
+        hbox.show()
+
+        vbox = gtk.VBox()
+        vbox.show()
+        hbox.pack_start(vbox, False, False, 0)
+
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)
+        box1.pack_start(box2, False, True, 0)
+        box2.show()
+
+        button = gtk.Button("close")
+        button.connect("clicked", self.close_application)
+        box2.pack_start(button, True, True, 0)
+        button.set_flags(gtk.CAN_DEFAULT)
+        button.grab_default()
+        button.show()
+
+        self.text_window=window
+        self.text_window.show()
+
+class data_show:
+    def close_application(self, widget):
+        self.text_window.destroy()
+
+            
+    def __init__(self, widget):
+        ''' View selected data including any subsets or transforms'''
+
+        sfield=plotvars.data     
+
+
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.set_resizable(True)  
+        window.connect("destroy", self.close_application)
+        window.set_title("cfview - data as selected")
+        window.set_border_width(0)
+        window.set_size_request(700, 900)
+
+        box1 = gtk.VBox(False, 0)
+        window.add(box1)
+        box1.show()
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)        
+        box1.pack_start(box2, True, True, 0)
+        box2.show()
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        textview = gtk.TextView()
+        textbuffer = textview.get_buffer()
+        sw.add(textview)
+        sw.show()
+        textview.show()
+
+        box2.pack_start(sw)
+        
+        #Create tags using pango
+        h_tag = textbuffer.create_tag( "h", size_points=12, weight=pango.WEIGHT_BOLD) 
+        b_tag = textbuffer.create_tag( "b", size_points=10, weight=pango.WEIGHT_BOLD) 
+        #Use courier font for data tables
+        t_tag = textbuffer.create_tag( "t", size_points=10, font="Courier") 
+        tb_tag = textbuffer.create_tag( "tb", size_points=10, font="Courier", weight=pango.WEIGHT_BOLD) 
+
+        #Set size of tabs
+        tab_size=14
+
+        #Summary text
+        lineno=0
+        for line in str(sfield).splitlines():
+           if lineno <1:
+              position = textbuffer.get_end_iter()
+              textbuffer.insert_with_tags(position, line+'\n', b_tag) 
+           else:
+              colon_pos=line.find(":")
+              position = textbuffer.get_end_iter()
+              textbuffer.insert_with_tags(position, line[0:colon_pos], b_tag)
+              position = textbuffer.get_end_iter()
+              textbuffer.insert(position,line[colon_pos:] +'\n') 
+           lineno=lineno+1
+
+
+        #Field properties
+        position = textbuffer.get_end_iter()
+        textbuffer.insert_with_tags( position,'\n\nProperties\n__________\n' , b_tag) 
+        for item in sfield.properties:
+           position = textbuffer.get_end_iter()
+           textbuffer.insert_with_tags( position, str(item)+':   ', b_tag) 
+           position = textbuffer.get_end_iter()
+           textbuffer.insert( position, str(sfield.properties[item])+'\n') 
+
+        position = textbuffer.get_end_iter()
+        textbuffer.insert( position, '\n\n') 
+
+
+        #Field data
+        position = textbuffer.get_end_iter()
+        textbuffer.insert_with_tags(position, 'Data\n____\n\n', b_tag) 
+
+        data=np.squeeze(sfield.array)
+        if hasattr(sfield, 'ncvar'): fname=sfield.ncvar
+        if hasattr(sfield, 'short_name'): fname=sfield.short_name 
+        if hasattr(sfield, 'long_name'): fname=sfield.long_name 
+        if hasattr(sfield, 'standard_name'): fname=sfield.standard_name
+
+        #Find max string length
+        #smax=len(max(xpts.astype('str'), key=len))+len(max(data.astype('str'), key=len))+4
+
+        #1D data
+        if np.ndim(data) == 1:
+           for mydim in sfield.items():
+              dimdata=sfield.item(mydim).array
+              if np.size(dimdata) == np.size(data):
+                  xpts=dimdata
+                  xname=''
+                  if hasattr(sfield.item(mydim), 'ncvar'): xname=sfield.item(mydim).ncvar
+                  if hasattr(sfield.item(mydim), 'short_name'): xname=sfield.item(mydim).short_name 
+                  if hasattr(sfield.item(mydim), 'long_name'): xname=sfield.item(mydim).long_name 
+                  if hasattr(sfield.item(mydim), 'standard_name'): xname=sfield.item(mydim).standard_name
+
+
+           #Write out data
+           position = textbuffer.get_end_iter()
+           mystr=(xname+'\t'+fname+'\n').expandtabs(tab_size)
+           textbuffer.insert_with_tags(position, mystr, tb_tag) 
+        
+           for count in np.arange(np.size(data)):
+              mystr=(str(xpts[count])+'\t'+str(data[count])+'\n')
+              mystr=mystr.expandtabs(tab_size)
+              position = textbuffer.get_end_iter()
+              textbuffer.insert_with_tags( position, mystr, t_tag)
+
+        #2D data
+        if np.ndim(data) == 2:
+           data_shape=np.squeeze(np.shape(data))
+           for mydim in sfield.items():
+              dimdata=sfield.item(mydim).array
+              if np.size(dimdata) == data_shape[1]:
+                  xpts=dimdata
+                  xname=''
+                  if hasattr(sfield.item(mydim), 'ncvar'): xname=sfield.item(mydim).ncvar
+                  if hasattr(sfield.item(mydim), 'short_name'): xname=sfield.item(mydim).short_name 
+                  if hasattr(sfield.item(mydim), 'long_name'): xname=sfield.item(mydim).long_name 
+                  if hasattr(sfield.item(mydim), 'standard_name'): xname=sfield.item(mydim).standard_name
+              if np.size(dimdata) == data_shape[0]:
+                  ypts=dimdata
+                  yname=''
+                  if hasattr(sfield.item(mydim), 'ncvar'): yname=sfield.item(mydim).ncvar
+                  if hasattr(sfield.item(mydim), 'short_name'): yname=sfield.item(mydim).short_name 
+                  if hasattr(sfield.item(mydim), 'long_name'): yname=sfield.item(mydim).long_name 
+                  if hasattr(sfield.item(mydim), 'standard_name'): yname=sfield.item(mydim).standard_name
+
+
+           #Write out data
+           mystr=' \t'+str(xpts[0])
+           for i in np.arange(np.size(xpts)-1): mystr=mystr+'\t'+str(xpts[i+1])
+           mystr=mystr.expandtabs(tab_size)
+           position = textbuffer.get_end_iter()
+           textbuffer.insert_with_tags(position, mystr+'\n', tb_tag) 
+           for iy in np.arange(np.size(ypts)):
+              mystr=(str(ypts[iy])+'\t').expandtabs(tab_size)
+              textbuffer.insert_with_tags(position, mystr, tb_tag)
+              mystr=''
+              for ix in np.arange(np.size(xpts)):
+                 if ix == 0: mystr=mystr+str(data[iy,ix])
+                 if ix > 0: mystr=mystr+'\t'+str(data[iy,ix])
+              mystr=mystr.expandtabs(tab_size)
+              position = textbuffer.get_end_iter()
+              textbuffer.insert_with_tags(position, mystr+'\n', t_tag) 
+
+
+
+        textbuffer.insert( position, '\n\n\n') 
+
+        hbox = gtk.HButtonBox()
+        hbox.set_size_request(200,100)
+        box2.pack_start(hbox, False, False, 0)
+        box2.set_size_request(200,100)
+        hbox.show()
+
+        vbox = gtk.VBox()
+        vbox.show()
+        hbox.pack_start(vbox, False, False, 0)
+        
+
+        #button = gtk.Button("close")        
+        #button.set_size_request(200,100)
+        #button.connect("clicked", self.close_application)
+        #box2.pack_start(button, True, True, 0)
+        #button.set_flags(gtk.CAN_DEFAULT)
+        #button.grab_default()
+        #button.show()
+        #window.show()
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)
+        box1.pack_start(box2, False, True, 0)
+        box2.show()
+
+        button = gtk.Button("close")
+        button.connect("clicked", self.close_application)
+        box2.pack_start(button, True, True, 0)
+        button.set_flags(gtk.CAN_DEFAULT)
+        button.grab_default()
+        button.show()
+
+        self.text_window=window
+        self.text_window.show()
+
+class text_view:
+    '''
+    Pop up text window.
+    For showing code, data and help information
+    '''
+    def close_application(self, widget):
+        self.text_window.destroy()
+
+    def __init__(self, title="", text=""):
+        self.x = 'Testing making a text window'
+    
+    def show(self, title="", text=""):
+        #title='code to make plot'
+        #title=''
+        #text=''
+
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.set_resizable(True)  
+        window.connect("destroy", self.close_application)
+        window.set_title(title)
+        window.set_border_width(0)
+        window.set_size_request(700, 900)
+
+        box1 = gtk.VBox(False, 0)
+        window.add(box1)
+        box1.show()
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)        
+        box1.pack_start(box2, True, True, 0)
+        box2.show()
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        textview = gtk.TextView()
+        textbuffer = textview.get_buffer()
+        sw.add(textview)
+        sw.show()
+        textview.show()
+
+        box2.pack_start(sw)
+        
+        #Set the text view to be plot code.
+        #textbuffer.set_text(plotvars.code)
+        textbuffer.set_text(text)
+
+        hbox = gtk.HButtonBox()
+        hbox.set_size_request(200,100)
+        box2.pack_start(hbox, False, False, 0)
+        box2.set_size_request(200,100)
+        hbox.show()
+
+        vbox = gtk.VBox()
+        vbox.show()
+        hbox.pack_start(vbox, False, False, 0)
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)
+        box1.pack_start(box2, False, True, 0)
+        box2.show()
+
+        button = gtk.Button("close")
+        button.connect("clicked", self.close_application)
+        box2.pack_start(button, True, True, 0)
+        button.set_flags(gtk.CAN_DEFAULT)
+        button.grab_default()
+        button.show()
+
+        self.text_window=window
+        self.text_window.show()
+
+  
+class plotChoices(guiFrame):
+    ''' Provides a small set of cf-plot aware plot choices '''
+    def __init__(self,callback,xsize=None,ysize=None):
+        ''' Constructor places buttons etc in frame, users interact,
+        and then press one of the two key buttons: simple plot, or normal plot.
+        They can also do advanced configuration via the advanced config button.
+        Caller needs to provide a callback for when one of the two plot
+        buttons is called (and deal with either {} for a simple plot, or 
+        a dictionary of dictionaries with cf plots etup information for the
+        normal plot. 
+        Optional arguements are size hints. '''
+        super(plotChoices,self).__init__(
+            'Configure and Generate Plots',xsize=xsize,ysize=ysize)
+        self.callback=callback
+        self.vbox=gtk.VBox()
+        self.row1=gtk.HBox()
+        self.row2=gtk.HBox()
+        self.row3=gtk.HBox()
+        self.row4=gtk.HBox()
+        self.add(self.vbox)
+        self._row1(callback)
+        self._row2()
+        self._row3()
+        self._row4(callback)
+    
+    def _row1(self,callback):
+        ''' Sets up the basic action buttons '''
+        #sp=smallButton('Simple Plot')
+        #np=smallButton('Plot (Configured)')
+        np=smallButton('Plot')
+        hb=smallButton('Help')
+        s1=gtk.VSeparator()
+        s2=gtk.VSeparator()
+        #for b in [sp,s1,np,s2,hb]:
+        for b in [np,s2,hb]:
+            self.row1.pack_start(b,padding=2)
+        self.vbox.pack_start(self.row1,expand=False,padding=2)
+        self.vbox.pack_start(gtk.HSeparator(),expand=False,padding=2)
+        #sp.connect('clicked',callback,{})
+        np.connect('clicked',self._getConfig,None)
+        hb.connect('clicked',self._help,None)
+    
+    def _row2(self):
+        ''' Lays out the buttons for standard plots '''
+        self.projComboShown=1
+        #ptypes=['X-Y','X-Z','Y-Z','X-T','Y-T']
+        ptypes=['contour', 'vector', 'contour+vector']
+        nup=['1','2x1', '1x2', '2x2' , '3x2', '2x3','3x3']
+        self.proj=['cyl','moll','npolar','spolar']
+        #self.typCombo=myCombo(ptypes,label='type',initial='X-Y',callback=self._showProj)
+        self.typCombo=myCombo(ptypes,label='type',initial='contour',callback=self._showProj)
+        self.nupCombo=myCombo(nup,label='n-up',initial='1')
+        self.projCombo=myCombo(self.proj,label='projection',initial='cyl')
+        self.row2.pack_start(self.nupCombo,expand=True,padding=2)
+        self.row2.pack_start(self.typCombo,expand=True,padding=2)
+        self.row2.pack_start(self.projCombo,expand=True,padding=2)
+        self.vbox.pack_start(self.row2,expand=False,padding=2)
+
+    def _row3(self):
+        ''' Lays out the buttons for configuring contours '''
+        contours=['lines','filled','block']
+        labels=['Off','On','On--']
+        self.cbar=['On','Off','On-X','On-Y']
+        self.cbarChoiceShown=1
+        self.conCombo=myCombo(contours,label='contours',initial='filled',
+                callback=self._showCbar)
+        self.linCombo=myCombo(labels,label='labels',initial='On')
+        self.cbarCombo=myCombo(self.cbar,label='bar',initial='On')
+        #self.cbarCombo=myCombo(self.cbar,label='bar',initial='Off')
+        for w in [self.conCombo,self.linCombo,self.cbarCombo]:
+            self.row3.pack_start(w,padding=2)
+        self.vbox.pack_start(self.row3,expand=False,padding=2)
+        
+        extend=['min','max','neither','both']
+
+        
+    def _row4(self,callback):
+        ''' Lays out axes information'''
+        logv=['Normal','log-x','log-y','log-xy']
+        self.axeCombo=myCombo(logv,label='axes',initial='Normal')
+        ac=smallButton('Advanced Config')
+        #ac.connect('clicked',self._advancedConfig,None)
+        ac.connect('clicked', AdvancedConfig)
+        self.row4.pack_start(self.axeCombo,padding=2,expand=False)
+        self.row4.pack_start(ac,padding=2,expand=True)
+        self.vbox.pack_start(self.row4,expand=False,padding=2)
+        
+    def _showCbar(self,w,value):
+        ''' Callback used to turn off the colour bar choice as appropriate '''
+        if value=='lines' and self.cbarChoiceShown:
+            self.cbarCombo.destroy()
+            self.cbarChoiceShown=0
+        elif not self.cbarChoiceShown:
+            self.cbarCombo=myCombo(self.cbar,initial='Off')
+            self.row3.pack_start(self.cbarCombo,padding=2)
+            self.cbarChoiceShown=1
+            self.cbarCombo.show()
+        
+    def _showProj(self,w,value):
+        ''' Callback used for the typcombo to allow projections for X-Y '''
+        if value=='contour' and not self.projComboShown:
+            self.projCombo=myCombo(self.proj,initial='cyl')
+            self.row2.pack_start(self.projCombo,expand=False,padding=2)
+            self.projCombo.show()
+        if value!='contour' and self.projComboShown:
+            self.projCombo.destroy()
+            self.projComboShown=0
+            
+    def _help(self,w,data):
+        ''' Show configuration help '''
+        dialog=gtk.MessageDialog(None,gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_INFO,gtk.BUTTONS_OK,
+                    'Making vector plots - select u field and then click plot  \
+                                         - select v field and then click plot\
+                     Making contour and vector plots - select contour field and click plot\
+                                         - select u field and then click plot\
+                                         - select v field and then click plot\
+')
+
+
+
+        dialog.run()
+        dialog.destroy()
+   
+
+    def _advancedConfig(self,w,data):
+        ''' Generate advanced plot configuration information via a dialog popup '''
+        dialog=gtk.MessageDialog(None,gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_INFO,gtk.BUTTONS_OK,
+                    'Sorry advanced config not yet implemented')
+        dialog.run()
+        dialog.destroy()
+
+
+
+
+
+
+
+        
+    def _getConfig(self,w,d):
+        ''' Return all the configuration information in dictionaries
+        suitable for use as arguments for cf plot via the callback.
+        This is the intersection between cf-gui and cf-plot 
+        (i.e. it implements most of the cf-plot API (more of it
+        is implemented via the advanced config.) '''
+        config={
+            #'nup':int(self.nupCombo.get_value()),
+            'nup':self.nupCombo.get_value(),
+            'gopen':{
+                'rows':
+                    {'1':None, '2x1':1, '1x2':2, '2x2':2, '3x2':2, '2x3':3, '3x3':3}[self.nupCombo.get_value()],
+                'columns':
+                    {'1':None, '2x1':2, '1x2':1, '2x2':2, '3x2':3, '2x3':2, '3x3':3}[self.nupCombo.get_value()],
+                    },
+            'mapset':{
+                'proj':{'cyl':'cyl','moll':'moll','npolar':'npstere',
+                            'spolar':'spstere'}[self.projCombo.get_value()]
+                    },
+            'con':{
+                'ptype':
+                    #{'X-Y':1,'X-Z':3,'Y-Z':2,'X-T':5,'Y-T':4}[self.typCombo.get_value()],
+                    {'contour':1,'vector':2, 'contour+vector':3}[self.typCombo.get_value()],
+                'line_labels':
+                    {'On':True,'On--':True,'Off':False}[self.linCombo.get_value()],
+                'negative_linestyle':
+                    {'On':None,'Off':None,'On--':1}[self.linCombo.get_value()],
+                'colorbar':
+                    {'On':1,'Off':None,'On-X':1,'On-Y':1}[self.cbarCombo.get_value()],
+                'colorbar_orientation':
+                    #{'Off':None,'On':None,'On-X':'horizontal','On-Y':'vertical'}
+                    {'On':'horizontal','Off':None,'On-X':'horizontal','On-Y':'vertical'}
+                        [self.cbarCombo.get_value()],
+                'blockfill':
+                    {'lines':None,'filled':None,'block':1}[self.conCombo.get_value()],
+                'lines':
+                    {'lines':True,'filled':True,'block':None}[self.conCombo.get_value()],
+                'fill':
+                    {'lines':None,'filled':True,'block':None}[self.conCombo.get_value()],
+                'xlog':
+                    {'Normal':None,'log-x':True,'log-y':None,'log-xy':True}
+                        [self.axeCombo.get_value()],
+                'ylog':
+                    {'Normal':None,'log-x':None,'log-y':True,'log-xy':True}
+                        [self.axeCombo.get_value()],
+                    }
+                }
+        self.callback('Configured',config)
+   
+    def show(self):
+        super(plotChoices,self).show_all()
+        
+def checkConsistency(field,plotOptions):
+    ''' Check consistency between the data chosen and the plot options and
+    generate error messages if appropriate. Return '' if ok! '''
+    fixit='\nPlease use the grid selector to choose a 1d or 2d field'
+    message=''
+    #if plotOptions=={}:
+    #    # simple plot option, we expect a 2d field
+    #    if (len(xyshape(field)) < 1 or len(xyshape(field)) > 2):
+    #        message= 'cfview can only plot 1D or 2D fields'+fixit
+    #        return message
+    #    else: message=''
+    #else:
+        # The key thing we need to check is for consistency between
+        # plot options and the shape, so we can work out what to do with
+        # for example, and XY plot which is 6-up.
+    #    multi=plotOptions['nup']<>'1'
+    #    message=plotPossibleWithField(field,plotOptions['con']['ptype'],multi)
+    #    if message<>'': 
+    #        if not multi: message+=fixit
+    return message
+        
+def axes_sizes(f):
+    ''' Return the sizes of the X,Y,Z,T arrays in field,f , if that's possible. 
+    Much of this is temporary code, needed because 0.9.8.1 of cf-python
+    can't do this trivially, 0.9.8.3 can ...'''
+    sizes,results={},{}
+    axes=f.domain.axes()
+    # After this next line, we have an array keyed by 'dim'
+    for axis in axes: sizes[axis]=f.domain.axes_sizes(key=True)[axis]
+
+    # We need to know those for the short names. 
+    for axis in ['X','Y','Z','T']:
+        if f.domain.axis(axis) is not None:
+            try:
+                results[axis]=sizes[f.domain.axis(axis)]
+            except ValueError:
+                results[axis]=None
+
+    #for axis in ['X','Y','Z','T']:
+    #    try:
+    #        results[axis]=sizes[f.domain.axis(axis)]
+    #    except ValueError:
+    #        results[axis]=None
+
+    return results
+    
+def xyshape(f):
+    ''' Return the shape of a field as a string, e.g. XY, or XYT '''
+    sizes=axes_sizes(f)
+    shapeString=''
+    for s in sizes:
+        if sizes[s]>1: shapeString+=s
+    return shapeString
+    
+#def ptype2string(ptype):
+#    ''' Take a plot type understood by cf-plot, and convert to an XYZT string '''
+#    return {1:'XY',3:'XZ',2:'YZ',5:'XT',4:'YT'}[ptype]
+    
+#def plotPossibleWithField(f,ptype,multi=False):
+#    ''' For a given field, is a plot of ptype possible?
+#            ptype is the integer understood by cf-plot.
+#        One extra dimension can be allowed to be non-singular,
+#        but only if multi is true.
+#        Returns '' for success, otherwise a string with an error message!
+#    '''
+#    ss=ptype2string(ptype)
+#    fs_shape=xyshape(f)
+#    nd=len(fs_shape)
+#    message=''
+#    if nd>3:
+#        message='Dimensionality (%s) too great'%nd
+#    elif nd==3 and not multi:
+#        message='Dimensionality (3) not allowed unless multiple plots'
+#    elif nd<2:
+#        message='Dimensionality (%s) too small'%nd
+#    elif nd==2 and multi:
+#        message='Dimensionality (2) too small for multiple plots'
+#    elif nd==3 and multi:
+#        for s in ss:
+#            if s not in fs_shape:
+#                message='Missing axis %s'%s
+#    else:
+#        raise ValueError('This should not occur')
+#    #print multi,nd,ss,ptype,fs_shape,f.shape,message
+#    #return message
+#    return ''
+
+def getSlicesAndTitles(field,plotOptions):
+    ''' Get appropriate title information for each plot, and for multiple
+    plots, extract the slicing information necessary to extract each
+    plot from the field. '''
+    grid=cfGrid(field)
+    # start with common title
+    title=''
+    simple=False
+    if plotOptions=={}:
+        simple=True
+    else:
+        if plotOptions['nup']==1 or len(xyshape(field))==2: simple=True
+    simple=True
+    if simple:
+        # it's easy, just find the singleton dimension values
+        for dim in grid.axes:
+            if len(grid.axes[dim].array)==1:
+                title+=' %s:%s '%(grid.names[dim],grid.axes[dim].array[0])
+        # just return the title, no subspace argument selector necessary.
+        r=[(title,None),]
+    #else:
+    #    # find the dimension we're stepping through.
+    #    myplot={1:'XY',3:'XZ',2:'YZ',5:'XT',4:'YT'}[plotOptions['con']['ptype']]
+    #    shape=xyshape(field)                                 # eg XYT
+    #    stepper=shape.strip(myplot)                          # eg T
+    #    dim=field.domain.axis(stepper)                       # eg 'dim2'
+    #    r=[]
+    #    # how many, minimum of length of field or nup
+    #    howmany=min(plotOptions['nup'],len(grid.axes[dim].array))
+    #    #howmany=len(grid.axes[dim].array)
+    #    for i in range(howmany):
+    #        thisTitle=title
+    #        key,value=grid.names[dim],grid.axes[dim].array[i]
+    #        thisTitle+=' %s:%s '%(key,value)
+    #        # need to use dim in the next command to avoid possible name ambiguity
+    #        # in non-cf compliant files.
+    #        r.append((thisTitle,{dim:value}))
+    #    print shape,stepper,dim,key,value
+    return r
+            
+      
+
+
+    
+       
+class AdvancedConfig:
+    ''' Generate advanced plot configuration information via a dialog popup '''
+
+    def close_application(self, widget):
+        self.advanced_window.destroy()
+
+    def set_vals(self, widget):
+        print 'set_vals'
+        plotvars.levs_min=levs_min.get_Entry()
+        plotvars.levs_max=levs_max.get_Entry()
+        plotvars.levs_step=levs_step.get_Entry()
+
+    def __init__(self, widget):
+        # create a new window
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        window.set_usize(500, 400)
+        window.set_title("Advanced Config")
+
+        vbox = gtk.VBox(gtk.FALSE, 0)
+        window.add(vbox)
+        vbox.show()
+        
+
+        #Levels entry section
+        levels_box=gtk.VBox()
+        levels_box.show()
+        separator = gtk.HSeparator()
+        separator.show()
+        levels_box.pack_start(separator)
+        levels_label=gtk.Label("Levels") 
+        levels_label.show()
+        levels_box.pack_end(levels_label)
+        vbox.add(levels_box)
+        levels_hbox=gtk.HBox()
+        levels_hbox.show()
+        vbox.add(levels_hbox)
+                                  
+        #Levels - minimum entry
+        levs_min = gtk.Entry()
+        #levs_min.set_max_length(5)
+        levs_min.set_text(plotvars.levs_min)
+        levs_min.show()
+        levs_label_min=gtk.Label("Minimum:")
+        levs_label_min.show()
+        levels_hbox.pack_start(levs_label_min)
+        levels_hbox.pack_end(levs_min)
+
+        #Levels - maximum entry
+        levs_max = gtk.Entry()
+        levs_max.set_text(plotvars.levs_max)
+        levs_max.show()
+        levs_label_max=gtk.Label("Maximum:")
+        levs_label_max.show()
+        levels_hbox.pack_end(levs_label_max)
+        levels_hbox.pack_end(levs_max)
+
+
+        #Levels - step entry
+        levs_step = gtk.Entry()
+        levs_step.set_text(plotvars.levs_step)
+        levs_step.show()
+        levs_label_step=gtk.Label("Step:")
+        levs_label_step.show()
+        levels_hbox.pack_end(levs_label_step)
+        levels_hbox.pack_end(levs_step)
+
+        separator2 = gtk.HSeparator()
+        separator2.show()
+        levels_box.pack_end(separator2)
+
+
+
+        box2 = gtk.VBox(False, 10)
+        box2.set_border_width(10)
+        box2.show()
+        vbox.pack_end(box2, False, True, 0)
+
+
+
+        button = gtk.Button("close")
+        button.connect("clicked", self.close_application)
+        box2.pack_start(button, True, True, 0)
+        button.set_flags(gtk.CAN_DEFAULT)
+        button.grab_default()
+        button.show()
+
+        button1 = gtk.Button(label="Set levels")
+        button1.show()
+        button1.connect("clicked", self.set_vals)
+        box2.pack_start(button1, True, True, 0)
+
+
+        self.advanced_window=window
+        self.advanced_window.show()
+
+
+
+    
+
+def main(filename):
+    ''' main loop for cfview '''
+    c=cfview(filename)
+    gtk.main()
+    return 0
+        
+if __name__=="__main__":
+    args=sys.argv
+    if len(args)>2:
+        print 'Usage: cfview <filename>   (filename is optional)'
+    elif len(args)==2:
+        main(args[1])
+    else: main(None)
+
+

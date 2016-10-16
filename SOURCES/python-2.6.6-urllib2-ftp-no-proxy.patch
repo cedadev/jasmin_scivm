@@ -1,0 +1,12 @@
+diff -up Python-2.6.6/Lib/urllib2.py.urllib2-ftp-no-proxy Python-2.6.6/Lib/urllib2.py
+--- Python-2.6.6/Lib/urllib2.py.urllib2-ftp-no-proxy	2010-07-10 23:33:38.000000000 -0400
++++ Python-2.6.6/Lib/urllib2.py	2011-01-11 18:38:25.233427194 -0500
+@@ -704,6 +704,8 @@ class ProxyHandler(BaseHandler):
+         if proxy_type is None:
+             proxy_type = orig_type
+ 
++        req.get_host()
++
+         if req.host and proxy_bypass(req.host):
+             return None
+ 

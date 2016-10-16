@@ -1,0 +1,16 @@
+--- setup.py~	2013-08-16 08:31:20.000000000 +0100
++++ setup.py	2013-10-21 09:31:57.000000000 +0100
+@@ -572,6 +572,13 @@
+             cmake_cmd.append("-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=yes")
+             if sys.version_info[0] > 2:
+                 cmake_cmd.append("-DUSE_PYTHON3=ON")
++
++        # allow user to specify QT_PHONON_INCLUDE_DIR via env var
++        try:
++            cmake_cmd.append("-DQT_PHONON_INCLUDE_DIR=%s" % 
++                             os.environ["QT_PHONON_INCLUDE_DIR"])
++        except KeyError:
++            pass
+         
+         if sys.platform == 'darwin':
+             if 'QTDIR' in os.environ:

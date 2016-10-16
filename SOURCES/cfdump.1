@@ -1,0 +1,324 @@
+.TH "CFDUMP" "1" "Version 0.9.8" "06 December 2013" "cfdump"
+.
+.
+.
+.SH NAME
+cfdump \- view CF fields
+.
+.
+.
+.SH SYNOPSIS
+cfdump [\-a options] [\-c] [\-h] [\-l] [\-r options] [\-s] [FILE] ...
+.
+.
+.
+.SH DESCRIPTION
+The cfdump tool generates text representations on standard output of the CF
+fields contained in the input files.
+.PP
+The input files are treated as a single CF dataset following the
+aggregation rules currently documented in CF ticket #78.
+.PP
+By default a summary of each CF field is output, but short one\-line
+summaries and long or complete dumps are optionally available (see the
+.ft B
+\-s \-l \-c
+.ft P
+options).
+.PP
+Accepts CF\-netCDF and CFA\-netCDF files (or URLs if DAP access is
+enabled) and Met Office (UK) PP format files as input. Multiple input
+files in a mixture of formats may be given and normal UNIX file globbing
+rules apply. For example:
+.PP
+.RS 
+.nf
+cfdump file1.nc file2.nc     
+cfdump file[1\-9].nc     
+cfdump data1/*.nc data2/*.nc      
+cfdump data[12]/*.nc      
+cfdump ../test*.pp     
+cfdump file.nca      
+cfdump file.nca file?.nc      
+cfdump http://test.opendap.org/dap/coads_climatology.nc      
+cfdump http://test.opendap.org/dap/coads_climatology.nc file*.nc
+.fi
+.RE
+.PP
+In the output, each component of a field is assigned one of the
+following roles as defined by the CF data model:
+.PP
+.RS
+.nf
+Field
+Dimension
+Dimension coordinate
+Auxiliary coordinate
+Cell measure
+Transform
+.fi
+.RE
+.PP
+A field and its components are identified, where appropriate, by
+their standard names if available, or their long names. If neither is
+present then a netCDF variable name is used. Long names and netCDF
+variable names are preceded by 'long_name:' and 'ncvar:'
+respectively. Dimension identities are inferred from the coordinates
+which span them.
+.PP
+Each data array of a field and its components is described by its
+dimensionality, units and (depending on the length of dump requested)
+its first and last values. For long and complete dumps, arrays
+containing coordinate bounds are given in the same way and included as
+part of their coordinates' descriptions.
+.
+.
+.
+.SH EXAMPLES
+.
+.
+In these examples, a complete dataset has been split across two files
+(file1.nc and file2.nc). These may be passed to cfdump which will
+return a description of the recombined, aggregated field.
+.PP
+The short, one\-line output gives the identity of the field
+(air_temperature), the identities and sizes of its data array
+dimensions (time, latitude and longitude with sizes 1200, 64 and 128
+respectively) and the units of the field's data array (K):
+.PP
+.nf
+   $ cfdump \-s file1.nc file2.nc
+   <CF Field: air_temperature(time(1200), latitude(64), longitude(128)) K>
+.fi
+.PP
+The default summary gives the same information as the the one\-line
+output, along with short descriptions of the field's other components:
+.PP
+.nf
+   $ cfdump file[12].nc
+   air_temperature field summary
+   -----------------------------
+   Data            : air_temperature(time(1200), latitude(64), longitude(128)) K
+   Cell methods    : time: mean (interval: 1.0 month)
+   Dimensions      : time(12) = [ 450\-11\-16 00:00:00, ...,  550\-10\-16 12:00:00] noleap calendar
+                   : latitude(64) = [\-87.8638000488, ..., 87.8638000488] degrees_north
+                   : longitude(128) = [0.0, ..., 357.1875] degrees_east
+                   : height(1) = [2.0] m
+.fi
+.PP
+This shows that the aggregated field has a cell method and four
+dimension coordinates, one of which (height) is a coordinate for a
+size 1 dimension that is not a dimension of the field's data
+array. The units and first and last values of the coordinates' data
+arrays are given and relative time values are translated into strings.
+.PP
+The long dump includes each component's properties, as well as the
+first and last values of the field's data array:
+.PP
+.nf
+   $ cfdump \-l file[1\-2].nc
+   ======================
+   Field: air_temperature
+   ======================
+   Dimensions
+       height(1)
+       latitude(64)
+       longitude(128)
+       time(12)
+   
+   Data(time(12), latitude(64), longitude(128)) = [[[236.512756348, ..., 256.93371582]]] K
+   cell_methods = time: mean (interval: 1.0 month)
+   
+   experiment_id = 'pre\-industrial control experiment'
+   long_name = 'air_temperature'
+   missing_value = 1e+20
+   standard_name = 'air_temperature'
+   
+   Dimension coordinate: time
+       Data(time(12)) = [ 450\-11\-16 00:00:00, ...,  550\-10\-16 12:00:00] noleap calendar
+       Bounds(time(12), 2) = [[ 450\-11\-01 00:00:00, ...,  550\-11\-01 00:00:00]] noleap calendar
+       axis = 'T'
+       standard_name = 'time'
+   
+   Dimension coordinate: latitude
+       Data(latitude(64)) = [\-87.8638000488, ..., 87.8638000488] degrees_north
+       Bounds(latitude(64), 2) = [[\-90.0, ..., 90.0]] degrees_north
+       axis = 'Y'
+       standard_name = 'latitude'
+   
+   Dimension coordinate: longitude
+       Data(longitude(128)) = [0.0, ..., 357.1875] degrees_east
+       Bounds(longitude(128), 2) = [[\-1.40625, ..., 358.59375]] degrees_east
+       axis = 'X'
+       standard_name = 'longitude'
+   
+   Dimension coordinate: height
+       Data(height(1)) = [2.0] m
+       axis = 'Z'
+       positive = 'up'
+       standard_name = 'height'
+.fi
+.PP
+In this case, the complete dump output by the
+.ft B
+\-c
+.ft P
+option would be the same as the long dump, since there are no fields
+contained in transforms nor ancillary variables.
+.
+.
+.
+.SH OPTIONS
+.
+.
+.TP
+.B \-a options, \-\-aggregate=options 
+Configure the field aggregation process with the following options:
+.RS
+.TP
+.B 0
+Do not aggregate fields. By default fields are aggregated if possible.
+.
+.TP
+.B contiguous
+Requires that aggregated fields have adjacent dimension coordinate
+cells which partially overlap or share common boundary
+values. Ignored if the dimension coordinates do not have bounds.
+.TP
+.B no_overlap
+Requires that aggregated fields have adjacent dimension coordinate
+cells which do not overlap (but they may share common boundary values).
+Ignored if the dimension coordinates do not have bounds.
+.TP
+.B equal_all
+Requires that aggregated fields have the same set of non\-standard CF
+properties (including long_name), with the same values.
+.TP
+.B exist_all
+Requires that aggregated fields have the same set of non\-standard CF
+properties (including long_name), but not requiring the values to be
+the same.
+.TP
+.B dimension=properties
+Create new dimensions for each input field which has one or more of
+the given properties. For each CF property in the colon (:) separated
+list of property names, if an input field has the property then, prior
+to aggregation, a new dimension is created with an auxiliary
+coordinate whose datum is the property's value and the property itself
+is deleted from that field.
+.TP
+.B no_strict_units
+Assume that fields or their components (such as coordinates) with the
+same identity but missing units all have equivalent (but unspecified)
+units, so that aggregation may occur. This is the default for input PP
+files, but not for other formats.
+.TP
+.B messages
+Print messages giving reasons why particular fields have not been
+aggregated.
+.TP
+Multiple options are separated by commas. For example:
+.PP
+.RS
+.nf
+\-a 0
+\-a exist_all
+\-a contiguous,no_overlap,equal_all 
+\-a messages,dimension=ensemble_member
+\-a dimension=ensemble_member:model,no_strict_units
+.fi
+.RE
+.RE
+.
+.
+.TP
+.B \-c, \-\-complete
+Output a complete dump. A field is described without abbreviation with
+the exception of data arrays, which are abbreviated to their first and
+last values. Fields contained in transforms and ancillary variables
+are given as long dumps (see the
+.ft B
+\-l
+.ft P
+option).
+.
+.
+.TP
+.B \-h, \-\-help
+Display the man page.
+.
+.
+.TP
+.B \-l, \-\-long
+Output a long dump. Differs from the complete dump (see the
+.ft B
+\-c
+.ft P
+option) only in that fields contained in transforms and ancillary
+variables are given as one\-line summaries (see the \-s option) rather
+than as long dumps.
+.
+.
+.TP
+.B \-r options, \-\-read=options
+Configure the file reading process with the following options:
+.RS
+.TP
+.B ignore_ioerror
+Ignore, without failing, any file which causes an I/O error whilst
+being read, as would be the case for an empty file, unknown file
+format, etc. By default, an error occurs and the return code is
+non\-zero.
+.TP
+.B umversion=version
+For PP format files only, the Unified Model (UM) version to be used
+when decoding the PP header. Valid versions are, for example, 4.2,
+6.6.3 and 8.2.  The default version is 4.5. The version is ignored if
+it can be inferred from the PP headers, which will generally be the
+case for files created at versions 5.3 and later. Note that the PP
+header can not encode tertiary version elements (such as the 3 in
+6.6.3), so it may be necessary to provide a UM version in such cases.
+.PP
+.RS
+Ignored for files of any other format.
+.RE
+.TP
+Multiple options are separated by commas. For example:
+.PP
+.RS
+.nf
+\-r ignore_ioerror
+\-r umversion=5.1
+\-r umversion=6.6.3,ignore_ioerror     
+.fi
+.RE
+.RE
+.
+.
+.TP
+.B \-s, \-\-short
+Output a short, one\-line summary for each field. Each field is
+described by its identity, dimensionality and units.
+.
+.
+.
+.SH SEE ALSO
+ncdump(1), cfa(1)
+.
+.
+.
+.SH BUGS
+Reports of bugs are welcome at
+.ft I
+cfpython.bitbucket.org
+.ft P
+.
+.
+.
+.SH LICENSE
+Open Source Initiative MIT License
+.
+.
+.SH AUTHOR
+David Hassell
+

@@ -1,0 +1,12 @@
+diff -ru umutil/lsm.f umutil2/lsm.f
+--- umutil/lsm.f	1996-10-14 16:45:09.000000000 +0100
++++ umutil2/lsm.f	2013-01-04 14:09:09.000000000 +0000
+@@ -2,6 +2,8 @@
+ C
+       IMPLICIT NONE
+ C
++      INTEGER ICOPY
++C
+       INTEGER N1,N2,N3
+       PARAMETER (N1=256,N2=45,N3=19)
+ C

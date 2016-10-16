@@ -1,0 +1,264 @@
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/contrib/gizmos/gtk/gizmos_wrap.cpp wxPython-src-3.0.0.0/wxPython/contrib/gizmos/gtk/gizmos_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/contrib/gizmos/gtk/gizmos_wrap.cpp	2013-12-16 08:52:12.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/contrib/gizmos/gtk/gizmos_wrap.cpp	2014-09-04 22:58:04.035387024 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/animate_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/animate_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/animate_wrap.cpp	2013-12-16 08:51:56.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/animate_wrap.cpp	2014-09-04 22:58:04.075387422 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/aui_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/aui_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/aui_wrap.cpp	2013-12-28 04:28:56.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/aui_wrap.cpp	2014-09-04 22:58:04.080387472 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/calendar_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/calendar_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/calendar_wrap.cpp	2013-12-16 08:51:28.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/calendar_wrap.cpp	2014-09-04 22:58:04.082387492 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/combo_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/combo_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/combo_wrap.cpp	2013-12-16 08:51:32.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/combo_wrap.cpp	2014-09-04 22:58:04.084387512 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_controls_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/_controls_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_controls_wrap.cpp	2013-12-16 08:51:23.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/_controls_wrap.cpp	2014-09-04 22:58:04.094387611 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_core_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/_core_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_core_wrap.cpp	2013-12-28 04:18:40.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/_core_wrap.cpp	2014-09-04 22:58:04.062387293 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/dataview_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/dataview_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/dataview_wrap.cpp	2013-12-16 08:51:45.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/dataview_wrap.cpp	2014-09-04 23:00:27.042820179 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_gdi_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/_gdi_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_gdi_wrap.cpp	2013-12-16 08:51:16.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/_gdi_wrap.cpp	2014-09-04 22:58:04.073387402 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/glcanvas_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/glcanvas_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/glcanvas_wrap.cpp	2013-12-16 08:52:07.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/glcanvas_wrap.cpp	2014-09-04 22:58:04.037387044 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/grid_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/grid_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/grid_wrap.cpp	2013-12-16 08:51:35.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/grid_wrap.cpp	2014-09-04 22:58:04.100387671 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/html2_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/html2_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/html2_wrap.cpp	2013-12-28 04:28:56.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/html2_wrap.cpp	2014-09-04 23:01:00.379154803 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/html_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/html_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/html_wrap.cpp	2013-12-16 08:51:38.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/html_wrap.cpp	2014-09-04 22:58:04.104387710 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/media_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/media_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/media_wrap.cpp	2013-12-16 08:51:39.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/media_wrap.cpp	2014-09-04 22:58:04.106387730 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_misc_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/_misc_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_misc_wrap.cpp	2013-12-28 04:18:47.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/_misc_wrap.cpp	2014-09-04 22:58:04.113387800 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/propgrid_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/propgrid_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/propgrid_wrap.cpp	2013-12-16 08:52:01.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/propgrid_wrap.cpp	2014-09-04 23:01:26.082412807 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/richtext_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/richtext_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/richtext_wrap.cpp	2013-12-16 08:51:52.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/richtext_wrap.cpp	2014-09-04 22:58:04.122387890 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/stc_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/stc_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/stc_wrap.cpp	2013-12-16 08:52:06.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/stc_wrap.cpp	2014-09-04 22:58:04.045387124 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/webkit_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/webkit_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/webkit_wrap.cpp	2013-12-16 08:51:41.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/webkit_wrap.cpp	2014-09-04 22:58:04.124387909 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_windows_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/_windows_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/_windows_wrap.cpp	2013-12-16 08:51:19.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/_windows_wrap.cpp	2014-09-04 22:58:04.131387979 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/wizard_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/wizard_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/wizard_wrap.cpp	2013-12-16 08:51:43.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/wizard_wrap.cpp	2014-09-04 22:58:04.134388009 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 
+diff -Nrup wxPython-src-3.0.0.0.orig/wxPython/src/gtk/xrc_wrap.cpp wxPython-src-3.0.0.0/wxPython/src/gtk/xrc_wrap.cpp
+--- wxPython-src-3.0.0.0.orig/wxPython/src/gtk/xrc_wrap.cpp	2013-12-16 08:51:46.000000000 -0500
++++ wxPython-src-3.0.0.0/wxPython/src/gtk/xrc_wrap.cpp	2014-09-04 22:58:04.136388029 -0400
+@@ -861,7 +861,7 @@ SWIG_Python_AddErrorMsg(const char* mesg
+     Py_DECREF(old_str);
+     Py_DECREF(value);
+   } else {
+-    PyErr_Format(PyExc_RuntimeError, mesg);
++    PyErr_Format(PyExc_RuntimeError, "%s", mesg);
+   }
+ }
+ 

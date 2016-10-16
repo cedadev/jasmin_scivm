@@ -1,0 +1,20 @@
+--- FileQuery/src/MtkFieldAttrList.c.orig	2015-01-27 04:20:32.000000000 +0000
++++ FileQuery/src/MtkFieldAttrList.c	2015-01-27 04:20:48.000000000 +0000
+@@ -14,6 +14,7 @@
+ 
+ ============================================================================*/
+ 
++#include <netcdf.h>
+ #include "MisrFileQuery.h"
+ #include "MisrError.h"
+ #include <mfhdf.h>
+--- FileQuery/src/MtkFileAttrList.c.orig	2015-01-27 04:25:33.000000000 +0000
++++ FileQuery/src/MtkFileAttrList.c	2015-01-27 04:25:48.000000000 +0000
+@@ -14,6 +14,7 @@
+ 
+ ============================================================================*/
+ 
++#include <netcdf.h>
+ #include "MisrFileQuery.h"
+ #include "MisrError.h"
+ #include <mfhdf.h>

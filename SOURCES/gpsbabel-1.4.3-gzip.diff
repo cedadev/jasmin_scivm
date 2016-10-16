@@ -1,0 +1,25 @@
+--- gpsbabel-1.4.3.orig/gbfile.c	2011-07-26 03:56:33.000000000 +0200
++++ gpsbabel-1.4.3/gbfile.c	2012-08-24 13:46:51.008504331 +0200
+@@ -84,9 +84,9 @@
+       fd = stdout;
+     }
+     SET_BINARY_MODE(fd);
+-    self->handle.gz = (void**)gzdopen(fileno(fd), openmode);
++    self->handle.gz = gzdopen(fileno(fd), openmode);
+   } else {
+-    self->handle.gz = (void**)gzopen(self->name, openmode);
++    self->handle.gz = gzopen(self->name, openmode);
+   }
+ 
+   if (self->handle.gz == NULL) {
+--- gpsbabel-1.4.3.orig/gbfile.h	2011-07-26 03:56:33.000000000 +0200
++++ gpsbabel-1.4.3/gbfile.h	2012-08-24 13:54:18.958996856 +0200
+@@ -52,7 +52,7 @@
+     FILE* std;
+     unsigned char* mem;
+ #if !ZLIB_INHIBITED
+-    gzFile* gz;
++    gzFile gz;
+ #endif
+   } handle;
+   char*   name;

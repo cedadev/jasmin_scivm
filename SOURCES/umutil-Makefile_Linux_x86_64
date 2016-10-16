@@ -1,0 +1,125 @@
+OBJ1= ff2drs.o drsio.o
+OBJ2= ffinfo.o
+OBJ3= pp2drs.o drsio.o
+OBJ4= ppinfo.o
+OBJ5= lsm.o
+OBJ6= mkancil.o newfunc.o
+OBJ7= module.o uminfo.o
+OBJ8= umtrunc.o
+OBJ9= umselect.o
+OBJ10= umjoin.o
+OBJ11= umexpand.o
+OBJ12= umpack.o
+OBJ13= ff2pp.o
+OBJ14= module.o um2pp.o
+OBJ15= change_cal.o
+OBJ16= um32to64.o
+OBJ17= change_dump_date.o
+OBJ18= module.o ocean_info.o
+OBJ19= get_num_land_points.o
+OBJ20= module.o fix_veg.o
+OBJTEST1= test_types.o
+
+ALLOBJS=\
+ $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6) $(OBJ7) $(OBJ8) \
+ $(OBJ9) $(OBJ10) $(OBJ11) $(OBJ12) $(OBJ13) $(OBJ14) $(OBJ15) \
+ $(OBJ16) $(OBJ17) $(OBJ18) $(OBJ19) $(OBJ20) $(OBJTEST1)
+
+MAINEXES=\
+ ff2drs ffinfo umselect umjoin \
+ umexpand umpack ff2pp um2pp change_cal um32to64 change_dump_date \
+ ocean_info get_num_land_points ppinfo lsm pp2drs uminfo fix_veg umtrunc
+
+TESTEXES=test_types
+
+HOMELIB= $(HOME)/linux_x86_64/lib
+
+UMUTILLIB=-lumutil
+UTILLIB=-lcrayutil
+UTILINC=/usr/include
+UNPACKLIB=-lemos
+DRSLIB=-ldrs
+DRSINC=/usr/include
+NCLIB=-lnetcdff -lnetcdf -lhdf5 -lz
+
+DEFS=-DRTYPE=32 -DITYPE=32 -DPTYPE=64 -DOTYPE=64
+FC=gfortran
+F90C=gfortran
+CC= gcc
+CPPFLAGS= -I$(DRSINC) -I$(UTILINC) -DLITTLE__ENDIAN -D__64BIT__ -D__FILEOFFSET64
+CFLAGS=  -I$(DRSINC) -I$(UTILINC) -D__FILEOFFSET64
+FFLAGS= -O
+F90FLAGS= -O
+LDFLAGS=-L.
+LD=$(FC)
+
+.SUFFIXES : .F .F90 .f90
+
+.PHONY: all clean install test
+
+all: $(MAINEXES) $(TESTEXES)
+
+clean:
+	rm -f $(ALLOBJS)
+
+install:
+	mkdir -p ${INSTALLDIR}
+	cp -p $(MAINEXES) ${INSTALLDIR}
+
+test:
+	(for i in $(TESTEXES); do echo "running test $$i" ; ./$$i || exit 1; done)
+
+.F.o:
+	$(FC) $(FFLAGS) $(CPPFLAGS) -c $<
+.F90.o:
+	$(F90C) $(F90FLAGS) $(CPPFLAGS) -c $<
+.f90.o:
+	$(F90C) $(F90FLAGS) $(CPPFLAGS) -c $<
+
+# the defines are needed for module.F90 but can break other source 
+# (that uses local variable ITYPE), so an explicit rule here
+module.o: module.F90
+	$(F90C) $(F90FLAGS) $(CPPFLAGS) $(DEFS) -c $<
+
+ff2drs: $(OBJ1)
+	$(LD) $(LDFLAGS) $(OBJ1) $(DRSLIB) $(UMUTILLIB) $(UNPACKLIB) $(UTILLIB) -o ff2drs
+ffinfo: $(OBJ2)
+	$(LD) $(LDFLAGS) $(OBJ2) $(UMUTILLIB) $(UTILLIB) -o ffinfo
+pp2drs: $(OBJ3)
+	$(LD) $(LDFLAGS) $(OBJ3) $(DRSLIB) $(UMUTILLIB) $(UNPACKLIB) $(UTILLIB) -o pp2drs
+ppinfo: $(OBJ4)
+	$(LD) $(LDFLAGS) $(OBJ4) $(UMUTILLIB) $(UTILLIB) -o ppinfo
+lsm: $(OBJ5)
+	$(LD) $(LDFLAGS) $(OBJ5) $(UMUTILLIB) $(UTILLIB) -o lsm
+#mkancil: $(OBJ6)
+#	$(LD) $(LDFLAGS) $(OBJ6) $(UMUTILLIB) $(UTILLIB) -o mkancil
+uminfo: $(OBJ7)
+	$(LD) $(LDFLAGS) $(OBJ7) $(UMUTILLIB) $(UTILLIB) -o uminfo
+umtrunc: $(OBJ8)
+	$(LD) $(LDFLAGS) $(OBJ8) $(UMUTILLIB) $(UTILLIB) -o umtrunc
+umselect: $(OBJ9)
+	$(LD) $(LDFLAGS) $(OBJ9) $(UMUTILLIB) $(UTILLIB) -o umselect
+umjoin: $(OBJ10)
+	$(LD) $(LDFLAGS) $(OBJ10) $(UMUTILLIB) $(UTILLIB) -o umjoin
+umexpand: $(OBJ11)
+	$(LD) $(LDFLAGS) $(OBJ11) $(UMUTILLIB) $(UNPACKLIB) $(UTILLIB) -o umexpand
+umpack: $(OBJ12)
+	$(LD) $(LDFLAGS) $(OBJ12) $(UMUTILLIB) $(UTILLIB) -o umpack
+ff2pp: $(OBJ13)
+	$(LD) $(LDFLAGS) $(OBJ13) $(UMUTILLIB) $(UNPACKLIB) $(UTILLIB) -o ff2pp
+um2pp: $(OBJ14)
+	$(LD) $(LDFLAGS) $(OBJ14) $(UMUTILLIB) $(UNPACKLIB) $(UTILLIB) -o um2pp
+change_cal: $(OBJ15)
+	$(LD) $(LDFLAGS) $(OBJ15) $(UMUTILLIB) $(UTILLIB) -o change_cal
+um32to64: $(OBJ16)
+	$(LD) $(LDFLAGS) $(OBJ16) $(UMUTILLIB) $(UTILLIB) -o um32to64
+change_dump_date: $(OBJ17)
+	$(LD) $(LDFLAGS) $(OBJ17) $(UMUTILLIB) $(UTILLIB) -o change_dump_date
+ocean_info: $(OBJ18)
+	$(LD) $(LDFLAGS) $(OBJ18) $(UMUTILLIB) $(UTILLIB) $(NCLIB) -o ocean_info
+get_num_land_points: $(OBJ19)
+	$(LD) $(LDFLAGS) $(OBJ19) $(UMUTILLIB) $(UTILLIB) -o get_num_land_points
+fix_veg: $(OBJ20)
+	$(LD) $(LDFLAGS) $(OBJ20) $(UMUTILLIB) $(UTILLIB) -o fix_veg
+test_types: $(OBJTEST1)
+	$(LD) $(LDFLAGS) $(OBJTEST1) $(UMUTILLIB) $(UTILLIB) -o test_types

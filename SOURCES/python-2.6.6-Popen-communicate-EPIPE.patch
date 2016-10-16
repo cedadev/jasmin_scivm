@@ -1,0 +1,228 @@
+diff -up Python-2.6.6/Lib/subprocess.py.Popen-communicate-EPIPE Python-2.6.6/Lib/subprocess.py
+--- Python-2.6.6/Lib/subprocess.py.Popen-communicate-EPIPE	2011-04-07 14:51:51.828628925 -0400
++++ Python-2.6.6/Lib/subprocess.py	2011-04-07 14:58:07.524283828 -0400
+@@ -384,6 +384,7 @@ import types
+ import traceback
+ import gc
+ import signal
++import errno
+ import time
+ 
+ # Exception classes used by this module.
+@@ -420,7 +421,6 @@ if mswindows:
+ else:
+     import select
+     _has_poll = hasattr(select, 'poll')
+-    import errno
+     import fcntl
+     import pickle
+ 
+@@ -710,7 +710,11 @@ class Popen(object):
+             stderr = None
+             if self.stdin:
+                 if input:
+-                    self.stdin.write(input)
++                    try:
++                        self.stdin.write(input)
++                    except IOError as e:
++                        if e.errno != errno.EPIPE and e.errno != errno.EINVAL:
++                            raise
+                 self.stdin.close()
+             elif self.stdout:
+                 stdout = self.stdout.read()
+@@ -986,7 +990,11 @@ class Popen(object):
+ 
+             if self.stdin:
+                 if input is not None:
+-                    self.stdin.write(input)
++                    try:
++                        self.stdin.write(input)
++                    except IOError as e:
++                        if e.errno != errno.EPIPE:
++                            raise
+                 self.stdin.close()
+ 
+             # Wait for the reader threads, or time out.  If we timeout, the
+@@ -1378,9 +1386,16 @@ class Popen(object):
+                     if mode & select.POLLOUT:
+                         chunk = self._input[self._input_offset :
+                                             self._input_offset + _PIPE_BUF]
+-                        self._input_offset += os.write(fd, chunk)
+-                        if self._input_offset >= len(self._input):
+-                            close_unregister_and_remove(fd)
++                        try:
++                            self._input_offset += os.write(fd, chunk)
++                        except OSError as e:
++                            if e.errno == errno.EPIPE:
++                                close_unregister_and_remove(fd)
++                            else:
++                                raise
++                        else:
++                            if self._input_offset >= len(self._input):
++                                close_unregister_and_remove(fd)
+                     elif mode & select_POLLIN_POLLPRI:
+                         data = os.read(fd, 4096)
+                         if not data:
+@@ -1440,11 +1455,19 @@ class Popen(object):
+                 if self.stdin in wlist:
+                     chunk = self._input[self._input_offset :
+                                   self._input_offset + _PIPE_BUF]
+-                    bytes_written = os.write(self.stdin.fileno(), chunk)
+-                    self._input_offset += bytes_written
+-                    if self._input_offset >= len(self._input):
+-                        self.stdin.close()
+-                        self._write_set.remove(self.stdin)
++                    try:
++                        bytes_written = os.write(self.stdin.fileno(), chunk)
++                    except OSError as e:
++                        if e.errno == errno.EPIPE:
++                            self.stdin.close()
++                            self._write_set.remove(self.stdin)
++                        else:
++                            raise
++                    else:
++                        self._input_offset += bytes_written
++                        if self._input_offset >= len(self._input):
++                            self.stdin.close()
++                            self._write_set.remove(self.stdin)
+ 
+                 if self.stdout in rlist:
+                     data = os.read(self.stdout.fileno(), 1024)
+diff -up Python-2.6.6/Lib/test/test_subprocess.py.Popen-communicate-EPIPE Python-2.6.6/Lib/test/test_subprocess.py
+--- Python-2.6.6/Lib/test/test_subprocess.py.Popen-communicate-EPIPE	2011-04-07 14:51:51.837639236 -0400
++++ Python-2.6.6/Lib/test/test_subprocess.py	2011-04-07 15:38:14.716640799 -0400
+@@ -532,6 +532,134 @@ class ProcessTestCase(unittest.TestCase)
+         self.assertRaises(subprocess.TimeoutExpired, p.wait, timeout=0.1)
+         self.assertEqual(p.wait(timeout=2), 0)
+ 
++    def test_communicate_epipe(self):
++        # Issue 10963: communicate() should hide EPIPE
++        p = subprocess.Popen([sys.executable, "-c", 'pass'],
++                             stdin=subprocess.PIPE,
++                             stdout=subprocess.PIPE,
++                             stderr=subprocess.PIPE)
++        try:
++            p.communicate("x" * 2**20)
++        finally:
++            p.stdout.close()
++            p.stderr.close()
++            p.stdin.close()
++
++    def test_communicate_epipe_only_stdin(self):
++        # Issue 10963: communicate() should hide EPIPE
++        p = subprocess.Popen([sys.executable, "-c", 'pass'],
++                             stdin=subprocess.PIPE)
++        try:
++            time.sleep(2)
++            p.communicate("x" * 2**20)
++        finally:
++            p.stdin.close()
++
++    def test_communicate_epipe_dd(self):
++        # Further testing of issue 10963, invoking dd with args that cause it
++        # to quickly fail, trying various combinations on arguments to the
++        # subprocess API.
++        # 
++        # dd will emit these error messages to stdout:
++        #     dd: unrecognized operand `option=bad'
++        #     Try `dd --help' for more information.
++        # We capture these for half the runs, but not for the other half (to
++        # exercise this combination of inputs), so unfortunately there's a
++        # little noise of this form from the test suite as a whole
++        #
++        # dd is within the coreutils package
++
++        # Helper function to test a particular combination:
++        def _run_test(sleep, capture_stdout, capture_stderr, with_timeout):
++            kwargs = dict(stdin=subprocess.PIPE)
++            if capture_stdout:
++                kwargs['stdout'] = subprocess.PIPE
++            if capture_stderr:
++                kwargs['stderr'] = subprocess.PIPE
++
++            # Invoke dd with a bad parameter.  This ought to exit very
++            # quickly, with an error message on stderr:
++            p = subprocess.Popen(['dd', "option=bad"],
++                                 **kwargs)
++            
++            try:
++                if sleep:
++                    time.sleep(1)
++                if with_timeout:
++                    p.communicate("x" * 2**20, timeout=3)
++                else:
++                    p.communicate("x" * 2**20)
++            finally:
++                if capture_stdout:
++                    p.stdout.close()
++                if capture_stderr:
++                    p.stderr.close()
++                p.stdin.close()
++
++        # Iterate through all combinations:
++        for sleep in (False, True):
++            for capture_stdout in (False, True):
++                for capture_stderr in (False, True):
++                    for with_timeout in (False, True):
++                        _run_test(sleep,
++                                  capture_stdout, capture_stderr, 
++                                  with_timeout)
++
++    def test_short_lived_subprocess(self):
++        # If we start a short-lived process which finishes before we begin
++        # communicating with it, we can receive a SIGPIPE due to the receiving
++        # process no longer existing.  This becomes an EPIPE, which becomes an:
++        #   OSError: [Errno 32] Broken pipe
++        # Verify that this case is hidden from the user:
++
++        # See also http://bugs.python.org/issue1615376
++
++        # Verify for a "successful" subprocess:
++
++        p = subprocess.Popen([sys.executable, '-c', 
++                              ('import sys;'
++                               ' sys.stdout.write("stdout");'
++                               ' sys.stderr.write("stderr");')],
++                             close_fds=True,
++                             stdin=subprocess.PIPE, 
++                             stdout=subprocess.PIPE,
++                             stderr=subprocess.PIPE)
++        # Try to ensure that the subprocess is finished before attempting
++        # communication:
++        time.sleep(0.5)
++        
++        # Now begin trying to send bytes to stdin of the subprocess; typically
++        # the subprocess will already have exited:
++        out, err = p.communicate(b'\n')
++
++        # The SIGPIPE ought to be transparent to the user:
++        self.assertEqual(out, b'stdout')
++        self.assertStderrEqual(err, b'stderr')
++        self.assertEqual(p.returncode, 0)
++
++    def test_crashing_subprocess(self):
++        # Verify that we detect an "unexpected" crash (using a bogus ctypes
++        # call to induce a probable segmentation fault):
++        p = subprocess.Popen([sys.executable, '-c',
++                              'import ctypes; ctypes.string_at(0xffffffff)'],
++                             close_fds=True,
++                             stdin=subprocess.PIPE, 
++                             stdout=subprocess.PIPE,
++                             stderr=subprocess.PIPE)
++
++        # Try to ensure that the subprocess is finished before attempting
++        # communication:
++        time.sleep(0.5)
++        
++        # Now begin trying to send bytes to stdin of the subprocess; typically
++        # the subprocess will already have crashed:
++        out, err = p.communicate(b'\n')
++
++        # The SIGPIPE ought to be transparent to the user, and the return code
++        # should indicate the SIGSEGV:
++        self.assertEqual(out, b'')
++        self.assertStderrEqual(err, b'')
++        self.assertEqual(p.returncode, -signal.SIGSEGV)
+ 
+     def test_invalid_bufsize(self):
+         # an invalid type of the bufsize argument should raise

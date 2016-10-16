@@ -1,0 +1,12 @@
+*** Imaging-1.1.7/setup.py.orig	2014-04-28 11:34:04.000000000 +0100
+--- Imaging-1.1.7/setup.py	2014-04-28 11:33:02.000000000 +0100
+***************
+*** 212,217 ****
+--- 212,218 ----
+          add_directory(include_dirs, "/usr/local/include")
+  
+          add_directory(library_dirs, "/usr/lib")
++         add_directory(library_dirs, "/usr/lib64")
+          add_directory(include_dirs, "/usr/include")
+  
+          #
