@@ -1,11 +1,9 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 1.2.3
+Version: 1.3.2
 Release: 1.ceda%{?dist}
 Source0: cf-python-%{version}.tar.gz
-Source1: cfa.1
-Source2: cfdump.1
 License: OSI Approved
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
@@ -43,9 +41,6 @@ The package provides command line utilities for viewing CF fields (cfdump) and a
 
 %prep
 %setup -n %{pname}-%{version}
-mkdir scripts/man1
-cp %{SOURCE1} scripts/man1
-cp %{SOURCE2} scripts/man1
 
 
 # temporary workaround to add build-id
@@ -90,6 +85,11 @@ rm -rf $RPM_BUILD_ROOT
 %{clibdir}/umfile.so
 
 %changelog
+* Sun Oct 16 2016  <builderdev@builder.jc.rl.ac.uk> - 1.3.2-1.ceda
+- update version
+- man pages are now installed properly from the tarball so no longer 
+    add these separately
+
 * Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.2.3-1.ceda
 - update to 1.2.3
 
