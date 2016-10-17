@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 28.ceda
+Release: 29.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -22,6 +22,7 @@ Obsoletes: gdal-ruby
 # Requires: jasper-devel >= 1.900
 
 Requires: ImageMagick >= 6.5.4.7
+Requires: JAGS >= 4.2.0-1.ceda
 Requires: R >= 3.3.1
 Requires: R-devel >= 3.3.1
 Requires: R-ncdf >= 1.6.8-2.ceda
@@ -31,8 +32,9 @@ Requires: atlas-devel >= 3.8.4
 Requires: bbcp >= 140414.00.1-1.ceda
 Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
-Requires: cdo >= 1.7.1-1.ceda
+Requires: cdo >= 1.7.2-1.ceda
 Requires: cmor-libs >= 2.9.2-3.ceda
+Requires: coda >= 0.18.1-1.ceda
 Requires: ddd >= 3.3.12
 Requires: diffuse >= 0.4.3-1
 Requires: dvipng >= 1.11
@@ -42,18 +44,18 @@ Requires: emacs-ess >= 15.03.1-1.ceda
 Requires: emacs-ess-el >= 15.03.1-1.ceda
 Requires: emacs-gnuplot >= 4.2.6
 Requires: ferret >= 6.93-1.ceda
+Requires: flex-devel
 Requires: fftw >= 3.2.1
 Requires: fftw-devel >= 3.2.1
 Requires: firefox >= 17.0.3
 Requires: gcc-gfortran >= 4.4.7
-Requires: gdal >= 2.0.0-5.ceda
-Requires: gdal-devel >= 2.0.0-5.ceda
-Requires: gdal-doc >= 2.0.0-5.ceda
-Requires: gdal-java >= 2.0.0-5.ceda
-Requires: gdal-javadoc >= 2.0.0-5.ceda
-Requires: gdal-libs >= 2.0.0-5.ceda
-Requires: gdal-perl >= 2.0.0-5.ceda
-Requires: gdal-python27 >= 2.0.0-5.ceda
+Requires: gdal >= 2.1.1-1.ceda 
+Requires: gdal-devel >= 2.1.1-1.ceda
+Requires: gdal >= 2.1.1-1.ceda
+Requires: gdal-perl >= 2.1.1-1.ceda
+Requires: gdal-libs >= 2.1.1-1.ceda
+Requires: gdal-java >= 2.1.1-1.ceda
+Requires: gdal-python27 >= 2.1.1-1.ceda
 Requires: geany >= 0.21
 Requires: geos >= 3.5.0-2.ceda
 Requires: geos-devel >= 3.5.0-2.ceda
@@ -72,10 +74,10 @@ Requires: grass-devel = 6.4.4-3.ceda.el6
 Requires: grass-libs = 6.4.4-3.ceda.el6
 
 # and likewise
-Requires: grib_api = 1.12.1-2.ceda.el6
-Requires: grib_api-devel = 1.12.1-2.ceda.el6
-Requires: grib_api-fortran = 1.12.1-2.ceda.el6
-Requires: grib_api-python27 = 1.12.1-2.ceda.el6
+Requires: grib_api = 1.17.0-1.ceda.el6
+Requires: grib_api-devel = 1.17.0-1.ceda.el6
+Requires: grib_api-fortran = 1.17.0-1.ceda.el6
+Requires: grib_api-python27 = 1.17.0-1.ceda.el6
 
 Requires: gsl-devel >= 1.13
 Requires: gsl-static >= 1.13
@@ -97,13 +99,13 @@ Requires: libdrs >= 20130102-3.ceda
 Requires: libuuid >= 2.17.2
 Requires: llvm-devel >= 3.4.2-4
 Requires: lxterminal >= 0.1.9-1.ceda
-Requires: mo_unpack >= 2.0.1-1.ceda
+Requires: mo_unpack >= 3.1.2-1.ceda
 Requires: mtk >= 1.4.3-1.ceda
 Requires: mtk-devel >= 1.4.3-1.ceda
 Requires: mtk-python27 >= 1.4.3-1.ceda
 Requires: ncBrowse >= 1.6.5
 Requires: nccmp >= 1.7.5.1-2.ceda
-Requires: ncl >= 6.3.0-2.ceda
+Requires: ncl >= 6.3.0-3.ceda
 Requires: nco >= 4.5.5-1.ceda
 Requires: nco-devel >= 4.5.5-1.ceda
 Requires: ncview >= 2.1.7-1.ceda
@@ -119,14 +121,20 @@ Requires: octave-devel >= 4.0.0-2.ceda
 Requires: octave-doc >= 4.0.0-2.ceda
 Requires: octave-netcdf >= 1.0.7-2.ceda
 Requires: octave-octcdf >= 1.1.8-3.ceda
+Requires: parallel >= 20160822-1.ceda
 Requires: p7zip
 Requires: pdftk >= 2.02-1
 Requires: perl-Image-ExifTool >= 9.98-1.ceda
 Requires: perl-XML-Parser >= 2.36
 Requires: perl-core >= 5.10.1
 Requires: perl-devel >= 5.10.1
+Requires: proj >= 4.9.0-1.ceda
+Requires: proj-devel >= 4.9.0-1.ceda
+Requires: proj-epsg >= 4.9.0-1.ceda
+Requires: proj-nad >= 4.9.0-1.ceda
+Requires: proj-static >= 4.9.0-1.ceda
+
 Requires: python27 >= 2.7.3-3.ceda
-Requires: python27-Cython >= 0.17.3-1.ceda
 Requires: python27-Cython >= 0.24-1.ceda
 Requires: python27-Jug >= 0.9.6-1.ceda
 Requires: python27-PIL >= 1.1.7-2.ceda
@@ -136,18 +144,22 @@ Requires: python27-ScientificPython >= 2.9.4-2.ceda
 Requires: python27-Shapely >= 1.2.16-2.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-biggus >= 0.13.0-1.ceda
-Requires: python27-cartopy >= 0.11.2-1.ceda
+Requires: python27-cartopy >= 0.14.2-1.ceda
 Requires: python27-cdat_lite >= 6.0rc2-6.ceda
-Requires: python27-cf >= 1.1.5-1.ceda
+Requires: python27-cf >= 1.3.2-1.ceda
 Requires: python27-cf-checker >= 2.0.9-1.ceda
 Requires: python27-cf_units >= 1.0.0-1.ceda
 Requires: python27-cfplot >= 1.9.10-1.ceda
 Requires: python27-cfview >= 0.6.10-1.ceda
 Requires: python27-cis >= 1.3.4-1.ceda
 Requires: python27-cmor >= 2.9.2-3.ceda
+Requires: python27-cycler >= 0.10.0-1.ceda
+Requires: python27-h5py >= 2.6.0-1.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 1.9.2-1.ceda
-Requires: python27-matplotlib >= 1.4.3-1.ceda
+Requires: python27-iris >= 1.10.0-1.ceda
+Requires: python27-iris-grib >= 0.9.0-1.ceda
+Requires: python27-matplotlib >= 1.5.3-1.ceda
+Requires: python27-mo_pack >= 0.2.0-1.ceda
 Requires: python27-nappy >= 1.1.2-2.ceda
 Requires: python27-netCDF4 >= 1.0.7-4.ceda
 Requires: python27-nose >= 1.3.4-1.ceda
@@ -156,7 +168,7 @@ Requires: python27-pandas >= 0.12.0-1.ceda
 Requires: python27-pycairo >= 1.8.6-1.ceda
 Requires: python27-pygeode >= 1.0.4a-1.ceda
 Requires: python27-pygobject2 >= 2.20.0-1.ceda
-Requires: python27-pygrib >= 2.0.1-1.ceda
+Requires: python27-pygrib >= 2.0.1-2.ceda
 Requires: python27-pygtk2 >= 2.16.0-1.ceda
 Requires: python27-pygtk2-libglade >= 2.16.0-1.ceda
 Requires: python27-pyhdf >= 0.8_1-2.ceda
@@ -169,8 +181,9 @@ Requires: python27-setuptools >= 18.2-1.ceda
 Requires: python27-shapefile >= 1.1.4-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
 Requires: python27-tornado >= 3.2-1.ceda
-Requires: python27-virtualenv >= 1.8.2-2.ceda
+Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
+Requires: rjags >= 4.6-1.ceda
 Requires: subversion >= 1.6.11
 Requires: tcl >= 8.5.7
 Requires: tcl-devel >= 8.5.7
