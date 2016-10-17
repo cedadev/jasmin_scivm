@@ -1,7 +1,7 @@
 %define version_in_r 4-6
 %define version_for_rpm 4.6
 
-Summary: netCDF access library for R
+Summary: R interface to the JAGS library
 Name: rjags
 Version: %{version_for_rpm}
 Release: 1.ceda%{dist}
