@@ -1,7 +1,7 @@
 %define pname cis
 Summary: Community Intercomparison Suite
 Name: python27-%{pname}
-Version: 1.3.4
+Version: 1.4.0
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: LGPL 3+
@@ -38,6 +38,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Oct 20 2016  <builderdev@builder.jc.rl.ac.uk> - 1.4.0-1.ceda
+- bump version
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.3.4-1.ceda
 - update to 1.3.4
 
