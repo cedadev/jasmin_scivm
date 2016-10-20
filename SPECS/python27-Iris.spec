@@ -1,6 +1,6 @@
 %define pname iris
 %define version 1.10.0
-%define release 1.ceda%{?dist}
+%define release 2.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets
 Name: python27-%{pname}
@@ -13,7 +13,7 @@ BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Vendor: UK Met Office
 Url: http://scitools.org.uk/iris/
-%define prereq gdal-python27 >= 1.9.1, graphviz-python27 >= 2.18, grib_api-python27 >= 1.9.16, python27-PIL >= 1.1.7, python27-Shapely >= 1.2.14, python27-cartopy >= 0.11.2, python27-matplotlib >= 1.2.0, python27-mock >= 1.0.1, python27-netCDF4 >= 1.0.7, python27-nose >= 1.1.2, python27-numpy >= 1.6, python27-pandas >= 0.11.0, python27-pyke >= 1.1.1, python27-scipy >= 0.10, python27-setuptools >= 0.6c11, udunits >= 2.1.24, python27, python27-Cython, mo_unpack, python27-shapefile python27-biggus >= 0.11.0 python27-cf_units >= 1.0.0, python27-iris-grib >= 0.9.0
+%define prereq gdal-python27 >= 1.9.1, graphviz-python27 >= 2.18, grib_api-python27 >= 1.9.16, python27-PIL >= 1.1.7, python27-Shapely >= 1.2.14, python27-cartopy >= 0.11.2, python27-matplotlib >= 1.2.0, python27-mock >= 1.0.1, python27-netCDF4 >= 1.0.7, python27-nose >= 1.1.2, python27-numpy >= 1.6, python27-pandas >= 0.11.0, python27-pyke >= 1.1.1, python27-scipy >= 0.10, python27-setuptools >= 0.6c11, udunits >= 2.1.24, python27, python27-Cython, mo_unpack, python27-biggus >= 0.12.0, python27-cf_units >= 1.0.0, python27-iris-grib >= 0.9.0
 Requires: %{prereq}
 BuildRequires: %{prereq}
 
@@ -46,6 +46,11 @@ mv $RPM_BUILD_ROOT/usr/iris $RPM_BUILD_ROOT/%{docdir}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Oct 20 2016  <builderdev@builder.jc.rl.ac.uk> - 1.10.0-2.ceda%{?dist}
+- update biggus dependency to 0.12.0 and remove python27-shapefile dependency
+  (although will add python27-pyshp cartopy to cartopy). Build otherwise the
+  same.
+
 * Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.10.0-1.ceda%{?dist}
 - bump version and compile against mo_unpack 3.1.2
 
