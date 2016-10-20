@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 29.ceda
+Release: 30.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -141,22 +141,22 @@ Requires: python27-PIL >= 1.1.7-2.ceda
 Requires: python27-Pydap >= 3.1.RC1-2.ceda
 Requires: python27-Pygments >= 1.5-3.ceda
 Requires: python27-ScientificPython >= 2.9.4-2.ceda
-Requires: python27-Shapely >= 1.2.16-2.ceda
+Requires: python27-Shapely >= 1.5.17-1.ceda
 Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-biggus >= 0.13.0-1.ceda
-Requires: python27-cartopy >= 0.14.2-1.ceda
+Requires: python27-cartopy >= 0.14.2-2.ceda
 Requires: python27-cdat_lite >= 6.0rc2-6.ceda
 Requires: python27-cf >= 1.3.2-1.ceda
 Requires: python27-cf-checker >= 2.0.9-1.ceda
 Requires: python27-cf_units >= 1.0.0-1.ceda
 Requires: python27-cfplot >= 1.9.10-1.ceda
 Requires: python27-cfview >= 0.6.10-1.ceda
-Requires: python27-cis >= 1.3.4-1.ceda
+Requires: python27-cis >= 1.4.0-1.ceda
 Requires: python27-cmor >= 2.9.2-3.ceda
 Requires: python27-cycler >= 0.10.0-1.ceda
 Requires: python27-h5py >= 2.6.0-1.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 1.10.0-1.ceda
+Requires: python27-iris >= 1.10.0-2.ceda
 Requires: python27-iris-grib >= 0.9.0-1.ceda
 Requires: python27-matplotlib >= 1.5.3-1.ceda
 Requires: python27-mo_pack >= 0.2.0-1.ceda
@@ -173,12 +173,12 @@ Requires: python27-pygtk2 >= 2.16.0-1.ceda
 Requires: python27-pygtk2-libglade >= 2.16.0-1.ceda
 Requires: python27-pyhdf >= 0.8_1-2.ceda
 Requires: python27-pyke >= 1.1.1-1.ceda
+Requires: python27-pyshp >= 1.2.10-1.ceda
 Requires: python27-pyspharm >= 1.0.8-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
 Requires: python27-rpy2 >= 2.3.9-1.ceda
 Requires: python27-scipy >= 0.17.0-1.ceda
 Requires: python27-setuptools >= 18.2-1.ceda
-Requires: python27-shapefile >= 1.1.4-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
 Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 15.0.3-3.ceda
@@ -242,6 +242,37 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Thu Oct 20 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-30.ceda
+- python27-Shapely >= 1.5.17-1.ceda
+- python27-cartopy >= 0.14.2-2.ceda
+- python27-cis >= 1.4.0-1.ceda
+- python27-iris >= 1.10.0-2.ceda
+- python27-pyshp >= 1.2.10-1.ceda  replacing python27-shapefile
+
+* Mon Oct 17 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-29.ceda
+- cdo >= 1.7.1-1.ceda
+- gdal >= 2.0.0-5.ceda
+- gdal-devel >= 2.0.0-5.ceda
+- gdal-doc >= 2.0.0-5.ceda
+- gdal-java >= 2.0.0-5.ceda
+- gdal-javadoc >= 2.0.0-5.ceda
+- gdal-libs >= 2.0.0-5.ceda
+- gdal-perl >= 2.0.0-5.ceda
+- gdal-python27 >= 2.0.0-5.ceda
+- grib_api = 1.12.1-2.ceda.el6
+- grib_api-devel = 1.12.1-2.ceda.el6
+- grib_api-fortran = 1.12.1-2.ceda.el6
+- grib_api-python27 = 1.12.1-2.ceda.el6
+- mo_unpack >= 2.0.1-1.ceda
+- ncl >= 6.3.0-2.ceda
+- python27-Cython >= 0.17.3-1.ceda
+- python27-cartopy >= 0.11.2-1.ceda
+- python27-cf >= 1.1.5-1.ceda
+- python27-iris >= 1.9.2-1.ceda
+- python27-matplotlib >= 1.4.3-1.ceda
+- python27-pygrib >= 2.0.1-1.ceda
+- python27-virtualenv >= 1.8.2-2.ceda
+
 * Wed May 25 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-28.ceda
 - python27-biggus >= 0.13.0-1.ceda
 
