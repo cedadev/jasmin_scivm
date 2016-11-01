@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 30.ceda
+Release: 31test.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -166,6 +166,7 @@ Requires: python27-nose >= 1.3.4-1.ceda
 Requires: python27-numpy >= 1.11.0-1.ceda
 Requires: python27-pandas >= 0.12.0-1.ceda
 Requires: python27-pycairo >= 1.8.6-1.ceda
+Requires: python27-psycopg2 >= 2.6.2-1.ceda
 Requires: python27-pygeode >= 1.0.4a-1.ceda
 Requires: python27-pygobject2 >= 2.20.0-1.ceda
 Requires: python27-pygrib >= 2.0.1-2.ceda
@@ -242,6 +243,10 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+
+* Tue Nov  1 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
+- python27-psycopg2 >= 2.6.2-1.ceda
+
 * Thu Oct 20 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-30.ceda
 - python27-Shapely >= 1.5.17-1.ceda
 - python27-cartopy >= 0.14.2-2.ceda
