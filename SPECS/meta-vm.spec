@@ -185,7 +185,9 @@ Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
 Requires: rjags >= 4.6-1.ceda
-Requires: subversion >= 1.6.11
+Requires: subversion >= 1.8.17-1
+Requires: subversion-devel >= 1.8.17-1
+Requires: subversion-tools >= 1.8.17-1
 Requires: tcl >= 8.5.7
 Requires: tcl-devel >= 8.5.7
 Requires: tcsh >= 6.17
@@ -207,6 +209,7 @@ Requires: xconv >= 1.93-1.ceda
 Requires: xemacs >= 21.5.31
 Requires: xorg-x11-util-macros
 Requires: xpdf >= 3.02
+
 
 %description -n jasmin-common-vm
 Adds common configuration for JASMIN science VM and for Lotus VMs.
@@ -243,6 +246,11 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Thu Dec  8 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
+per issue 100:
+- subversion >= 1.8.17-1
+- subversion-devel >= 1.8.17-1
+- subversion-tools >= 1.8.17-1
 
 * Tue Nov  1 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - python27-psycopg2 >= 2.6.2-1.ceda
