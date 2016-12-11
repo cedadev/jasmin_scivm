@@ -161,6 +161,7 @@ Requires: python27-iris-grib >= 0.9.0-1.ceda
 Requires: python27-matplotlib >= 1.5.3-1.ceda
 Requires: python27-mo_pack >= 0.2.0-1.ceda
 Requires: python27-nappy >= 1.1.2-2.ceda
+Requires: python27-nc-time-axis >= 1.0.0-1.ceda
 Requires: python27-netCDF4 >= 1.0.7-4.ceda
 Requires: python27-nose >= 1.3.4-1.ceda
 Requires: python27-numpy >= 1.11.0-1.ceda
@@ -249,6 +250,7 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %changelog
 * Sun Dec 11 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - python27-pandas >= 0.19.1-1.ceda
+- - python27-nc-time-axis >= 1.0.0-1.ceda
 - - python27-scikit-learn >= 0.17b1-1.ceda
 
 * Thu Dec  8 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
