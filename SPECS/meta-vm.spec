@@ -148,7 +148,7 @@ Requires: python27-cartopy >= 0.14.2-2.ceda
 Requires: python27-cdat_lite >= 6.0rc2-6.ceda
 Requires: python27-cf >= 1.3.2-1.ceda
 Requires: python27-cf-checker >= 2.0.9-1.ceda
-Requires: python27-cf_units >= 1.0.0-1.ceda
+Requires: python27-cf_units >= 1.1.3-1.ceda
 Requires: python27-cfplot >= 1.9.10-1.ceda
 Requires: python27-cfview >= 0.6.10-1.ceda
 Requires: python27-cis >= 1.4.0-1.ceda
@@ -251,6 +251,7 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %changelog
 * Sun Dec 11 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - python27-pandas >= 0.19.1-1.ceda
+- - python27-cf_units >= 1.1.3-1.ceda
 - - python27-iris_sample_data >= 2.0.0-1.ceda
 - - python27-nc-time-axis >= 1.0.0-1.ceda
 - - python27-scikit-learn >= 0.17b1-1.ceda
