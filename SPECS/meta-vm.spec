@@ -164,7 +164,7 @@ Requires: python27-nappy >= 1.1.2-2.ceda
 Requires: python27-netCDF4 >= 1.0.7-4.ceda
 Requires: python27-nose >= 1.3.4-1.ceda
 Requires: python27-numpy >= 1.11.0-1.ceda
-Requires: python27-pandas >= 0.12.0-1.ceda
+Requires: python27-pandas >= 0.19.1-1.ceda
 Requires: python27-pycairo >= 1.8.6-1.ceda
 Requires: python27-psycopg2 >= 2.6.2-1.ceda
 Requires: python27-pygeode >= 1.0.4a-1.ceda
@@ -246,6 +246,9 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Sun Dec 11 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
+- python27-pandas >= 0.19.1-1.ceda
+
 * Thu Dec  8 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 per issue 100:
 - subversion >= 1.8.17-1
