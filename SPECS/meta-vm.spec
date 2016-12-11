@@ -181,6 +181,7 @@ Requires: python27-rpy2 >= 2.3.9-1.ceda
 Requires: python27-scipy >= 0.17.0-1.ceda
 Requires: python27-setuptools >= 18.2-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
+Requires: python27-scikit-learn >= 0.17b1-1.ceda
 Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
@@ -248,6 +249,7 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %changelog
 * Sun Dec 11 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - python27-pandas >= 0.19.1-1.ceda
+- - python27-scikit-learn >= 0.17b1-1.ceda
 
 * Thu Dec  8 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 per issue 100:
