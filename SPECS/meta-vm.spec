@@ -188,6 +188,7 @@ Requires: python27-scikit-learn >= 0.17b1-1.ceda
 Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
+Requires: python27-PyYAML >= 3.12-1.ceda
 Requires: rjags >= 4.6-1.ceda
 Requires: subversion >= 1.8.17-1
 Requires: subversion-devel >= 1.8.17-1
@@ -250,6 +251,9 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Mon Dec 12 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
+- - python27-PyYAML >= 3.12-1.ceda
+
 * Sun Dec 11 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - python27-pandas >= 0.19.1-1.ceda
 - - python27-eofs >= 1.2.0-1.ceda
