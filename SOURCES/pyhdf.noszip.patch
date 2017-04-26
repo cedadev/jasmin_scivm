@@ -1,0 +1,23 @@
+--- setup.py.orig	2013-02-15 17:32:54.000000000 +0000
++++ setup.py	2013-02-15 17:33:36.000000000 +0000
+@@ -54,7 +54,7 @@
+                        # related to SDgetcompress() / SDsetcompress() compression functions 
+                        # (this may help users of Debian-based linux distributions). 
+ 		       #extra_compile_args=["-DNOSZIP", "-DNOCOMPRESS"],
+-		       #extra_compile_args=["-DNOSZIP"],
++		       extra_compile_args=["-DNOSZIP"],
+ 
+ 		       library_dirs = library_dirs,
+ 		       #extra_link_args=["extra stuff passed to the linker"],
+@@ -68,9 +68,9 @@
+ 		       # distribution).
+ 		       # Omit the "sz" entry (eg library 'libsz') if you have set
+                        # either NOSZIP or NOCOMPRESS above.
+-		       libraries = ["mfhdf", "df", "jpeg", "z", "sz"]
++		       #libraries = ["mfhdf", "df", "jpeg", "z", "sz"]
+ 		       # HDF built without SZIP support.
+-		       #libraries = ["mfhdf", "df", "jpeg", "z"]
++		       libraries = ["mfhdf", "df", "jpeg", "z"]
+ 		       
+ 		       )
+ 

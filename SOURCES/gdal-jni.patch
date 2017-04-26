@@ -1,0 +1,48 @@
+diff -up ./swig/include/java/gdalconst_java.i.jni~ ./swig/include/java/gdalconst_java.i
+--- ./swig/include/java/gdalconst_java.i.jni~	2016-04-25 19:35:57.000000000 +0200
++++ ./swig/include/java/gdalconst_java.i	2016-05-02 15:50:37.171990235 +0200
+@@ -13,7 +13,7 @@
+ 
+   static {
+     try {
+-      System.loadLibrary("gdalconstjni");
++      System.load("/usr/lib/java/gdal/libgdalconstjni.so");
+       available = true;
+     } catch (UnsatisfiedLinkError e) {
+       available = false;
+diff -up ./swig/include/java/gdal_java.i.jni~ ./swig/include/java/gdal_java.i
+--- ./swig/include/java/gdal_java.i.jni~	2016-04-25 19:35:57.000000000 +0200
++++ ./swig/include/java/gdal_java.i	2016-05-02 15:50:37.172990231 +0200
+@@ -15,7 +15,7 @@
+ 
+   static {
+     try {
+-      System.loadLibrary("gdaljni");
++      System.load("/usr/lib/java/gdal/libgdaljni.so");
+       available = true;
+ 
+       if (gdal.HasThreadSupport() == 0)
+diff -up ./swig/include/java/ogr_java.i.jni~ ./swig/include/java/ogr_java.i
+--- ./swig/include/java/ogr_java.i.jni~	2016-04-25 19:35:57.000000000 +0200
++++ ./swig/include/java/ogr_java.i	2016-05-02 15:50:37.172990231 +0200
+@@ -17,7 +17,7 @@
+ 
+   static {
+     try {
+-      System.loadLibrary("ogrjni");
++      System.load("/usr/lib/java/gdal/libogrjni.so");
+       available = true;
+ 
+       if (org.gdal.gdal.gdal.HasThreadSupport() == 0)
+diff -up ./swig/include/java/osr_java.i.jni~ ./swig/include/java/osr_java.i
+--- ./swig/include/java/osr_java.i.jni~	2016-04-25 19:35:57.000000000 +0200
++++ ./swig/include/java/osr_java.i	2016-05-02 15:50:37.172990231 +0200
+@@ -20,7 +20,7 @@
+ 
+   static {
+     try {
+-      System.loadLibrary("osrjni");
++      System.load("/usr/lib/java/gdal/libosrjni.so");
+       available = true;
+     } catch (UnsatisfiedLinkError e) {
+       available = false;

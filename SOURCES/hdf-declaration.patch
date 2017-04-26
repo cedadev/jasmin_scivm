@@ -1,0 +1,76 @@
+diff -up hdf-4.2.9/hdf/src/df24ff.f.declaration hdf-4.2.9/hdf/src/df24ff.f
+--- hdf-4.2.9/hdf/src/df24ff.f.declaration	2013-02-07 21:44:52.000000000 -0700
++++ hdf-4.2.9/hdf/src/df24ff.f	2013-02-15 16:48:08.490664851 -0700
+@@ -117,7 +117,7 @@ C---------------------------------------
+ 
+       integer function d2rref(name, ref)
+       character*(*) name
+-      integer ref
++      integer ref, d2irref
+ 
+       d2rref = d2irref(name, ref, len(name))
+       return
+@@ -136,6 +136,7 @@ C---------------------------------------
+ 
+       integer function d2nimg(name)
+       character*(*) name
++      integer d2inimg
+ 
+       d2nimg = d2inimg(name, len(name))
+       return
+@@ -230,7 +231,7 @@ C---------------------------------------
+ 
+       integer function df24readref(name, ref)
+       character*(*) name
+-      integer ref
++      integer ref, d2irref
+ 
+       df24readref = d2irref(name, ref, len(name))
+       return
+diff -up hdf-4.2.9/hdf/src/dfufp2iff.f.declaration hdf-4.2.9/hdf/src/dfufp2iff.f
+--- hdf-4.2.9/hdf/src/dfufp2iff.f.declaration	2013-02-07 21:44:52.000000000 -0700
++++ hdf-4.2.9/hdf/src/dfufp2iff.f	2013-02-15 16:53:28.367159528 -0700
+@@ -49,7 +49,7 @@ C---------------------------------------
+       real          max, min, hscale, vscale, data
+       character*(*) palette
+       character*(*) outfile
+-      integer       ctmethod, hres, vres, compress
++      integer       ctmethod, hres, vres, compress, duif2i
+ 
+       duf2im = duif2i(hdim,vdim,max,min,hscale,vscale,data,palette,
+      *              outfile,ctmethod,hres,vres,compress, len(outfile))        
+@@ -85,7 +85,7 @@ C---------------------------------------
+       real          max, min, hscale, vscale, data
+       character*(*) palette
+       character*(*) outfile
+-      integer       ctmethod, hres, vres, compress
++      integer       ctmethod, hres, vres, compress, duif2i
+ 
+       dfufptoimage = 
+      *             duif2i(hdim,vdim,max,min,hscale,vscale,data,palette,
+diff -up hdf-4.2.9/hdf/src/vg.c.declaration hdf-4.2.9/hdf/src/vg.c
+--- hdf-4.2.9/hdf/src/vg.c.declaration	2013-02-07 21:44:52.000000000 -0700
++++ hdf-4.2.9/hdf/src/vg.c	2013-02-15 16:44:05.731947549 -0700
+@@ -81,6 +81,7 @@ PRIVATE int32 matchnocase
+             (char *strx, char *stry);
+ #endif /* VDATA_FIELDS_ALL_UPPER */
+ 
++
+ #ifdef VDATA_FIELDS_ALL_UPPER
+ /*-----------------------------------------------------------------
+ NAME
+@@ -116,6 +117,14 @@ matchnocase(char *strx, /* IN: first str
+ }   /* matchnocase */
+ #endif /* VDATA_FIELDS_ALL_UPPER */
+ 
++/* Forward declarations */
++intn
++VSIgetvdatas(int32 id,	
++	    const char *vsclass,
++	    const uintn start_vd,
++            const uintn n_vds,
++            uint16 *refarray);
++
+ /* ------------------------------------------------------------------
+ NAME
+    VSelts -- get number of elements in a vdata

@@ -4,8 +4,8 @@
 
 Summary: NumPy: array processing for numbers, strings, records, and objects.
 Name: python27-%{pname}
-Version: 1.7.0
-Release: 3.ceda%{?dist}
+Version: 1.11.0
+Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD
 Group: Development/Libraries
@@ -46,6 +46,14 @@ egrep -v "^%{packdir}/" INSTALLED_FILES > INSTALLED_FILES1
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.11.0-1.ceda
+- update to 1.11.0
+
+
+* Tue Nov  3 2015  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-1.ceda
+- upgrade to 1.10.1
 
 %files -f INSTALLED_FILES1
 %defattr(-,root,root)

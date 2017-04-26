@@ -1,0 +1,11 @@
+diff -u -r pyhdf-0.8-1/pyhdf/hdfext_wrap.c pyhdf-0.8-1-patched/pyhdf/hdfext_wrap.c
+--- pyhdf-0.8-1/pyhdf/hdfext_wrap.c	2008-06-29 21:20:35.000000000 +0100
++++ pyhdf-0.8-1-patched/pyhdf/hdfext_wrap.c	2013-03-06 17:21:25.000000000 +0000
+@@ -3032,6 +3032,7 @@
+   }
+ 
+ 
++#include <hdf/hdf.h>
+ #include "hdfi.h"   /* declares basic HDF types: int16 int32, etc */
+ 
+ 

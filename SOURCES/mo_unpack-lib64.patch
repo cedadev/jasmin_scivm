@@ -1,0 +1,49 @@
+diff -r -u unpack-030712/libmo_unpack/distribute.sh unpack-030712-lib64/libmo_unpack/distribute.sh
+--- unpack-030712/libmo_unpack/distribute.sh	2012-05-03 14:50:27.000000000 +0100
++++ unpack-030712-lib64/libmo_unpack/distribute.sh	2013-10-31 16:13:05.000000000 +0000
+@@ -31,9 +31,9 @@
+ # directory on the Linux Desktop.
+ 
+ synch_dir=${1:-/project/ukmo/rhel6/synch/share}
+-mkdir -p $synch_dir/lib $synch_dir/include 2>/dev/null
+-chmod 775 $synch_dir/lib $synch_dir/include 2>/dev/null
+-cp -d lib/lib* $synch_dir/lib
++mkdir -p $synch_dir/lib64 $synch_dir/include 2>/dev/null
++chmod 755 $synch_dir/lib64 $synch_dir/include 2>/dev/null
++cp -d lib/lib* $synch_dir/lib64
+ cp -d include/*.h $synch_dir/include
+ 
+ if [ $? -ne 0 ]
+diff -r -u unpack-030712/unpack/make_unpack unpack-030712-lib64/unpack/make_unpack
+--- unpack-030712/unpack/make_unpack	2012-05-03 14:48:38.000000000 +0100
++++ unpack-030712-lib64/unpack/make_unpack	2013-10-31 16:11:40.000000000 +0000
+@@ -45,7 +45,7 @@
+ then
+   CC=gcc
+   OPTS="-O4 -I include -D_LARGEFILE_SOURCE -D_LARGEFILE_SOURCE64 -D_FILE_OFFSET_BITS=64"
+-  OPT_SHARE="-Wl,-rpath=$libmo_installation/lib"
++  OPT_SHARE="-Wl,-rpath=$libmo_installation/lib64"
+   has_shared=1
+ elif [ "_$os" == "_AIX" ]
+ then
+@@ -58,7 +58,7 @@
+ then
+   CC=gcc
+   OPTS="-O4 -I include -D_LARGEFILE_SOURCE -D_LARGEFILE_SOURCE64 -D_FILE_OFFSET_BITS=64 -D_DARWIN_SOURCE"
+-  OPT_SHARE="-Wl,-rpath=$libmo_installation/lib"
++  OPT_SHARE="-Wl,-rpath=$libmo_installation/lib64"
+   has_shared=1
+ else
+   echo Cannot compile on $os
+@@ -68,9 +68,9 @@
+ if [ $static_build -eq 1 -o $has_shared -eq 0 ]
+ then
+   $CC -c $OPTS -I $libmo_installation/include/ -o unpack.o unpack.c
+-  $CC $OPTS -lm unpack.o $libmo_installation/lib/libmo_unpack.a -o unpack
++  $CC $OPTS -lm unpack.o $libmo_installation/lib64/libmo_unpack.a -o unpack
+ else
+   $CC -c $OPTS $OPT_SHARE -I $libmo_installation/include/ -o unpack.o unpack.c
+-  $CC $OPTS $OPT_SHARE -lm -lmo_unpack -L$libmo_installation/lib -o unpack \
++  $CC $OPTS $OPT_SHARE -lm -lmo_unpack -L$libmo_installation/lib64 -o unpack \
+     unpack.o
+ fi

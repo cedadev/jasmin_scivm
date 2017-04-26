@@ -1,5 +1,5 @@
 Name: geos
-Version: 3.3.6
+Version: 3.5.0
 Release: 2.ceda%{?dist}
 License: LGPL v2.1
 Group: Development/Libraries
@@ -32,7 +32,7 @@ Capabilities Include
 %package devel
 Group: Development/Libraries	
 Summary: Development libraries for GEOS
-Requires: geos
+Requires: geos = %{version}
 %description devel
 This package contains the libraries needed to build other code requiring 
 the library that comes with GEOS...
@@ -68,9 +68,8 @@ fi
 
 %files				
 %defattr(-,root,root)
-%{_libdir}/libgeos_c.so.1.7.6
-%{_libdir}/libgeos_c.so.1
-%{_libdir}/libgeos-3.3.6.so
+%{_libdir}/libgeos_c.so.*
+%{_libdir}/libgeos-*.so
 
 %files devel
 %defattr(-,root,root)
@@ -86,6 +85,12 @@ fi
 
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 3.5.0-2.ceda
+- make -devel depend on exact base version
+
+* Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 3.5.0-1.ceda
+- upgrade to 3.5.0
+
 * Tue Jan 22 2013  <builderdev@builder.jc.rl.ac.uk> - 3.3.6-1.ceda
 - initial version
 

@@ -1,0 +1,34 @@
+[Globus]
+name=Globus
+baseurl=http://www.globus.org/ftppub/gt5/5.2/stable/packages/rpm/redhat/$releasever/$basearch/
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Globus
+
+[Globus-source]
+name=Globus - Source
+baseurl=http://www.globus.org/ftppub/gt5/5.2/stable/packages/rpm/redhat/$releasever/SRPMS
+failovermethod=priority
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Globus
+
+
+[Globus-Updates]
+name=Globus - Updates
+baseurl=http://www.globus.org/ftppub/gt5/5.2/stable/updates/rpm/redhat/$releasever/$basearch
+failovermethod=priority
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Globus
+
+
+[Globus-Updates-source]
+name=Globus - Updates Source
+baseurl=http://www.globus.org/ftppub/gt5/5.2/stable/updates/rpm/redhat/$releasever/SRPMS
+failovermethod=priority
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-Globus
+

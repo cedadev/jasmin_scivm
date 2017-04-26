@@ -1,0 +1,48 @@
+diff -up octave-4.0.0/doc/liboctave/Makefile.in.texinfo6 octave-4.0.0/doc/liboctave/Makefile.in
+--- octave-4.0.0/doc/liboctave/Makefile.in.texinfo6	2015-05-26 10:21:42.000000000 -0600
++++ octave-4.0.0/doc/liboctave/Makefile.in	2015-07-14 10:40:50.131788830 -0600
+@@ -1854,7 +1854,6 @@ localstartupfiledir = ${localfcnfiledir}
+ # The separator used for elements of the LD_PRELOAD variable (might be
+ # a space, so protect with $(null))
+ null = 
+-TEXINFO_TEX = ../texinfo.tex
+ info_TEXINFOS = liboctave.texi
+ liboctave_TEXINFOS = \
+   array.texi \
+diff -up octave-4.0.0/libinterp/corefcn/utils.cc.texinfo6 octave-4.0.0/libinterp/corefcn/utils.cc
+--- octave-4.0.0/libinterp/corefcn/utils.cc.texinfo6	2015-05-23 08:21:53.000000000 -0600
++++ octave-4.0.0/libinterp/corefcn/utils.cc	2015-07-14 09:46:17.300468145 -0600
+@@ -22,7 +22,7 @@ along with Octave; see the file COPYING.
+ */
+ 
+ #ifdef HAVE_CONFIG_H
+-#include <config.h>
++#include "config.h"
+ #endif
+ 
+ #include <cerrno>
+@@ -1379,7 +1379,7 @@ indexing using @var{ind} will not perfor
+ \n\
+ Implementation Note: Strings are first converted to double values before the\n\
+ checks for valid indices are made.  Unless a string contains the NULL\n\
+-character @nospell{\"\\0\"}, it will always be a valid index.\n\
++character @nospell{\"@xbackslashchar{}0\"}, it will always be a valid index.\n\
+ @end deftypefn")
+ {
+   octave_value retval;
+diff -up octave-4.0.0/scripts/io/beep.m.texinfo6 octave-4.0.0/scripts/io/beep.m
+--- octave-4.0.0/scripts/io/beep.m.texinfo6	2015-05-23 08:21:53.000000000 -0600
++++ octave-4.0.0/scripts/io/beep.m	2015-07-14 09:46:16.894469886 -0600
+@@ -20,9 +20,9 @@
+ ## @deftypefn {Function File} {} beep ()
+ ## Produce a beep from the speaker (or visual bell).
+ ##
+-## This function sends the alarm character @qcode{"\a"} to the terminal.
+-## Depending on the user's configuration this may produce an audible beep,
+-## a visual bell, or nothing at all.
++## This function sends the alarm character @qcode{"@xbackslashchar{}a"} to
++## the terminal. Depending on the user's configuration this may produce an
++## audible beep, a visual bell, or nothing at all.
+ ## @seealso{puts, fputs, printf, fprintf}
+ ## @end deftypefn
+ 

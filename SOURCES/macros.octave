@@ -1,0 +1,53 @@
+# Octave packaging macros
+
+# Octave binary API provided
+%octave_api %(octave-config -p API_VERSION || echo 0)
+
+# Octave Package Directories
+%octshareprefix %{_datadir}/octave
+%octprefix %{octshareprefix}/packages
+%octarchprefix %{_libdir}/octave/packages
+%octpkgdir %{octprefix}/%{octpkg}-%{version}
+%octpkglibdir %{octarchprefix}/%{octpkg}-%{version}
+
+# Run an octave command - quietly with no startup files
+%octave_cmd() octave -H -q --no-window-system --no-site-file --eval "%*";
+
+# Build unpacked source directory into a package tar file in a temporary location
+%octave_pkg_build %octave_cmd pkg build '-verbose' '-nodeps' %{_tmppath}/%{name}-%{version}-%{release}.%{_arch} %{_builddir}/%{buildsubdir}
+
+# Install a package.  We use the octave pkg install command to install the
+# built package into the buildroot.  We also put a note to prevent the root
+# user from removing the package with the octave pkg uninstall command
+# We call unlink to remove the 'octave_packages' file which contains the
+# buildroot string and needs to be generated at package install time.
+%octave_pkg_install \
+mkdir -p %{buildroot}%{octprefix} \
+mkdir -p %{buildroot}%{octarchprefix} \
+%octave_cmd warning('off','all');pkg('prefix','%{buildroot}%{octprefix}','%{buildroot}%{octarchprefix}');pkg('global_list',fullfile('%{buildroot}%{octshareprefix}','octave_packages'));pkg('local_list',fullfile('%{buildroot}%{octshareprefix}','octave_packages'));pkg('install','-nodeps','-verbose','%{_tmppath}/%{name}-%{version}-%{release}.%{_arch}/%{octpkg}-%{version}.tar.gz');unlink(pkg('local_list'));unlink(pkg('global_list')); \
+if [ -e %{buildroot}%{octpkgdir}/packinfo/on_uninstall.m ] \
+then \
+    mv %{buildroot}%{octpkgdir}/packinfo/on_uninstall.m %{buildroot}%{octpkgdir}/packinfo/on_uninstall.m.orig \
+fi \
+echo "function on_uninstall (desc)" > %{buildroot}%{octpkgdir}/packinfo/on_uninstall.m \
+echo "  error ('Can not uninstall %s installed by the redhat package manager', desc.name);" >> %{buildroot}%{octpkgdir}/packinfo/on_uninstall.m \
+echo "endfunction" >> %{buildroot}%{octpkgdir}/packinfo/on_uninstall.m \
+%{nil}
+
+# Run pkg tests - We need to reinstall to recreate 'octave_packages' so that
+# octave can find the package, then remove 'octave_packages' again.
+%octave_pkg_check \
+%octave_cmd warning('off','all');pkg('prefix','%{buildroot}%{octprefix}','%{buildroot}%{octarchprefix}');pkg('global_list',fullfile('%{buildroot}%{octshareprefix}','octave_packages'));pkg('local_list',fullfile('%{buildroot}%{octshareprefix}','octave_packages'));pkg('install','-nodeps','-verbose','%{_tmppath}/%{name}-%{version}-%{release}.%{_arch}/%{octpkg}-%{version}.tar.gz');pkg('load','%{octpkg}');runtests('%{buildroot}%{octpkgdir}');unlink(pkg('local_list'));unlink(pkg('global_list')); \
+%{nil}
+
+# preun script - we need to remove our uninstall protection and perhaps
+# run the package's own uninstall script.
+%octave_pkg_preun \
+if [ -e %{octpkgdir}/packinfo/on_uninstall.m.orig ]; then \
+  mv %{octpkgdir}/packinfo/on_uninstall.m.orig %{octpkgdir}/packinfo/on_uninstall.m \
+  cd %{octpkgdir}/packinfo \
+  %octave_cmd l=pkg('list');on_uninstall(l{cellfun(@(x)strcmp(x.name,'%{octpkg}'),l)}); \
+else \
+  echo > %{octpkgdir}/packinfo/on_uninstall.m \
+fi \
+%{nil}

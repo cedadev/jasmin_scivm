@@ -1,46 +1,98 @@
 # From src/version.h:#define OCTAVE_API_VERSION
-%global octave_api api-v48+
+%global octave_api api-v50+
 
+%{?!_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}}
+
+%global macrosdir %(d=%{_rpmconfigdir}/macros.d; [ -d $d ] || d=%{_sysconfdir}/rpm; echo $d)
+
+# Building docs fails on EL7 due to https://bugzilla.redhat.com/show_bug.cgi?id=1064453
+%if 0%{?rhel} == 7
+%global builddocs 0
+%else
+%global builddocs 1
+%endif
 # For rc versions, change release manually
-%global rcver 0
+#global rcver 2
 %if 0%{?rcver:1}
 %global rctag -rc%{?rcver}
 %endif
 
 Name:           octave
-Version:        3.6.4
-Release:        1.ceda
-Summary:        A high-level language for numerical computations
 Epoch:          6
+Version:        4.0.0
+Release:        2.ceda%{?dist}
+Summary:        A high-level language for numerical computations
 Group:          Applications/Engineering
 License:        GPLv3+
+URL:            http://www.octave.org
+
 %if 0%{!?rcver:1}
-Source0:        ftp://ftp.gnu.org/gnu/octave/octave-%{version}.tar.bz2
+Source0:        ftp://ftp.gnu.org/gnu/octave/octave-%{version}.tar.xz
 %else
-Source0:        ftp://alpha.gnu.org/gnu/octave/octave-%{version}%{rctag}.tar.bz2
+Source0:        ftp://alpha.gnu.org/gnu/octave/octave-%{version}%{rctag}.tar.gz
 %endif
 # RPM macros for helping to build Octave packages
 Source1:        macros.octave
-Patch0:         octave-gets.patch
-# https://savannah.gnu.org/bugs/index.php?32839
-# Fix building packages from directories
-Patch2:         octave-3.4.0-pkgbuilddir.patch
-URL:            http://www.octave.org
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source2:        xorg.conf
+# Fix to allow pkg build to use a directory
+# https://savannah.gnu.org/bugs/?func=detailitem&item_id=32839
+Patch0:         octave-pkgbuilddir.patch
+# Upstream patch to fix texinfo6 doc builds
+# http://hg.savannah.gnu.org/hgweb/octave/rev/2ec049e50ed8
+Patch1:         octave-texinfo6-2ec049e50ed8.patch
 
 Provides:       octave(api) = %{octave_api}
 Provides:       bundled(gnulib)
 
-BuildRequires:  bison flex less tetex gcc-gfortran atlas-devel 
-BuildRequires:  ncurses-devel zlib-devel hdf5-devel texinfo qhull-devel
-BuildRequires:  readline-devel glibc-devel fftw-devel gperf ghostscript
-BuildRequires:  curl-devel pcre-devel texinfo-tex arpack-devel libX11-devel
-BuildRequires:  suitesparse-devel glpk-devel gnuplot desktop-file-utils
-BuildRequires:  GraphicsMagick-c++-devel fltk-devel ftgl-devel qrupdate-devel
-BuildRequires:  tex(dvips) mesa-libGL-devel mesa-libGLU-devel
+BuildRequires:  arpack-devel
+BuildRequires:  atlas-devel 
+BuildRequires:  bison
+BuildRequires:  curl-devel
+BuildRequires:  desktop-file-utils
+BuildRequires:  fftw-devel
+BuildRequires:  flex
+BuildRequires:  fltk-devel
+BuildRequires:  ftgl-devel
+BuildRequires:  gcc-gfortran
+BuildRequires:  ghostscript
+BuildRequires:  gl2ps-devel
+BuildRequires:  glpk-devel
+BuildRequires:  gnuplot
+BuildRequires:  gperf
+BuildRequires:  GraphicsMagick-c++-devel
+BuildRequires:  hdf5-devel
+BuildRequires:  java-devel
+BuildRequires:  less
+BuildRequires:  libX11-devel
+BuildRequires:  llvm-devel
+BuildRequires:  mesa-libGL-devel
+BuildRequires:  mesa-libGLU-devel
+BuildRequires:  mesa-libOSMesa-devel
+BuildRequires:  ncurses-devel
+BuildRequires:  pcre-devel
+BuildRequires:  qhull-devel
+BuildRequires:  qrupdate-devel
+BuildRequires:  qscintilla-devel
+BuildRequires:  readline-devel
+BuildRequires:  suitesparse-devel
+BuildRequires:  tex(dvips)
+BuildRequires:  texinfo
+BuildRequires:  texinfo-tex
+%if 0%{?fedora} || 0%{?rhel} >= 7
+BuildRequires:  texlive-collection-fontsrecommended
+%endif
+BuildRequires:  zlib-devel
+# For check
+BuildRequires:  mesa-dri-drivers
+BuildRequires:  xorg-x11-apps
+%ifnarch s390 s390x
+BuildRequires:  xorg-x11-drv-dummy
+%endif
+BuildRequires:  zip
 
 Requires:        epstool gnuplot gnuplot-common less info texinfo 
 Requires:        hdf5
+Requires:        java-headless
 Requires(post):  info
 Requires(preun): info
 
@@ -75,17 +127,19 @@ applications which use GNU Octave.
 %package doc
 Summary:        Documentation for Octave
 Group:          Documentation
-%if 0%{?fedora} > 10 || 0%{?rhel} > 5
 BuildArch:      noarch
-%endif
 
 %description doc
 This package contains documentation for Octave.
 
 %prep
 %setup -q -n %{name}-%{version}%{?rctag}
-%patch0 -p1 -b .gets
-%patch2 -p1 -b .pkgbuilddir
+%patch0 -p1 -b .pkgbuilddir
+%if %{builddocs}
+%patch1 -p1 -b .texinfo6
+rm doc/texinfo.tex
+%endif
+find -name \*.h -o -name \*.cc | xargs sed -i -e 's/<config.h>/"config.h"/' -e 's/<base-list.h>/"base-list.h"/'
 
 # Check permissions
 find -name *.cc -exec chmod 644 {} \;
@@ -95,27 +149,53 @@ find -name *.cc -exec chmod 644 {} \;
 export F77=gfortran
 # TODO: some items appear to be bundled in libcruft.. 
 #   gl2ps.c is bundled.  Anything else?
+%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
+%global atlasblaslib -ltatlas
+%global atlaslapacklib -ltatlas
+%else
+%global atlasblaslib -lf77blas -latlas
+%global atlaslapacklib -llapack
+%endif
+%if !%{builddocs}
+%global disabledocs --disable-docs
+%endif
+# Find libjvm.so for this architecture in generic location
+libjvm=$(find /usr/lib/jvm/jre/lib -name libjvm.so -printf %h)
+export JAVA_HOME=%{java_home}
+# JIT support is still experimental, and causes a segfault on ARM.
+# --enable-float-truncate - https://savannah.gnu.org/bugs/?40560
 %configure --enable-shared --disable-static --enable-64=%enable64 \
- --with-blas="-L%{_libdir}/atlas -lf77blas -latlas" --with-qrupdate \
- --with-lapack="-L%{_libdir}/atlas -llapack" \
+ --enable-float-truncate \
+ %{?disabledocs} \
+ --disable-silent-rules \
+ --with-blas="-L%{_libdir}/atlas %{atlasblaslib}" \
+ --with-lapack="-L%{_libdir}/atlas %{atlaslapacklib}" \
+ --with-java-libdir=$libjvm \
+ --with-qrupdate \
  --with-amd --with-umfpack --with-colamd --with-ccolamd --with-cholmod \
- --with-cxsparse
+ --with-cxsparse \
+ --disable-jit
 
 # Check that octave_api is set correctly (autogenerated file)
-make -C src version.h
-if ! grep -q '^#define OCTAVE_API_VERSION "%{octave_api}"' src/version.h
+make -C libinterp version.h
+if ! grep -q '^#define OCTAVE_API_VERSION "%{octave_api}"' libinterp/version.h
 then
-  echo "octave_api variable in spec does not match src/version.h"
+  echo "octave_api variable in spec does not match libinterp/version.h"
   exit 1
 fi
 
-# SMP make still not working in Octave 3.6.0
-#make OCTAVE_RELEASE="Fedora %{version}-%{release}" %{?_smp_mflags}
-make OCTAVE_RELEASE="Fedora %{version}%{?rctag}-%{release}"
+make OCTAVE_RELEASE="Fedora %{version}%{?rctag}-%{release}" %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
+
+# Docs - In case we didn't build them and to explicitly install pre-built docs
+make -C doc install-data install-html install-info install-pdf DESTDIR=%{buildroot}
+mkdir -p %{buildroot}%{_pkgdocdir}
+cp -ar AUTHORS BUGS ChangeLog examples NEWS README %{buildroot}%{_pkgdocdir}/
+cp -a doc/refcard/*.pdf %{buildroot}%{_pkgdocdir}/
+
+# No info directory
 rm -f %{buildroot}%{_infodir}/dir
 
 # Make library links
@@ -128,11 +208,7 @@ perl -pi -e "s,%{buildroot},," %{buildroot}%{_datadir}/%{name}/ls-R
 # Make sure ls-R exists
 touch %{buildroot}%{_datadir}/%{name}/ls-R
 
-# Create desktop file
-rm %{buildroot}%{_datadir}/applications/www.octave.org-octave.desktop
-desktop-file-install --vendor fedora --remove-category Development --add-category "Education" \
-  --add-category "DataVisualization" --add-category "NumericalAnalysis" --add-category "Engineering" --add-category "Physics" \
-  --dir %{buildroot}%{_datadir}/applications doc/icons/octave.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/www.octave.org-octave.desktop
 
 # Create directories for add-on packages
 HOST_TYPE=`%{buildroot}%{_bindir}/octave-config -p CANONICAL_HOST_TYPE`
@@ -141,10 +217,6 @@ mkdir -p %{buildroot}%{_libdir}/%{name}/site/oct/$HOST_TYPE
 mkdir -p %{buildroot}%{_datadir}/%{name}/packages
 mkdir -p %{buildroot}%{_libdir}/%{name}/packages
 touch %{buildroot}%{_datadir}/%{name}/octave_packages
-
-# work-around broken pre-linking (bug 524493)
-#install -d %{buildroot}%{_sysconfdir}/prelink.conf.d
-#echo "-b %{_bindir}/octave-%{version}" > %{buildroot}%{_sysconfdir}/prelink.conf.d/octave.conf
 
 # Fix multilib installs
 for include in config defaults oct-conf
@@ -171,7 +243,7 @@ do
 ARCH=\$(uname -m)
 
 case \$ARCH in
-x86_64 | ia64 | s390x) LIB_DIR=/usr/lib64
+x86_64 | ia64 | s390x | aarch64 | ppc64 | ppc64le) LIB_DIR=/usr/lib64
                        SECONDARY_LIB_DIR=/usr/lib
                        ;;
 * )
@@ -194,34 +266,70 @@ exec \$LIB_DIR/%{name}/%{version}%{?rctag}/${script} "\$@"
 EOF
    chmod +x %{buildroot}%{_bindir}/${script}
 done
+%if %{builddocs}
 # remove timestamp from doc-cache
 sed -i -e '/^# Created by Octave/d' %{buildroot}%{_datadir}/%{name}/%{version}%{?rctag}/etc/doc-cache
+%else
+cp -p doc/interpreter/macros.texi %{buildroot}%{_datadir}/%{name}/%{version}/etc/macros.texi
+%endif
 
 # rpm macros
-mkdir -p %{buildroot}%{_sysconfdir}/rpm
-cp -p %SOURCE1 %{buildroot}%{_sysconfdir}/rpm/
+mkdir -p %{buildroot}%{macrosdir}
+cp -p %SOURCE1 %{buildroot}%{macrosdir}
+
 
 %check
+cp %SOURCE2 .
+if [ -x /usr/libexec/Xorg ]; then
+   Xorg=/usr/libexec/Xorg
+else
+   Xorg=/usr/libexec/Xorg.bin
+fi
+$Xorg -noreset +extension GLX +extension RANDR +extension RENDER -logfile ./xorg.log -config ./xorg.conf :99 &
+sleep 2
+export DISPLAY=:99
+# Tests are currently segfaulting on arm
+# https://bugzilla.redhat.com/show_bug.cgi?id=1149953
+%ifarch %{arm}
+make check || :
+%else
 make check
-
-%clean
-rm -rf %{buildroot}
+%endif
 
 %post
 /sbin/ldconfig
+/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
+%if %{builddocs}
 /sbin/install-info --info-dir=%{_infodir} --section="Programming" \
         %{_infodir}/octave.info || :
+%endif
 
 %preun
+%if %{builddocs}
 if [ "$1" = "0" ]; then
    /sbin/install-info --delete --info-dir=%{_infodir} %{_infodir}/octave.info || :
 fi
+%endif
 
-%postun -p /sbin/ldconfig
+%postun
+/sbin/ldconfig
+if [ $1 -eq 0 ] ; then
+    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+fi
+
+%posttrans
+/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+
 
 %files
-%defattr(-,root,root,-)
-%doc AUTHORS BUGS ChangeLog COPYING NEWS README
+%{!?_licensedir:%global license %%doc}
+%license COPYING
+%{_pkgdocdir}/AUTHORS
+%{_pkgdocdir}/BUGS
+%{_pkgdocdir}/ChangeLog
+%{_pkgdocdir}/NEWS
+%{_pkgdocdir}/README
 # FIXME: Create an -emacs package that has the emacs addon
 %config(noreplace) %{_sysconfdir}/ld.so.conf.d/octave-*.conf
 %{_bindir}/octave*
@@ -230,8 +338,10 @@ fi
 %{_mandir}/man1/octave*.1.*
 %{_infodir}/liboctave.info*
 %{_infodir}/octave.info*
-%{_infodir}/OctaveFAQ.info*
-%{_datadir}/applications/fedora-octave.desktop
+%{_datadir}/appdata/www.octave.org-octave.appdata.xml
+%{_datadir}/applications/www.octave.org-octave.desktop
+%{_datadir}/icons/hicolor/*/apps/octave.png
+%{_datadir}/icons/hicolor/scalable/apps/octave.svg
 # octave_packages is %ghost, so need to list everything else separately
 %dir %{_datadir}/octave
 %{_datadir}/octave/%{version}%{?rctag}/
@@ -239,26 +349,194 @@ fi
 %ghost %{_datadir}/octave/octave_packages
 %{_datadir}/octave/packages/
 %{_datadir}/octave/site/
-#%{_sysconfdir}/prelink.conf.d/octave.conf
 
 %files devel
-%defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/rpm/macros.octave
+%{macrosdir}/macros.octave
 %{_bindir}/mkoctfile
 %{_bindir}/mkoctfile-%{version}%{?rctag}
 %{_includedir}/octave-%{version}%{?rctag}/
 %{_mandir}/man1/mkoctfile.1.*
 
 %files doc
-%defattr(-,root,root,-)
-%doc doc/liboctave/liboctave.html doc/liboctave/liboctave.pdf
-%doc doc/faq/OctaveFAQ.pdf doc/refcard/*.pdf
-%doc examples/
-
+%{_pkgdocdir}/examples/
+%{_pkgdocdir}/liboctave.html/
+%{_pkgdocdir}/liboctave.pdf
+%{_pkgdocdir}/octave.html
+%{_pkgdocdir}/octave.pdf
+%{_pkgdocdir}/refcard*.pdf
 
 %changelog
-* Tue Dec 11 2012 Alan Iwi <alan.iwi@stfc.ac.uk> - 1.ceda
-- Rebuild for JASMIN
+* Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 6:4.0.0-2.ceda
+- recompile against hdf5-1.8.12
+
+* Mon Aug 24 2015  <builderdev@builder.jc.rl.ac.uk> - 6:4.0.0-1.ceda
+- rebuild on JASMIN
+
+* Fri Jul 31 2015 Orion Poplawski <orion@cora.nwra.com> - 6:4.0.0-4
+- Add octave_pkg_check rpm macro, other macro cleanup
+
+* Tue Jul 14 2015 Orion Poplawski <orion@cora.nwra.com> - 6:4.0.0-3
+- Add patch to fix build with texinfo 6.0
+
+* Mon Jul 13 2015 Dan Horák <dan[at]danny.cz> - 6:4.0.0-2
+- build without the dummy Xorg driver on s390(x)
+
+* Mon Jul 6 2015 Orion Poplawski <orion@cora.nwra.com> - 6:4.0.0-1
+- Update to 4.0.0
+- Rebase pkgbuilddir patch
+- Drop suitesparse patch
+- Run X server for tests
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6:3.8.2-20
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
+* Thu Jun 11 2015 Nils Philippsen <nils@redhat.com> - 6:3.8.2-19
+- rebuild for suitesparse-4.4.4
+
+* Thu May 28 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-18
+- Fix doc install (bug #799662)
+
+* Sun May 17 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-17
+- Rebuild for hdf5 1.8.15
+
+* Mon Apr 20 2015 Rex Dieter <rdieter@fedoraproject.org> - 6:3.8.2-16
+- rebuild (qscintilla)
+
+* Thu Mar 26 2015 Richard Hughes <rhughes@redhat.com> - 6:3.8.2-15
+- Add an AppData file for the software center
+
+* Tue Mar 10 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-14
+- Build with --enable-float-truncate (https://savannah.gnu.org/bugs/?40560)
+- Re-enable parallel builds
+
+* Mon Mar 09 2015 Rex Dieter <rdieter@fedoraproject.org> - 6:3.8.2-13
+- rebuild (GraphicsMagick)
+
+* Fri Feb 20 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-12
+- Rebuild for rebuilt swig
+
+* Wed Feb 18 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-11
+- Rebuild for fltk 1.3.3
+
+* Tue Feb 17 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-10
+- Rebuild for gcc 5 C++11 ABI
+
+* Sun Feb 08 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-9
+- Use a generic location for libjvm.so, require java-headless (bug #1190523)
+
+* Wed Jan 07 2015 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-8
+- Rebuild for hdf5 1.8.14
+
+* Mon Oct 6 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-7
+- Disable test failure on arm for now (bug #1149953)
+
+* Mon Sep 15 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-6
+- Add patch for suitesparse 4.3.1 support
+
+* Fri Sep 12 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-5
+- Rebuild for libcholmod soname bump
+
+* Sat Aug 23 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-4
+- No info scripts when not building docs
+
+* Fri Aug 22 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-3
+- Install macros.texi by hand if not building docs
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6:3.8.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Thu Aug 14 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.2-1
+- Update to 3.8.2 final
+
+* Thu Jul 03 2014 Susi Lehtola <jussilehtola@fedoraproject.org> - 6:3.8.2-0.2.rc2
+- Modernize rest of specfile.
+- Update to 3.8.2-rc2.
+
+* Tue Jun 10 2014 Susi Lehtola <jussilehtola@fedoraproject.org> - 6:3.8.2-0.1.rc1
+- Update to 3.8.2-rc1.
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 6:3.8.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Fri Mar  7 2014 Susi Lehtola <jussilehtola@fedoraproject.org> - 6:3.8.1-1
+- Update to 3.8.1.
+
+* Sat Feb  8 2014 Peter Robinson <pbrobinson@fedoraproject.org> 6:3.8.0-6
+- Add PPC64 and aarch64 to the 64 bit architectures
+
+* Sat Feb 1 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-5
+- Fix rpm macro install location
+
+* Tue Jan 14 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-4
+- Also fix base-list.h include
+
+* Thu Jan 9 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-3
+- Really fix config.h include
+
+* Wed Jan 8 2014 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-2
+- Fix config.h include
+
+* Sat Dec 28 2013 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-1
+- Update to 3.8.0 final
+
+* Sat Dec 28 2013 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-0.4.rc2
+- Rebase pkgbuilddir patch
+
+* Fri Dec 27 2013 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-0.3.rc2
+- Rebuild for hdf5 1.8.12
+
+* Sat Dec 21 2013 Susi Lehtola <jussilehtola@fedoraproject.org> - 6:3.8.0-0.2.rc2
+- Update to 3.8.0-rc2.
+
+* Fri Dec 6 2013 Orion Poplawski <orion@cora.nwra.com> - 6:3.8.0-0.1.rc1
+- Update to 3.8.0-rc1
+- Drop patches
+- Add BR gl2ps-devel, qscintilla-devel, java-devel, llvm-devel
+
+* Fri Dec 06 2013 Nils Philippsen <nils@redhat.com> - 6:3.6.4-9
+- rebuild (suitesparse)
+
+* Thu Oct 3 2013 Orion Poplawski - 6:3.6.4-8
+- Re-enable atlas on arm
+
+* Sun Sep 22 2013 Orion Poplawski - 6:3.6.4-7
+- Rebuild for atlas 3.10
+- Disable atlas on arm
+
+* Thu Sep 12 2013 Dan Horák <dan[at]danny.cz> - 6:3.6.4-6
+- Rebuilt to resolve broken deps on s390(x)
+
+* Tue Jul 30 2013 Orion Poplawski <orion@cora.nwra.com> - 6:3.6.4-5
+- Rebuild for glpk 4.52.1
+
+* Thu May 16 2013 Orion Poplawski <orion@cora.nwra.com> - 6:3.6.4-4
+- Rebuild for hdf5 1.8.11
+
+* Thu Mar 28 2013 Jaromir Capik <jcapik@redhat.com> - 6:3.6.4-3
+- aarch64 support (#926264)
+
+* Fri Mar 08 2013 Ralf Corsépius <corsepiu@fedoraproject.org> - 6:3.6.4-2
+- Remove %%config from %%{_sysconfdir}/rpm/macros.*
+  (https://fedorahosted.org/fpc/ticket/259).
+
+* Sat Feb 23 2013 Orion Poplawski <orion[AT]cora.nwra com> - 6:3.6.4-1
+- Update to 3.6.4 final
+
+* Tue Feb 12 2013 Orion Poplawski <orion[AT]cora.nwra com> - 6:3.6.4-0.7.rc2
+- Update to 3.6.4-rc2
+
+* Tue Feb 12 2013 Orion Poplawski <orion[AT]cora.nwra com> - 6:3.6.4-0.6.rc1
+- Drop vendor from desktop file
+
+* Sun Feb 03 2013 Kevin Fenzi <kevin@scrye.com> - 6:3.6.4-0.5.rc1
+- Rebuild for broken deps in rawhide
+
+* Fri Jan 4 2013 Orion Poplawski <orion[AT]cora.nwra com> - 6:3.6.4-0.4.rc1
+- Update to 3.6.4-rc1
+- Drop gets patch
+
+* Fri Dec 21 2012 Orion Poplawski <orion@cora.nwra.com> - 6:3.6.4-0.3.rc0
+- Add patch to ignore deps when building packages for now (bug 733615)
 
 * Wed Dec 05 2012 Orion Poplawski <orion@cora.nwra.com> - 6:3.6.4-0.2.rc0
 - Restore gets patch
@@ -510,7 +788,7 @@ fi
 - Add dependency on octave API so that breakages will be detected. (Bug 224050).
 - Remove libtermcap-devel as build dependency (Bug 226768).
 
-* Mon Oct  3 2006 Quentin Spencer <qspencer@users.sourceforge.net> 2.9.9-1
+* Tue Oct 03 2006 Quentin Spencer <qspencer@users.sourceforge.net> 2.9.9-1
 - New release. Remove old patch.
 
 * Fri Sep 15 2006 Quentin Spencer <qspencer@users.sourceforge.net> 2.9.8-2
@@ -539,7 +817,7 @@ fi
 - Move octave-bug and octave-config from devel to main package.
 - Fix categorization of info files (bug 196760).
 
-* Wed Apr 27 2006 Quentin Spencer <qspencer@users.sourceforge.net> 2.9.5-6
+* Thu Apr 27 2006 Quentin Spencer <qspencer@users.sourceforge.net> 2.9.5-6
 - Add patch for bug #190481
 - Manual stripping of .oct files is no longer necessary.
 
@@ -656,7 +934,7 @@ fi
   (some options are obsolete, others appear unneeded if rpm configure
   macro is used).
 
-* Mon May  3 2005 Quentin Spencer <qspencer@users.sourceforge.net> 2.1.70-1
+* Tue May 03 2005 Quentin Spencer <qspencer@users.sourceforge.net> 2.1.70-1
 - Imported 2.1.70 from upstream, removed old patches (resolved in new version)
 - Changed g77 dependency to gfortran.
 - Added fftw3 to BuildRequires.
@@ -699,7 +977,7 @@ fi
 * Thu Jun 24 2004 Lon Hohberger <lhh@redhat.com> 2.1.57-2
 - Fix for #113852 - signbit broken
 
-* Wed Jun 15 2004 Lon Hohberger <lhh@redhat.com> 2.1.57-1
+* Tue Jun 15 2004 Lon Hohberger <lhh@redhat.com> 2.1.57-1
 - Import 2.1.57 from upstream; this fixes #126074
 
 * Tue Jun 15 2004 Elliot Lee <sopwith@redhat.com>
@@ -873,18 +1151,18 @@ does not exist.
 * Mon Jul  3 2000 Matt Wilson <msw@redhat.com>
 - added missing %% before {_infodir} in the %%post 
 
-* Sat Jun 09 2000 Trond Eivind Glomsrød <teg@redhat.com>
+* Fri Jun 09 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - 2.1.30 - the old version contains invalid C++ code
   accepted by older compilers.
 
-* Sat Jun 09 2000 Trond Eivind Glomsrød <teg@redhat.com>
+* Fri Jun 09 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - disable optimization for C++ code
 
-* Fri Jun 08 2000 Trond Eivind Glomsrød <teg@redhat.com>
+* Thu Jun 08 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - add "Excludearch: " for Alpha - it triggers compiler bugs
 
-* Fri Jun 08 2000 Trond Eivind Glomsrød <teg@redhat.com>
-- use %%configure, %%makeinstall, %{_infodir}. %{_mandir}
+* Thu Jun 08 2000 Trond Eivind Glomsrød <teg@redhat.com>
+- use %%configure, %%makeinstall, %%{_infodir}. %%{_mandir}
 - remove prefix
 
 * Tue May 09 2000 Trond Eivind Glomsrød <teg@redhat.com>

@@ -1,0 +1,12 @@
+diff -ru umutil/pp2drs.f umutil2/pp2drs.f
+--- umutil/pp2drs.f	1999-05-17 15:57:49.000000000 +0100
++++ umutil2/pp2drs.f	2013-01-04 14:09:44.000000000 +0000
+@@ -267,7 +267,7 @@
+                      ELSE
+                         READ(ICHAN) (IPDATA(JD),JD=1,ISIZE)
+                         CALL UNPAKI(IPDATA,ISIZE,IDATA(1+(NZ-1)*NX*NY),
+-     :                              NSIZE,IPACK,IVER,NUMTYPE,IDMISS,IERR)
++     :                             NSIZE,IPACK,IVER,NUMTYPE,IDMISS,IERR)
+                      ENDIF
+                      DMISS=REAL(IDMISS)
+                      DO 3000 JD=1,NSIZE

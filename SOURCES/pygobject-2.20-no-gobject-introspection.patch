@@ -1,0 +1,33 @@
+diff -up pygobject-2.20.0/configure.ac.no-gobject-introspection pygobject-2.20.0/configure.ac
+--- pygobject-2.20.0/configure.ac.no-gobject-introspection	2009-09-23 15:50:00.000000000 -0400
++++ pygobject-2.20.0/configure.ac	2010-01-14 15:52:05.000000000 -0500
+@@ -200,15 +200,9 @@ if test -n "$export_dynamic"; then
+   GIOUNIX_LIBS=`echo $GIOUNIX_LIBS | sed -e "s/$export_dynamic//"`
+ fi
+ 
+-dnl gobject_introspection
+-PKG_CHECK_MODULES(GOBJECT_INTROSPECTION, gobject-introspection-1.0 >= gobject_introspection_required_version,
+-	have_gobject_introspection=true, have_gobject_introspection=false)
+-AC_SUBST(GOBJECT_INTROSPECTION_CFLAGS)
+-AC_SUBST(GOBJECT_INTROSPECTION_LIBS)
++dnl gobject_introspection, disabled for RHEL
++have_gobject_introspection=false
+ AM_CONDITIONAL(BUILD_GOBJECT_INTROSPECTION, $have_gobject_introspection)
+-if test -n "$export_dynamic"; then
+-  GOBJECT_INTROSPECTION_LIBS=`echo $GOBJECT_INTROSPECTION_LIBS | sed -e "s/$export_dynamic//"`
+-fi
+ 
+ dnl add required cflags ...
+ if test "x$GCC" = "xyes"; then
+diff -up pygobject-2.20.0/Makefile.am.no-gobject-introspection pygobject-2.20.0/Makefile.am
+--- pygobject-2.20.0/Makefile.am.no-gobject-introspection	2010-01-14 15:54:14.000000000 -0500
++++ pygobject-2.20.0/Makefile.am	2010-01-14 15:54:26.000000000 -0500
+@@ -1,7 +1,7 @@
+ ACLOCAL_AMFLAGS = -I m4
+ AUTOMAKE_OPTIONS = 1.7
+ 
+-SUBDIRS = docs codegen glib gobject gio girepository examples tests
++SUBDIRS = docs codegen glib gobject gio examples tests
+ 
+ PLATFORM_VERSION = 2.0
+ 

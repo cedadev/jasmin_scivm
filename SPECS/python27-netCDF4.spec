@@ -3,7 +3,7 @@
 Summary: Provides an object-oriented python interface to the netCDF version 4 library.
 Name: python27-netCDF4
 Version: 1.0.7
-Release: 2.ceda%{?dist}
+Release: 4.ceda%{?dist}
 Source0: netCDF4-%{version}.tar.gz
 License: OSI Approved
 Group: Development/Libraries
@@ -44,6 +44,12 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.0.7-4.ceda
+- rebuild against netcdf 4.4.0
+
+* Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 1.0.7-3.ceda
+- recompile against hdf5-1.8.12
+
 * Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 1.0.7-2.ceda
 - comment out renaming of executables
 

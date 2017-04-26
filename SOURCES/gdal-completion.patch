@@ -1,0 +1,12 @@
+diff -up gdal-2.1.1-fedora/scripts/GNUmakefile.completion gdal-2.1.1-fedora/scripts/GNUmakefile
+--- gdal-2.1.1-fedora/scripts/GNUmakefile.completion	2016-07-07 04:35:26.000000000 -0600
++++ gdal-2.1.1-fedora/scripts/GNUmakefile	2016-08-12 10:21:01.442938729 -0600
+@@ -5,6 +5,6 @@ completion:
+ 
+ install:
+ 	if test "x`pkg-config --version 2>/dev/null`" != "x" -a "x`pkg-config --variable=compatdir bash-completion`" != "x"; then \
+-		$(INSTALL_DIR) $(DESTDIR)${prefix}`pkg-config --variable=compatdir bash-completion` ; \
+-		cp gdal-bash-completion.sh $(DESTDIR)${prefix}`pkg-config --variable=compatdir bash-completion`; \
++		$(INSTALL_DIR) $(DESTDIR)`pkg-config --variable=compatdir bash-completion` ; \
++		$(INSTALL_DATA) gdal-bash-completion.sh $(DESTDIR)`pkg-config --variable=compatdir bash-completion`/gdal; \
+ 	fi

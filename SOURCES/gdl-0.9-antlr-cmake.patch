@@ -1,0 +1,22 @@
+diff -up gdl-0.9.5/src/CMakeLists.txt.antlr gdl-0.9.5/src/CMakeLists.txt
+--- gdl-0.9.5/src/CMakeLists.txt.antlr	2014-10-07 09:24:59.389706766 -0600
++++ gdl-0.9.5/src/CMakeLists.txt	2014-10-07 09:25:55.311423547 -0600
+@@ -262,9 +262,7 @@ widget.cpp
+ widget.hpp
+ )
+ 
+-add_subdirectory(antlr)
+-
+-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/antlr ${CMAKE_BINARY_DIR})
++include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
+ link_directories(${LINK_DIRECTORIES})
+ 
+ if(PYTHON_MODULE) #libgdl
+@@ -275,7 +273,6 @@ else(PYTHON_MODULE) #gdl
+ 	add_executable(gdl ${SOURCES})
+ endif(PYTHON_MODULE)
+ 
+-add_dependencies(gdl antlr) # be sure that antlr is built before gdl
+ target_link_libraries(gdl antlr) # link antlr against gdl
+ if (MINGW)
+ target_link_libraries(gdl ws2_32)

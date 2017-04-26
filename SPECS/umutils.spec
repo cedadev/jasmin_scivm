@@ -1,6 +1,6 @@
 Name: umutil
 Version: 20130102
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: NCAS
 Group: Scientific support	
 Source0: umutil-20130102-pruned.tar.gz
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libumutil.a
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 20130102-1.ceda
+- rebuild against later netcdf
+
 * Tue Jan 13 2013 Alan Iwi
 alan.iwi@stfc.ac.uk 20130102
 - Created initial RPM

@@ -1,0 +1,17 @@
+diff -up Python-2.6.6/configure.in.check-for-XML_SetHashSalt Python-2.6.6/configure.in
+--- Python-2.6.6/configure.in.check-for-XML_SetHashSalt	2012-04-30 17:05:38.480751101 -0400
++++ Python-2.6.6/configure.in	2012-04-30 17:05:38.713751085 -0400
+@@ -2060,6 +2060,13 @@ AC_ARG_WITH(system_ffi,
+ 
+ AC_MSG_RESULT($with_system_ffi)
+ 
++dnl Verify that XML_SetHashSalt is present in the expat library
++dnl We use AC_CHECK_LIB rather than AC_SEARCH_LIBS, and provide a non-empty
++dnl action-if-found to avoid -lexpat being added to LIBS= in the Makefile:
++AC_CHECK_LIB([expat], [XML_SetHashSalt],
++             [AC_MSG_RESULT(found)],
++             [AC_MSG_ERROR([XML_SetHashSalt not found])])
++
+ # Determine if signalmodule should be used.
+ AC_SUBST(USE_SIGNAL_MODULE)
+ AC_SUBST(SIGNAL_OBJS)

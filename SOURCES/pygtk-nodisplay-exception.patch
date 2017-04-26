@@ -1,0 +1,29 @@
+--- pygtk-2.10.4/gtk/__init__.py.orig	2007-01-16 07:50:07.000000000 -0500
++++ pygtk-2.10.4/gtk/__init__.py	2007-02-05 17:09:37.000000000 -0500
+@@ -59,19 +59,14 @@
+ def _init():
+     import sys
+ 
+-    try:
+-        sys_path = sys.path[:]
++    sys_path = sys.path[:]
+ 
+-        try:
+-            _gtk.init_check()
+-        except RuntimeError, e:
+-            import warnings
+-            warnings.warn(str(e), _gtk.Warning)
+-    finally:
+-        # init_check calls PySys_SetArgv which calls sys.path.insert(0, ''),
+-        # which causes problems for pychecker, restore it if modified.
+-        if sys.path != sys_path:
+-            sys.path[:] = sys_path
++    _gtk.init_check()
++
++    # init_check calls PySys_SetArgv which calls sys.path.insert(0, ''),
++    # which causes problems for pychecker, restore it if modified.
++    if sys.path != sys_path:
++        sys.path[:] = sys_path
+ 
+     # install the default log handlers
+     _gtk.add_log_handlers()

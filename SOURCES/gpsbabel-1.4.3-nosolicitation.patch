@@ -1,0 +1,14 @@
+diff -Naur gpsbabel-1.4.3.orig/gui/babeldata.h gpsbabel-1.4.3/gui/babeldata.h
+--- gpsbabel-1.4.3.orig/gui/babeldata.h	2010-06-20 01:59:06.000000000 +0200
++++ gpsbabel-1.4.3/gui/babeldata.h	2012-08-24 09:07:28.719568882 +0200
+@@ -63,8 +63,8 @@
+     upgradeErrors(0),
+     upgradeOffers(0),
+     runCount(0),
+-    startupVersionCheck(true),
+-    reportStatistics(true),
++    startupVersionCheck(false),
++    reportStatistics(false),
+     allowBetaUpgrades(false),
+     ignoreVersionMismatch(false),
+     disableDonateDialog(false),

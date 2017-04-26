@@ -3,7 +3,7 @@
 
 Summary: SciPy: Scientific Library for Python
 Name: python27-%{pname}
-Version: 0.13.1
+Version: 0.17.0
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD
@@ -50,6 +50,11 @@ egrep -v "^%{packdir}/" INSTALLED_FILES > INSTALLED_FILES1
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 0.17.1-1.ceda
+- update to 0.17.0
 
 %files -f INSTALLED_FILES1
 %defattr(-,root,root)

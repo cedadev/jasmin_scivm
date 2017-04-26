@@ -1,6 +1,6 @@
 Name: libdrs
 Version: 20130102
-Release: 2.ceda%{?dist}
+Release: 3.ceda%{?dist}
 License: check with PCMDI
 Group: Scientific support	
 Source: drs-%{version}.tar.gz
@@ -63,7 +63,9 @@ install -m 644 *.a $dir
 
 dir=$RPM_BUILD_ROOT/%{_includedir}
 mkdir -p $dir
-install -m 644 drsdef.h drscdf.h $dir
+install -m 644 drsdef.h $dir
+install -m 644 drscdf.h $dir/drs_cdf.h
+
 
 
 %clean				
@@ -75,10 +77,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libdrs.a
 %{_libdir}/libdrsR8.a
 %{_libdir}/libdrsRI8.a
-%{_includedir}/drscdf.h
+%{_includedir}/drs_cdf.h
 %{_includedir}/drsdef.h
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 20130102-3.ceda
+- move drscdf.h out the way to avoid conflict with libcdms package
+
 * Thu Jan  3 2013  <builderdev@builder.jc.rl.ac.uk> - 20130102-2.ceda
 - add defines needed to avoid unresolved external symbols
 

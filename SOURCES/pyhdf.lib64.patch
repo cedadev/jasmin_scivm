@@ -1,0 +1,11 @@
+--- setup.py.orig	2013-02-15 17:23:02.000000000 +0000
++++ setup.py	2008-08-05 01:20:43.000000000 +0100
+@@ -43,7 +43,7 @@
+ 
+ # Configure the appropriate include and library directories here.
+ include_dirs = ["/usr/include/hdf"]
+-library_dirs = ["/usr/lib/hdf"]
++library_dirs = ["/usr/lib64/hdf"]
+ 
+ _hdfext =    Extension('pyhdf._hdfext', 
+                        sources      = ["pyhdf/hdfext_wrap.c"],

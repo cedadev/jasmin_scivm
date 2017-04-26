@@ -1,0 +1,83 @@
+diff -up Python-2.6.6/Python/import.c.rhythmbox-workaround Python-2.6.6/Python/import.c
+--- Python-2.6.6/Python/import.c.rhythmbox-workaround	2011-03-21 14:27:59.149116031 -0400
++++ Python-2.6.6/Python/import.c	2011-03-21 14:57:21.929864498 -0400
+@@ -2702,6 +2702,48 @@ PyImport_ReloadModule(PyObject *m)
+ }
+ 
+ 
++int _Py_rhythmbox_workaround_rhbz684991 = 0;
++
++static void
++do_rhythmbox_workaround_rhbz684991(PyObject *module_name)
++{
++    /*
++      Python 2.6.5 had a PyErr_Clear() here, which was removed in 2.6.6
++      as part of r79204
++
++      Unfortunately, rhythmbox-0.12.8 has a bug which generates an
++      assertion failure, which was being masked by this call; it needs
++      the call to PyErr_Clear during the import of "gobject" to avoid
++      later crashing.
++      
++      To reinstate this behavior without patching rhythmbox, we add a
++      workaround here, calling PyErr_Clear if it looks like we're running
++      rhythmbox and are at the precise point where the call is needed.
++      
++      This is rhbz#684991
++    */
++  
++    /*  
++        _Py_rhythmbox_workaround_rhbz684991 is set by PySys_SetArgv, when
++        it is called by the exact arguments used by rhythmbox
++    */
++    if (_Py_rhythmbox_workaround_rhbz684991) {
++
++        /* The precise error that must be discarded is when
++           importing "gobject": */
++        if (PyString_CheckExact(module_name)) {
++            if (0 == strcmp(PyString_AS_STRING(module_name), "gobject")) {
++                /* Clear the bogus error: */
++                PyErr_Clear();
++
++                /* Only do it once */
++                _Py_rhythmbox_workaround_rhbz684991 = 0;
++            }
++        }
++    }
++}
++
++
+ /* Higher-level import emulator which emulates the "import" statement
+    more accurately -- it invokes the __import__() function from the
+    builtins of the current globals.  This means that the import is
+@@ -2745,6 +2787,8 @@ PyImport_Import(PyObject *module_name)
+     }
+     else {
+         /* No globals -- use standard builtins, and fake globals */
++        do_rhythmbox_workaround_rhbz684991(module_name);
++
+         builtins = PyImport_ImportModuleLevel("__builtin__",
+                                               NULL, NULL, NULL, 0);
+         if (builtins == NULL)
+diff -up Python-2.6.6/Python/sysmodule.c.rhythmbox-workaround Python-2.6.6/Python/sysmodule.c
+--- Python-2.6.6/Python/sysmodule.c.rhythmbox-workaround	2011-03-21 14:43:49.180870432 -0400
++++ Python-2.6.6/Python/sysmodule.c	2011-03-21 14:45:23.676002290 -0400
+@@ -1631,9 +1631,18 @@ PySys_SetArgvEx(int argc, char **argv, i
+     Py_DECREF(av);
+ }
+ 
++extern int _Py_rhythmbox_workaround_rhbz684991;
++
+ void
+ PySys_SetArgv(int argc, char **argv)
+ {
++    /* Detect and set up workaround for rhythmbox, used in import.c */
++    if (argc == 1) {
++        if (0 == strcmp(argv[0], "rb")) {
++            _Py_rhythmbox_workaround_rhbz684991 = 1;
++        }
++    }
++
+     PySys_SetArgvEx(argc, argv, 1);
+ }
+ 

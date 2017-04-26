@@ -2,9 +2,9 @@
 
 Summary: The NetCDF Climate Forcast Conventions compliance checker
 Name: python27-%{pname}
-Version: 2.0.5
-Release: 4.ceda%{?dist}
-Source0: %{pname}-cd671f.tar.gz
+Version: 2.0.9
+Release: 1.ceda%{?dist}
+Source0: https://github.com/cedadev/cf-checker/archive/a8e347beba09c2609e3d83d50026c556edb78c72.zip
 License: UNKNOWN
 Group: Scientific support
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -12,7 +12,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Rosalyn Hatcher <r.s.hatcher@reading.ac.uk>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
-Url: http://cf-pcmdi.llnl.gov/conformance/compliance-checker/
+Url: https://github.com/cedadev/cf-checker/wiki
 Requires: python27 python27-cdat_lite udunits >= 2.1
 BuildRequires: python27
 
@@ -23,7 +23,7 @@ BuildRequires: python27
 The NetCDF Climate Forcast Conventions compliance checker
 
 %prep
-%setup -n cf-checker
+%setup -n cf-checker-a8e347beba09c2609e3d83d50026c556edb78c72
 
 %build
 env CFLAGS="$RPM_OPT_FLAGS" python2.7 setup.py build
@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 %{spooldir}
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.0.9-1.ceda
+- move to 2.0.9 (git release a8e347) and compile against netcdf 4.4.0
+
 * Thu Sep 11 2014  <builderdev@builder.jc.rl.ac.uk> - 2.0.5-4.ceda
 - move to git release cd671f
 

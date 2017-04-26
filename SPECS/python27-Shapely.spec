@@ -1,6 +1,6 @@
 %define pname Shapely
-%define version 1.2.16
-%define release 2.ceda%{?dist}
+%define version 1.5.17
+%define release 1.ceda%{?dist}
 
 Summary: Geometric objects, predicates, and operations
 Name: python27-%{pname}
@@ -438,7 +438,12 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%files -f INSTALLED_FILES
+%defattr(-,root,root)
+
 %changelog
+* Thu Oct 20 2016  <builderdev@builder.jc.rl.ac.uk> - 1.5.17-1.ceda%{?dist}
+- bump version
 
 * Wed Jan 23 2013  <builderdev@builder.jc.rl.ac.uk> - 1.2.16-2.ceda%{?dist}
 - require geos 3.3.6 (in order to use version built on JASMIN instead of one taken from Fedora)
@@ -446,5 +451,3 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Dec 17 2012  <builderdev@builder.jc.rl.ac.uk> - 1.1.0rc1-1.ceda{?dist}
 - initial version
 
-%files -f INSTALLED_FILES
-%defattr(-,root,root)

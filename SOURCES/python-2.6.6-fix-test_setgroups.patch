@@ -1,0 +1,13 @@
+Index: Lib/test/test_posix.py
+===================================================================
+--- Lib/test/test_posix.py	(revision 86871)
++++ Lib/test/test_posix.py	(working copy)
+@@ -353,7 +353,7 @@
+             def test_setgroups(self):
+                 for groups in [[0], range(16)]:
+                     posix.setgroups(groups)
+-                    self.assertListEqual(groups, posix.getgroups())
++                    self.assertEqual(groups, posix.getgroups())
+ 
+ 
+ def test_main():

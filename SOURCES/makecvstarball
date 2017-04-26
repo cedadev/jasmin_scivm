@@ -1,0 +1,9 @@
+#!/bin/sh
+if [ -n "$1" ]
+then
+   date=$1
+else
+   date=`date +%Y%m%d`
+fi
+cvs -z3 -d :pserver:anonymous@gnudatalanguage.cvs.sourceforge.net:/cvsroot/gnudatalanguage export -D ${date} -d gdl-0.9rc4-${date} gdl
+tar cjf gdl-0.9rc4-${date}.tar.bz2 gdl-0.9rc4-${date}

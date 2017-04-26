@@ -1,0 +1,626 @@
+diff -up Python-2.6.6/Include/modsupport.h.uid-gid-overflows Python-2.6.6/Include/modsupport.h
+--- Python-2.6.6/Include/modsupport.h.uid-gid-overflows	2008-01-22 10:25:18.000000000 -0500
++++ Python-2.6.6/Include/modsupport.h	2011-08-12 13:48:50.870579850 -0400
+@@ -128,6 +128,17 @@ PyAPI_FUNC(PyObject *) Py_InitModule4(co
+ 
+ PyAPI_DATA(char *) _Py_PackageContext;
+ 
++/*
++  RHEL-specific extension: support for dealing with uid_t and gid_t without
++  integer overflow
++ */
++
++PyAPI_FUNC(PyObject *) _PyObject_FromUid(uid_t uid);
++PyAPI_FUNC(PyObject *) _PyObject_FromGid(gid_t gid);
++
++PyAPI_FUNC(int) _PyArg_ParseUid(PyObject *in_obj, uid_t *out_uid);
++PyAPI_FUNC(int) _PyArg_ParseGid(PyObject *in_obj, gid_t *out_gid);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff -up Python-2.6.6/Lib/test/test_grp.py.uid-gid-overflows Python-2.6.6/Lib/test/test_grp.py
+--- Python-2.6.6/Lib/test/test_grp.py.uid-gid-overflows	2008-07-18 15:06:13.000000000 -0400
++++ Python-2.6.6/Lib/test/test_grp.py	2011-08-12 13:48:50.870579850 -0400
+@@ -15,7 +15,7 @@ class GroupDatabaseTestCase(unittest.Tes
+         self.assertEqual(value[1], value.gr_passwd)
+         self.assert_(isinstance(value.gr_passwd, basestring))
+         self.assertEqual(value[2], value.gr_gid)
+-        self.assert_(isinstance(value.gr_gid, int))
++        self.assert_(isinstance(value.gr_gid, (int, long)))
+         self.assertEqual(value[3], value.gr_mem)
+         self.assert_(isinstance(value.gr_mem, list))
+ 
+diff -up Python-2.6.6/Lib/test/test_os.py.uid-gid-overflows Python-2.6.6/Lib/test/test_os.py
+--- Python-2.6.6/Lib/test/test_os.py.uid-gid-overflows	2010-08-03 06:44:09.000000000 -0400
++++ Python-2.6.6/Lib/test/test_os.py	2011-08-12 13:48:50.871625679 -0400
+@@ -618,30 +618,36 @@ if sys.platform != 'win32':
+             def test_setuid(self):
+                 if os.getuid() != 0:
+                     self.assertRaises(os.error, os.setuid, 0)
++                self.assertRaises(TypeError, os.setuid, 'not an int')
+                 self.assertRaises(OverflowError, os.setuid, 1<<32)
+ 
+         if hasattr(os, 'setgid'):
+             def test_setgid(self):
+                 if os.getuid() != 0:
+                     self.assertRaises(os.error, os.setgid, 0)
++                self.assertRaises(TypeError, os.setgid, 'not an int')
+                 self.assertRaises(OverflowError, os.setgid, 1<<32)
+ 
+         if hasattr(os, 'seteuid'):
+             def test_seteuid(self):
+                 if os.getuid() != 0:
+                     self.assertRaises(os.error, os.seteuid, 0)
++                self.assertRaises(TypeError, os.seteuid, 'not an int')
+                 self.assertRaises(OverflowError, os.seteuid, 1<<32)
+ 
+         if hasattr(os, 'setegid'):
+             def test_setegid(self):
+                 if os.getuid() != 0:
+                     self.assertRaises(os.error, os.setegid, 0)
++                self.assertRaises(TypeError, os.setegid, 'not an int')
+                 self.assertRaises(OverflowError, os.setegid, 1<<32)
+ 
+         if hasattr(os, 'setreuid'):
+             def test_setreuid(self):
+                 if os.getuid() != 0:
+                     self.assertRaises(os.error, os.setreuid, 0, 0)
++                self.assertRaises(TypeError, os.setreuid, 'not an int', 0)
++                self.assertRaises(TypeError, os.setreuid, 0, 'not an int')
+                 self.assertRaises(OverflowError, os.setreuid, 1<<32, 0)
+                 self.assertRaises(OverflowError, os.setreuid, 0, 1<<32)
+ 
+@@ -657,6 +663,8 @@ if sys.platform != 'win32':
+             def test_setregid(self):
+                 if os.getuid() != 0:
+                     self.assertRaises(os.error, os.setregid, 0, 0)
++                self.assertRaises(TypeError, os.setregid, 'not an int', 0)
++                self.assertRaises(TypeError, os.setregid, 0, 'not an int')
+                 self.assertRaises(OverflowError, os.setregid, 1<<32, 0)
+                 self.assertRaises(OverflowError, os.setregid, 0, 1<<32)
+ 
+diff -up Python-2.6.6/Lib/test/test_posix.py.uid-gid-overflows Python-2.6.6/Lib/test/test_posix.py
+--- Python-2.6.6/Lib/test/test_posix.py.uid-gid-overflows	2011-08-12 13:48:50.441829536 -0400
++++ Python-2.6.6/Lib/test/test_posix.py	2011-08-12 13:48:50.872619546 -0400
+@@ -146,7 +146,7 @@ class PosixTester(unittest.TestCase):
+         if hasattr(posix, 'stat'):
+             self.assert_(posix.stat(test_support.TESTFN))
+ 
+-    def _test_all_chown_common(self, chown_func, first_param):
++    def _test_all_chown_common(self, chown_func, stat_func, first_param):
+         """Common code for chown, fchown and lchown tests."""
+         if os.getuid() == 0:
+             try:
+@@ -166,6 +166,13 @@ class PosixTester(unittest.TestCase):
+ 
+         # test a successful chown call
+         chown_func(first_param, os.getuid(), os.getgid())
++        self.assertEqual(stat_func(first_param).st_uid, os.getuid())
++        self.assertEqual(stat_func(first_param).st_gid, os.getgid())
++
++        # verify that -1 works as a "do-nothing" option:
++        chown_func(first_param, -1, -1)
++        self.assertEqual(stat_func(first_param).st_uid, os.getuid())
++        self.assertEqual(stat_func(first_param).st_gid, os.getgid())
+ 
+     def _test_chown(self):
+         # raise an OSError if the file does not exist
+@@ -174,7 +181,7 @@ class PosixTester(unittest.TestCase):
+ 
+         # re-create the file
+         open(test_support.TESTFN, 'w').close()
+-        self._test_all_chown_common(posix.chown, test_support.TESTFN)
++        self._test_all_chown_common(posix.chown, posix.stat, test_support.TESTFN)
+ 
+     if hasattr(posix, 'chown'):
+         test_chown = _test_chown
+@@ -186,7 +193,7 @@ class PosixTester(unittest.TestCase):
+         test_file = open(test_support.TESTFN, 'w')
+         try:
+             fd = test_file.fileno()
+-            self._test_all_chown_common(posix.fchown, fd)
++            self._test_all_chown_common(posix.fchown, posix.fstat, fd)
+         finally:
+             test_file.close()
+ 
+@@ -197,7 +204,7 @@ class PosixTester(unittest.TestCase):
+         os.unlink(test_support.TESTFN)
+         # create a symlink
+         os.symlink('/tmp/dummy-symlink-target', test_support.TESTFN)
+-        self._test_all_chown_common(posix.lchown, test_support.TESTFN)
++        self._test_all_chown_common(posix.lchown, posix.lstat, test_support.TESTFN)
+ 
+     if hasattr(posix, 'lchown'):
+         test_lchown = _test_lchown
+diff -up Python-2.6.6/Lib/test/test_pwd.py.uid-gid-overflows Python-2.6.6/Lib/test/test_pwd.py
+--- Python-2.6.6/Lib/test/test_pwd.py.uid-gid-overflows	2008-07-18 15:06:13.000000000 -0400
++++ Python-2.6.6/Lib/test/test_pwd.py	2011-08-12 13:48:50.872619546 -0400
+@@ -17,9 +17,9 @@ class PwdTest(unittest.TestCase):
+             self.assertEqual(e[1], e.pw_passwd)
+             self.assert_(isinstance(e.pw_passwd, basestring))
+             self.assertEqual(e[2], e.pw_uid)
+-            self.assert_(isinstance(e.pw_uid, int))
++            self.assert_(isinstance(e.pw_uid, (int, long)))
+             self.assertEqual(e[3], e.pw_gid)
+-            self.assert_(isinstance(e.pw_gid, int))
++            self.assert_(isinstance(e.pw_gid, (int, long)))
+             self.assertEqual(e[4], e.pw_gecos)
+             self.assert_(isinstance(e.pw_gecos, basestring))
+             self.assertEqual(e[5], e.pw_dir)
+diff -up Python-2.6.6/Modules/grpmodule.c.uid-gid-overflows Python-2.6.6/Modules/grpmodule.c
+--- Python-2.6.6/Modules/grpmodule.c.uid-gid-overflows	2011-08-12 13:57:02.905826203 -0400
++++ Python-2.6.6/Modules/grpmodule.c	2011-08-12 14:33:20.687582303 -0400
+@@ -70,7 +70,7 @@ mkgrent(struct group *p)
+ 	    Py_INCREF(Py_None);
+     }
+ #endif
+-    SET(setIndex++, PyInt_FromLong((long) p->gr_gid));
++    SET(setIndex++, _PyObject_FromGid(p->gr_gid));
+     SET(setIndex++, w);
+ #undef SET
+ 
+@@ -85,18 +85,15 @@ mkgrent(struct group *p)
+ static PyObject *
+ grp_getgrgid(PyObject *self, PyObject *pyo_id)
+ {
+-    PyObject *py_int_id;
+-    unsigned int gid;
++    gid_t gid;
+     struct group *p;
+ 
+-    py_int_id = PyNumber_Int(pyo_id);
+-    if (!py_int_id)
+-	    return NULL;
+-    gid = PyInt_AS_LONG(py_int_id);
+-    Py_DECREF(py_int_id);
++    if (!_PyArg_ParseGid(pyo_id, &gid)) {
++        return NULL;
++    }
+ 
+     if ((p = getgrgid(gid)) == NULL) {
+-	PyErr_Format(PyExc_KeyError, "getgrgid(): gid not found: %d", gid);
++        PyErr_Format(PyExc_KeyError, "getgrgid(): gid not found: %lu", (unsigned long)gid);
+         return NULL;
+     }
+     return mkgrent(p);
+diff -up Python-2.6.6/Modules/posixmodule.c.uid-gid-overflows Python-2.6.6/Modules/posixmodule.c
+--- Python-2.6.6/Modules/posixmodule.c.uid-gid-overflows	2011-08-12 13:48:50.433949413 -0400
++++ Python-2.6.6/Modules/posixmodule.c	2011-08-12 13:48:50.875617759 -0400
+@@ -1310,8 +1310,8 @@ _pystat_fromstructstat(STRUCT_STAT *st)
+     PyStructSequence_SET_ITEM(v, 2, PyInt_FromLong((long)st->st_dev));
+ #endif
+     PyStructSequence_SET_ITEM(v, 3, PyInt_FromLong((long)st->st_nlink));
+-    PyStructSequence_SET_ITEM(v, 4, PyInt_FromLong((long)st->st_uid));
+-    PyStructSequence_SET_ITEM(v, 5, PyInt_FromLong((long)st->st_gid));
++    PyStructSequence_SET_ITEM(v, 4, _PyObject_FromUid(st->st_uid));
++    PyStructSequence_SET_ITEM(v, 5, _PyObject_FromGid(st->st_gid));
+ #ifdef HAVE_LARGEFILE_SUPPORT
+     PyStructSequence_SET_ITEM(v, 6,
+                               PyLong_FromLongLong((PY_LONG_LONG)st->st_size));
+@@ -1897,14 +1897,16 @@ static PyObject *
+ posix_chown(PyObject *self, PyObject *args)
+ {
+     char *path = NULL;
+-    long uid, gid;
++    uid_t uid;
++    gid_t gid;
+     int res;
+-    if (!PyArg_ParseTuple(args, "etll:chown",
++    if (!PyArg_ParseTuple(args, "etO&O&:chown",
+                           Py_FileSystemDefaultEncoding, &path,
+-                          &uid, &gid))
++			  _PyArg_ParseUid, &uid,
++			  _PyArg_ParseGid, &gid))
+         return NULL;
+     Py_BEGIN_ALLOW_THREADS
+-    res = chown(path, (uid_t) uid, (gid_t) gid);
++    res = chown(path, uid, gid);
+     Py_END_ALLOW_THREADS
+     if (res < 0)
+         return posix_error_with_allocated_filename(path);
+@@ -1924,12 +1926,15 @@ static PyObject *
+ posix_fchown(PyObject *self, PyObject *args)
+ {
+     int fd;
+-    long uid, gid;
++    uid_t uid;
++    gid_t gid;
+     int res;
+-    if (!PyArg_ParseTuple(args, "ill:chown", &fd, &uid, &gid))
++    if (!PyArg_ParseTuple(args, "iO&O&:chown", &fd,
++			  _PyArg_ParseUid, &uid,
++			  _PyArg_ParseGid, &gid))
+         return NULL;
+     Py_BEGIN_ALLOW_THREADS
+-    res = fchown(fd, (uid_t) uid, (gid_t) gid);
++    res = fchown(fd, uid, gid);
+     Py_END_ALLOW_THREADS
+     if (res < 0)
+         return posix_error();
+@@ -1947,14 +1952,16 @@ static PyObject *
+ posix_lchown(PyObject *self, PyObject *args)
+ {
+     char *path = NULL;
+-    long uid, gid;
++    uid_t uid;
++    gid_t gid;
+     int res;
+-    if (!PyArg_ParseTuple(args, "etll:lchown",
++    if (!PyArg_ParseTuple(args, "etO&O&:lchown",
+                           Py_FileSystemDefaultEncoding, &path,
+-                          &uid, &gid))
++			  _PyArg_ParseUid, &uid,
++			  _PyArg_ParseGid, &gid))
+         return NULL;
+     Py_BEGIN_ALLOW_THREADS
+-    res = lchown(path, (uid_t) uid, (gid_t) gid);
++    res = lchown(path, uid, gid);
+     Py_END_ALLOW_THREADS
+     if (res < 0)
+         return posix_error_with_allocated_filename(path);
+@@ -3836,7 +3843,7 @@ Return the current process's effective g
+ static PyObject *
+ posix_getegid(PyObject *self, PyObject *noargs)
+ {
+-    return PyInt_FromLong((long)getegid());
++    return _PyObject_FromGid(getegid());
+ }
+ #endif
+ 
+@@ -3849,7 +3856,7 @@ Return the current process's effective u
+ static PyObject *
+ posix_geteuid(PyObject *self, PyObject *noargs)
+ {
+-    return PyInt_FromLong((long)geteuid());
++    return _PyObject_FromUid(geteuid());
+ }
+ #endif
+ 
+@@ -3862,7 +3869,7 @@ Return the current process's group id.")
+ static PyObject *
+ posix_getgid(PyObject *self, PyObject *noargs)
+ {
+-    return PyInt_FromLong((long)getgid());
++    return _PyObject_FromGid(getgid());
+ }
+ #endif
+ 
+@@ -3937,7 +3944,7 @@ posix_getgroups(PyObject *self, PyObject
+     if (result != NULL) {
+         int i;
+         for (i = 0; i < n; ++i) {
+-            PyObject *o = PyInt_FromLong((long)alt_grouplist[i]);
++            PyObject *o = _PyObject_FromGid(alt_grouplist[i]);
+             if (o == NULL) {
+             Py_DECREF(result);
+             result = NULL;
+@@ -4061,7 +4068,7 @@ Return the current process's user id.");
+ static PyObject *
+ posix_getuid(PyObject *self, PyObject *noargs)
+ {
+-    return PyInt_FromLong((long)getuid());
++    return _PyObject_FromUid(getuid());
+ }
+ #endif
+ 
+@@ -5622,15 +5629,9 @@ Set the current process's user id.");
+ static PyObject *
+ posix_setuid(PyObject *self, PyObject *args)
+ {
+-    long uid_arg;
+     uid_t uid;
+-    if (!PyArg_ParseTuple(args, "l:setuid", &uid_arg))
+-        return NULL;
+-    uid = uid_arg;
+-    if (uid != uid_arg) {
+-        PyErr_SetString(PyExc_OverflowError, "user id too big");
++    if (!PyArg_ParseTuple(args, "O&:setuid", _PyArg_ParseUid, &uid))
+         return NULL;
+-    }
+     if (setuid(uid) < 0)
+         return posix_error();
+     Py_INCREF(Py_None);
+@@ -5647,15 +5648,9 @@ Set the current process's effective user
+ static PyObject *
+ posix_seteuid (PyObject *self, PyObject *args)
+ {
+-    long euid_arg;
+     uid_t euid;
+-    if (!PyArg_ParseTuple(args, "l", &euid_arg))
+-        return NULL;
+-    euid = euid_arg;
+-    if (euid != euid_arg) {
+-        PyErr_SetString(PyExc_OverflowError, "user id too big");
++    if (!PyArg_ParseTuple(args, "O&:seteuid", _PyArg_ParseUid, &euid))
+         return NULL;
+-    }
+     if (seteuid(euid) < 0) {
+         return posix_error();
+     } else {
+@@ -5673,15 +5668,9 @@ Set the current process's effective grou
+ static PyObject *
+ posix_setegid (PyObject *self, PyObject *args)
+ {
+-    long egid_arg;
+     gid_t egid;
+-    if (!PyArg_ParseTuple(args, "l", &egid_arg))
+-        return NULL;
+-    egid = egid_arg;
+-    if (egid != egid_arg) {
+-        PyErr_SetString(PyExc_OverflowError, "group id too big");
++    if (!PyArg_ParseTuple(args, "O&:setegid", _PyArg_ParseGid, &egid))
+         return NULL;
+-    }
+     if (setegid(egid) < 0) {
+         return posix_error();
+     } else {
+@@ -5699,23 +5688,11 @@ Set the current process's real and effec
+ static PyObject *
+ posix_setreuid (PyObject *self, PyObject *args)
+ {
+-    long ruid_arg, euid_arg;
+     uid_t ruid, euid;
+-    if (!PyArg_ParseTuple(args, "ll", &ruid_arg, &euid_arg))
+-        return NULL;
+-    if (ruid_arg == -1)
+-        ruid = (uid_t)-1;  /* let the compiler choose how -1 fits */
+-    else
+-        ruid = ruid_arg;  /* otherwise, assign from our long */
+-    if (euid_arg == -1)
+-        euid = (uid_t)-1;
+-    else
+-        euid = euid_arg;
+-    if ((euid_arg != -1 && euid != euid_arg) ||
+-        (ruid_arg != -1 && ruid != ruid_arg)) {
+-        PyErr_SetString(PyExc_OverflowError, "user id too big");
++    if (!PyArg_ParseTuple(args, "O&O&",
++			  _PyArg_ParseUid, &ruid,
++			  _PyArg_ParseUid, &euid))
+         return NULL;
+-    }
+     if (setreuid(ruid, euid) < 0) {
+         return posix_error();
+     } else {
+@@ -5733,23 +5710,11 @@ Set the current process's real and effec
+ static PyObject *
+ posix_setregid (PyObject *self, PyObject *args)
+ {
+-    long rgid_arg, egid_arg;
+     gid_t rgid, egid;
+-    if (!PyArg_ParseTuple(args, "ll", &rgid_arg, &egid_arg))
++    if (!PyArg_ParseTuple(args, "O&O&",
++			  _PyArg_ParseGid, &rgid,
++			  _PyArg_ParseGid, &egid))
+         return NULL;
+-    if (rgid_arg == -1)
+-        rgid = (gid_t)-1;  /* let the compiler choose how -1 fits */
+-    else
+-        rgid = rgid_arg;  /* otherwise, assign from our long */
+-    if (egid_arg == -1)
+-        egid = (gid_t)-1;
+-    else
+-        egid = egid_arg;
+-    if ((egid_arg != -1 && egid != egid_arg) ||
+-        (rgid_arg != -1 && rgid != rgid_arg)) {
+-        PyErr_SetString(PyExc_OverflowError, "group id too big");
+-        return NULL;
+-    }
+     if (setregid(rgid, egid) < 0) {
+         return posix_error();
+     } else {
+@@ -5767,15 +5732,9 @@ Set the current process's group id.");
+ static PyObject *
+ posix_setgid(PyObject *self, PyObject *args)
+ {
+-    long gid_arg;
+     gid_t gid;
+-    if (!PyArg_ParseTuple(args, "l:setgid", &gid_arg))
+-        return NULL;
+-    gid = gid_arg;
+-    if (gid != gid_arg) {
+-        PyErr_SetString(PyExc_OverflowError, "group id too big");
++    if (!PyArg_ParseTuple(args, "O&:setgid", _PyArg_ParseGid, &gid))
+         return NULL;
+-    }
+     if (setgid(gid) < 0)
+         return posix_error();
+     Py_INCREF(Py_None);
+@@ -5808,39 +5767,10 @@ posix_setgroups(PyObject *self, PyObject
+         elem = PySequence_GetItem(groups, i);
+         if (!elem)
+             return NULL;
+-        if (!PyInt_Check(elem)) {
+-            if (!PyLong_Check(elem)) {
+-                PyErr_SetString(PyExc_TypeError,
+-                                "groups must be integers");
+-                Py_DECREF(elem);
+-                return NULL;
+-            } else {
+-                unsigned long x = PyLong_AsUnsignedLong(elem);
+-                if (PyErr_Occurred()) {
+-                    PyErr_SetString(PyExc_TypeError,
+-                                    "group id too big");
+-                    Py_DECREF(elem);
+-                    return NULL;
+-                }
+-                grouplist[i] = x;
+-                /* read back to see if it fits in gid_t */
+-                if (grouplist[i] != x) {
+-                    PyErr_SetString(PyExc_TypeError,
+-                                    "group id too big");
+-                    Py_DECREF(elem);
+-                    return NULL;
+-                }
+-            }
+-        } else {
+-            long x  = PyInt_AsLong(elem);
+-            grouplist[i] = x;
+-            if (grouplist[i] != x) {
+-                PyErr_SetString(PyExc_TypeError,
+-                                "group id too big");
+-                Py_DECREF(elem);
+-                return NULL;
+-            }
+-        }
++	if (!_PyArg_ParseGid(elem, &grouplist[i])) {
++	    Py_DECREF(elem);
++	    return NULL;
++	}
+         Py_DECREF(elem);
+     }
+ 
+diff -up Python-2.6.6/Modules/pwdmodule.c.uid-gid-overflows Python-2.6.6/Modules/pwdmodule.c
+--- Python-2.6.6/Modules/pwdmodule.c.uid-gid-overflows	2011-08-12 13:56:38.154837283 -0400
++++ Python-2.6.6/Modules/pwdmodule.c	2011-08-12 14:33:14.015584482 -0400
+@@ -73,8 +73,8 @@ mkpwent(struct passwd *p)
+ #else
+     SETS(setIndex++, p->pw_passwd);
+ #endif
+-    SETI(setIndex++, p->pw_uid);
+-    SETI(setIndex++, p->pw_gid);
++    PyStructSequence_SET_ITEM(v, setIndex++, _PyObject_FromUid(p->pw_uid));
++    PyStructSequence_SET_ITEM(v, setIndex++, _PyObject_FromUid(p->pw_gid));
+ #ifdef __VMS
+     SETS(setIndex++, "");
+ #else
+@@ -103,13 +103,14 @@ See pwd.__doc__ for more on password dat
+ static PyObject *
+ pwd_getpwuid(PyObject *self, PyObject *args)
+ {
+-    unsigned int uid;
++    uid_t uid;
+     struct passwd *p;
+-    if (!PyArg_ParseTuple(args, "I:getpwuid", &uid))
++    if (!PyArg_ParseTuple(args, "O&:getpwuid",
++                          _PyArg_ParseUid, &uid))
+         return NULL;
+     if ((p = getpwuid(uid)) == NULL) {
+         PyErr_Format(PyExc_KeyError,
+-                     "getpwuid(): uid not found: %d", uid);
++                     "getpwuid(): uid not found: %lu", (unsigned long)uid);
+         return NULL;
+     }
+     return mkpwent(p);
+diff -up Python-2.6.6/Python/getargs.c.uid-gid-overflows Python-2.6.6/Python/getargs.c
+--- Python-2.6.6/Python/getargs.c.uid-gid-overflows	2010-05-09 11:15:40.000000000 -0400
++++ Python-2.6.6/Python/getargs.c	2011-08-12 13:48:50.876584372 -0400
+@@ -4,6 +4,7 @@
+ #include "Python.h"
+ 
+ #include <ctype.h>
++#include <limits.h>
+ 
+ 
+ #ifdef __cplusplus
+@@ -1866,6 +1867,110 @@ _PyArg_NoKeywords(const char *funcname, 
+                     funcname);
+     return 0;
+ }
++
++PyObject *
++_PyObject_FromUid(uid_t uid)
++{
++    if (uid <= (uid_t)LONG_MAX) {
++        return PyInt_FromLong((uid_t)uid);
++    } else {
++        return PyLong_FromUnsignedLong((uid_t)uid);
++    }
++}
++
++PyObject *
++_PyObject_FromGid(gid_t gid)
++{
++    if (gid <= (gid_t)LONG_MAX) {
++        return PyInt_FromLong((gid_t)gid);
++    } else {
++        return PyLong_FromUnsignedLong((gid_t)gid);
++    }
++}
++
++int
++_PyArg_ParseUid(PyObject *in_obj, uid_t *out_uid)
++{
++    PyObject *index, *number = NULL;
++    long sl;
++    unsigned long ul;
++
++    assert(out_uid);
++
++    index = PyNumber_Index(in_obj);
++    if (index != NULL) {
++        number = PyNumber_Long(index);
++        Py_DECREF(index);
++    }
++    if (number == NULL) {
++        PyErr_SetString(PyExc_TypeError, "user id must be integer");
++        return 0;
++    }
++
++    /* Special case: support -1 (e.g. for use by chown) */
++    sl = PyLong_AsLong(number);
++    if (PyErr_Occurred()) {
++        PyErr_Clear();
++    } else if (sl == -1) {
++        Py_DECREF(number);
++        *out_uid = (uid_t)-1;
++        return 1;
++    }
++
++    /* Otherwise, it must be >= 0 */
++    ul = PyLong_AsUnsignedLong(number);
++    Py_DECREF(number);
++    *out_uid = ul;
++    /* read back the value to see if it fitted in uid_t */
++    if (PyErr_Occurred() || *out_uid != ul) {
++        PyErr_SetString(PyExc_OverflowError,
++			"user id is not in range(-1, 2^32-1)");
++	return 0;
++    }
++    return 1;
++}
++
++int
++_PyArg_ParseGid(PyObject *in_obj, gid_t *out_gid)
++{
++    PyObject *index, *number = NULL;
++    long sl;
++    unsigned long ul;
++
++    assert(out_gid);
++
++    index = PyNumber_Index(in_obj);
++    if (index != NULL) {
++        number = PyNumber_Long(index);
++	Py_DECREF(index);
++    }
++    if (number == NULL) {
++        PyErr_SetString(PyExc_TypeError, "group id must be integer");
++	return 0;
++    }
++
++    /* Special case: support -1 (e.g. for use by chown) */
++    sl = PyLong_AsLong(number);
++    if (PyErr_Occurred()) {
++        PyErr_Clear();
++    } else if (sl == -1) {
++        Py_DECREF(number);
++	*out_gid = (gid_t)-1;
++	return 1;
++    }
++
++    ul = PyLong_AsUnsignedLong(number);
++    Py_DECREF(number);
++    *out_gid = ul;
++    /* read back the value to see if it fitted in gid_t */
++    if (PyErr_Occurred() || *out_gid != ul) {
++        PyErr_SetString(PyExc_OverflowError,
++			"group id is not in range(-1, 2^32-1)");
++	return 0;
++    }
++    return 1;
++}
++
+ #ifdef __cplusplus
+ };
+ #endif

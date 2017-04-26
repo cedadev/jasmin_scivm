@@ -1,5 +1,5 @@
 Name: nco
-Version: 4.4.2
+Version: 4.5.5
 Release: 1.ceda%{?dist}
 License: GPL v3
 Group: Scientific support	
@@ -90,6 +90,7 @@ fi
 %{_bindir}/ncrename
 %{_bindir}/ncwa
 %{_bindir}/nces
+%{_bindir}/ncremap
 %defattr(0644,root,root)			
 %{_libdir}/libnco-%{version}.so
 %{_libdir}/libnco_c++-%{version}.so
@@ -99,13 +100,12 @@ fi
 %doc %{_datadir}/info/nco.info-1.gz
 %doc %{_datadir}/info/nco.info-2.gz
 %doc %{_datadir}/info/nco.info-3.gz
+%doc %{_datadir}/info/nco.info-4.gz
 %exclude %{_datadir}/info/dir
 %doc %{_mandir}/man1/ncap.1.gz
 %doc %{_mandir}/man1/ncap2.1.gz
 %doc %{_mandir}/man1/ncatted.1.gz
 %doc %{_mandir}/man1/ncbo.1.gz
-%doc %{_mandir}/man1/ncdiff.1.gz
-%doc %{_mandir}/man1/ncea.1.gz
 %doc %{_mandir}/man1/ncecat.1.gz
 %doc %{_mandir}/man1/ncflint.1.gz
 %doc %{_mandir}/man1/ncks.1.gz
@@ -116,6 +116,7 @@ fi
 %doc %{_mandir}/man1/ncrename.1.gz
 %doc %{_mandir}/man1/ncwa.1.gz
 %doc %{_mandir}/man1/nces.1.gz
+%doc %{_mandir}/man1/ncremap.1.gz
 
 %files devel
 %defattr(0644,root,root)			
@@ -132,6 +133,9 @@ fi
 %{_libdir}/libnco.la
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.5.5-1.ceda
+- update to 4.5.5 - tweak file list
+
 * Wed Feb  5 2014  <builderdev@builder.jc.rl.ac.uk> - 4.4.1-1.ceda
 - upgrade to 4.4.1 (some additions to file list, particularly nces)
 

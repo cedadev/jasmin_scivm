@@ -1,0 +1,10 @@
+--- a/lib/ncarg/nclscripts/csm/shea_util.ncl 2015-12-06 15:23:21.000000000 +0000
++++ b/lib/ncarg/nclscripts/csm/shea_util.ncl     2016-04-26 15:09:50.000000000 +0100
+@@ -4637,6 +4637,7 @@
+ ; Saji Hameed saji.nh@gmail.com
+ ;-------------------
+
++undef("mreg_part_corr")
+ function mreg_part_corr(x1,x2,y,opt)
+ local opt
+ begin

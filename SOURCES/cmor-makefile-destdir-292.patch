@@ -1,0 +1,38 @@
+--- cmor-2.9.2/Makefile.in.orig	2014-10-10 18:28:55.000000000 +0100
++++ cmor-2.9.2/Makefile.in	2015-12-04 16:05:57.000000000 +0000
+@@ -6,6 +6,7 @@
+ USERFFLAGS=@USERFFLAGS@
+ #MODULE_SUFFIX="mod"
+ PREFIX=@prefix@
++INSTALLPREFIX=${DESTDIR}$(PREFIX)
+ FCFLAGS=@FCFLAGS@
+ PYTHONEXEC=@PYTHONEXEC@
+ NO_COLOR2=\x1b[0m
+@@ -88,17 +89,17 @@
+ 	@echo "Completely cleaning [$(WHEREAMI)]..."
+ 	@rm -f $(DISTFILES)
+ install: cmor
+-	mkdir -p ${PREFIX}/lib
+-	mkdir -p ${PREFIX}/include
+-	mkdir -p ${PREFIX}/include/cdTime
+-	mkdir -p ${PREFIX}/include/cdTime/cdunifpp
+-	cp -p $(LIBNAME) ${PREFIX}/lib
+-	cp -pr include/*.h @MODFILES@ ${PREFIX}/include
+-	cp -pr include/cdTime/*.h ${PREFIX}/include/cdTime
+-	cp -pr include/cdTime/cdunifpp/*.h ${PREFIX}/include/cdTime/cdunifpp
++	mkdir -p $(INSTALLPREFIX)/lib
++	mkdir -p $(INSTALLPREFIX)/include
++	mkdir -p $(INSTALLPREFIX)/include/cdTime
++	mkdir -p $(INSTALLPREFIX)/include/cdTime/cdunifpp
++	cp -p $(LIBNAME) $(INSTALLPREFIX)/lib
++	cp -pr include/*.h @MODFILES@ $(INSTALLPREFIX)/include
++	cp -pr include/cdTime/*.h $(INSTALLPREFIX)/include/cdTime
++	cp -pr include/cdTime/cdunifpp/*.h $(INSTALLPREFIX)/include/cdTime/cdunifpp
+ uninstall: distclean 
+-	rm ${PREFIX}/lib/$(LIBNAME)    
+-	cd ${PREFIX} ; rm $(INCFILES)  
++	rm $(INSTALLPREFIX)/lib/$(LIBNAME)    
++	cd $(INSTALLPREFIX) ; rm $(INCFILES)  
+ backup: clean
+ 	@echo "Creating full backup tar file..."
+ 	@(cd ..; \

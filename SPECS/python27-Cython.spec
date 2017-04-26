@@ -1,5 +1,5 @@
 %define pname Cython
-%define version 0.17.3
+%define version 0.24
 %define release 1.ceda%{?dist}
 
 Summary: The Cython compiler for writing C extensions for the Python language.
@@ -49,6 +49,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 0.24-1.ceda%{?dist}
+- update to 0.24
+
 
 * Mon Dec 17 2012  <builderdev@builder.jc.rl.ac.uk> - 1.ceda{?dist}
 - initial version

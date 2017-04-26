@@ -1,17 +1,17 @@
 %define python_version 2.7
 %define python_package python27
-%define devel_name cmor-devel
+%define libs_name cmor-libs
 
 %define python_command python%{python_version}
 
 Name: %{python_package}-cmor
-Version: 2.8.2
-Release: 2.ceda%{?dist}
+Version: 2.9.2
+Release: 3.ceda%{?dist}
 License: unknown
 Group: Scientific support	
 Source: cmor-%{version}.tar.gz	
 Patch1: cmor-uuid.patch
-Patch2: cmor-makefile-destdir.patch
+Patch2: cmor-makefile-destdir-292.patch
 URL: http://www2-pcmdi.llnl.gov/cmor/
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
 BuildRequires: autoconf, gcc, hdf5, netcdf, uuid-devel, zlib-devel, udunits
@@ -28,17 +28,18 @@ The "Climate Model Output Rewriter" (CMOR, pronounced "Seymour") comprises a set
 
 Much of the metadata written to the output files is defined in MIP-specific tables, typically made available from each MIP's web site. CMOR relies on these tables to provide much of the metadata that is needed in the MIP context, thereby reducing the programming effort required of the individual MIP contributors.
 
-%package -n %{devel_name}
+%package -n %{libs_name}
 Group: Development/Libraries
 Summary: Development libraries for CMOR
-%description -n %{devel_name}
+Obsoletes: cmor-devel
+%description -n %{libs_name}
 This package contains the static libraries and headers needed to build 
 code requiring CMOR.
 For further information see the description for the %{name} package.
 
 %prep				
-#%setup -n cmor-%{version}
-%setup -n cmor
+%setup -n cmor-%{version}
+#%setup -n cmor
 %patch1 -p1
 %patch2 -p1
 
@@ -77,7 +78,7 @@ fi
 %files -f PYTHON_INSTALLED_FILES
 %defattr(0644,root,root)
 
-%files -n %{devel_name}
+%files -n %{libs_name}
 
 %defattr(-,root,root)
 %{cmor_lib}
@@ -109,10 +110,18 @@ fi
 %{_includedir}/cmor_users_functions.mod
 
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.9.2-3.ceda
+- rename -devel to -libs (because -devel with no base package is confusing)
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.9.2-1.ceda
+- rebuild against netcdf 4.4.0
+
+* Fri Dec  4 2015  <builderdev@builder.jc.rl.ac.uk> - 2.9.2-1.ceda
+- bump version; update cmor-makefile-destdir.patch (needed to apply cleanly
+against later version, although new lines introduced by patch are unchanged)
 
 * Thu Jan 24 2013  <builderdev@builder.jc.rl.ac.uk> - 2.8.2-2.ceda
 - separate devel into another package (NB this is not python-version dependent)
 			
-* Tue Oct 16 2012 Alan Iwi
-alan.iwi@stfc.ac.uk 2.7.1
+* Tue Oct 16 2012 Alan Iwi alan.iwi@stfc.ac.uk 2.7.1
 - Created initial RPM for CMOR 2.7.1 (modelled on RPM for HDF5 1.8.9)

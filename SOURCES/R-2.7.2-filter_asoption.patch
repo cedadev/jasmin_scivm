@@ -1,0 +1,11 @@
+--- R-2.7.2/configure.org	2008-09-25 15:00:20.000000000 +0900
++++ R-2.7.2/configure	2008-09-25 15:00:35.000000000 +0900
+@@ -26995,7 +26995,7 @@
+ 
+           ;;
+           # Ignore these flags.
+-        -lang* | -lcrt*.o | -lc | -lgcc* | -lSystem | -libmil | -LANG:=* | -LIST:* | -LNO:*)
++        -little | -lang* | -lcrt*.o | -lc | -lgcc* | -lSystem | -libmil | -LANG:=* | -LIST:* | -LNO:*)
+           ;;
+         -lkernel32)
+           test x"$CYGWIN" != xyes && ac_cv_f77_libs="$ac_cv_f77_libs $ac_arg"

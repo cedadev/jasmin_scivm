@@ -3,7 +3,7 @@ Summary: Core components of the Climate Data Analysis tools.  This software is b
 Name: python27-%{pname}
 Version: 6.0rc2
 %define git_sha 5b1b1dd
-Release: 4.ceda%{?dist}
+Release: 6.ceda%{?dist}
 #Source0: %{pname}-%{version}.tar.gz
 Source0: %{pname}-%{git_sha}.tar.gz
 License: http://www-pcmdi.llnl.gov/software-portal/cdat/docs/cdat-license
@@ -332,35 +332,95 @@ Which versions of NetCDF does cdat-lite support?
 TODO
 
 
+%package -n libcdms
+Group: Development/Libraries	
+Summary: libcdms library from CDAT
+%description -n libcdms
+This package contains the libcdms library from CDAT. cdat_lite will work without it, but it can be used in conjuction with CMOR.
+
 
 %prep
-#%setup -n %{pname}-%{version}
 %setup -n %{pname}
+
+# use separate copy of sources for standalone libcdms build so that make does not 
+# interfere with later 'make install' of the python package
+cp -r libcdms libcdms_copy
 
 %build
 env CFLAGS="$RPM_OPT_FLAGS" python2.7 setup.py build
+
+# build libcdms
+pushd libcdms_copy
+
+# Use temporary install directory in prefix. Fortunately this works (no hard-coded
+# paths to this directory get made inside the package), and gets around the fact that
+# DESTDIR is not supported on make install.
+./configure --prefix=$RPM_BUILD_ROOT/usr --with-pic
+make
+popd
 
 %install
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-#for i in cddump cdscan convertcdms
-#do
-#  path=%{_bindir}/$i
-#  tmppath=$RPM_BUILD_ROOT$path
-#  mv $tmppath ${tmppath}_py27
-#  perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
-#done
+# install standalone libcdms
+pushd libcdms_copy
+mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+mkdir -p $RPM_BUILD_ROOT/%{_includedir}
+mkdir -p `dirname $RPM_BUILD_ROOT/%{_mandir}`
+# mkdir -p $RPM_BUILD_ROOT/usr/lib
+mkdir -p $RPM_BUILD_ROOT/%{_libdir}
+mkdir -p $RPM_BUILD_ROOT/usr/man/man3
+
+# exclude cddump - keep the copy from the python package
+%define cddump $RPM_BUILD_ROOT/%{_bindir}/cddump
+mv %{cddump} %{cddump}.orig
+make install
+mv %{cddump}.orig %{cddump}
+
+# rename dirs to standard locations
+mv $RPM_BUILD_ROOT/usr/man $RPM_BUILD_ROOT/%{_mandir}
+mv $RPM_BUILD_ROOT/usr/lib/libcdms.a $RPM_BUILD_ROOT/%{_libdir}/
+
+# add cdmsint.h because CMOR wants it
+cp include/cdmsint.h $RPM_BUILD_ROOT/%{_includedir}
+
+popd
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%files -f INSTALLED_FILES
+%defattr(-,root,root)
+
+%files -n libcdms
+%{_includedir}/cddrs.h
+%{_includedir}/drscdf.h
+%{_includedir}/cdunif.h
+%{_includedir}/cdms.inc
+%{_includedir}/cdms.h
+%{_includedir}/cdmsint.h
+%{_includedir}/fcddrs.h
+%{_libdir}/libcdms.a
+%{_bindir}/cudump
+%{_bindir}/cdfile
+%{_bindir}/cdimport
+%{_bindir}/cuget
+%doc %{_mandir}/man3/cddrs.3.gz
+%doc %{_mandir}/man3/cdms.3.gz
+%doc %{_mandir}/man3/cdtime.3.gz
+%doc %{_mandir}/man3/fcddrs.3.gz
+%doc %{_mandir}/man3/cdunif.3.gz
+
+
 %changelog
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-5.ceda
+- rebuild against netcdf 4.4.0
+- add standalone libcdms package
+
 * Mon Feb 10 2014  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-4.ceda
 - update to git tag 5b1b1dd - uses 64-bit data types to cope with some large files
 
 * Wed Feb  5 2014  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-3.ceda
 - update to git tag 9c049bd; this contains bug fixes to cdunifpp although not yet tagged as new cdat_lite version
-
-%files -f INSTALLED_FILES
-%defattr(-,root,root)

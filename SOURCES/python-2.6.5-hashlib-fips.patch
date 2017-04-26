@@ -1,0 +1,620 @@
+diff -up Python-2.6.5/Lib/hashlib.py.hashlib-fips Python-2.6.5/Lib/hashlib.py
+--- Python-2.6.5/Lib/hashlib.py.hashlib-fips	2008-08-31 12:34:18.000000000 -0400
++++ Python-2.6.5/Lib/hashlib.py	2010-07-13 21:19:26.437683399 -0400
+@@ -6,9 +6,12 @@
+ 
+ __doc__ = """hashlib module - A common interface to many hash functions.
+ 
+-new(name, string='') - returns a new hash object implementing the
+-                       given hash function; initializing the hash
+-                       using the given string data.
++new(name, string='', usedforsecurity=True)
++     - returns a new hash object implementing the given hash function;
++       initializing the hash using the given string data.
++
++       "usedforsecurity" is a non-standard extension for better supporting
++       FIPS-compliant environments (see below)
+ 
+ Named constructor functions are also available, these are much faster
+ than using new():
+@@ -24,6 +27,20 @@ the zlib module.
+ Choose your hash function wisely.  Some have known collision weaknesses.
+ sha384 and sha512 will be slow on 32 bit platforms.
+ 
++Red Hat Enterprise Linux 6's implementation of hashlib uses OpenSSL.
++
++OpenSSL has a "FIPS mode", which, if enabled, may restrict the available hashes
++to only those that are compliant with FIPS regulations.  For example, it may
++deny the use of MD5, on the grounds that this is not secure for uses such as
++authentication, system integrity checking, or digital signatures.   
++
++If you need to use such a hash for non-security purposes (such as indexing into
++a data structure for speed), you can override the keyword argument
++"usedforsecurity" from True to False to signify that your code is not relying
++on the hash for security purposes, and this will allow the hash to be usable
++even in FIPS mode.  This is not a standard feature of Python 2.6's hashlib, and
++is included in RHEL6 to better support FIPS mode.
++
+ Hash objects have these methods:
+  - update(arg): Update the hash object with the string arg. Repeated calls
+                 are equivalent to a single call with the concatenation of all
+@@ -55,51 +72,17 @@ More condensed:
+ """
+ 
+ 
+-def __get_builtin_constructor(name):
+-    if name in ('SHA1', 'sha1'):
+-        import _sha
+-        return _sha.new
+-    elif name in ('MD5', 'md5'):
+-        import _md5
+-        return _md5.new
+-    elif name in ('SHA256', 'sha256', 'SHA224', 'sha224'):
+-        import _sha256
+-        bs = name[3:]
+-        if bs == '256':
+-            return _sha256.sha256
+-        elif bs == '224':
+-            return _sha256.sha224
+-    elif name in ('SHA512', 'sha512', 'SHA384', 'sha384'):
+-        import _sha512
+-        bs = name[3:]
+-        if bs == '512':
+-            return _sha512.sha512
+-        elif bs == '384':
+-            return _sha512.sha384
+-
+-    raise ValueError, "unsupported hash type"
+-
+-
+-def __py_new(name, string=''):
++def __hash_new(name, string='', usedforsecurity=True):
+     """new(name, string='') - Return a new hashing object using the named algorithm;
+     optionally initialized with a string.
+-    """
+-    return __get_builtin_constructor(name)(string)
+-
+ 
+-def __hash_new(name, string=''):
+-    """new(name, string='') - Return a new hashing object using the named algorithm;
+-    optionally initialized with a string.
++    Override 'usedforsecurity' to False when using for non-security purposes in
++    a FIPS environment
+     """
+     try:
+-        return _hashlib.new(name, string)
++        return _hashlib.new(name, string, usedforsecurity)
+     except ValueError:
+-        # If the _hashlib module (OpenSSL) doesn't support the named
+-        # hash, try using our builtin implementations.
+-        # This allows for SHA224/256 and SHA384/512 support even though
+-        # the OpenSSL library prior to 0.9.8 doesn't provide them.
+-        return __get_builtin_constructor(name)(string)
+-
++        raise
+ 
+ try:
+     import _hashlib
+@@ -112,16 +95,14 @@ try:
+             # try them all, some may not work due to the OpenSSL
+             # version not supporting that algorithm.
+             f = getattr(_hashlib, opensslFuncName)
+-            f()
++            # We pass "usedforsecurity=False" to disable FIPS-based restrictions:
++            # at this stage we're merely seeing if the function is callable,
++            # rather than using it for actual work.
++            f(usedforsecurity=False)
+             # Use the C function directly (very fast)
+             exec funcName + ' = f'
+         except ValueError:
+-            try:
+-                # Use the builtin implementation directly (fast)
+-                exec funcName + ' = __get_builtin_constructor(funcName)'
+-            except ValueError:
+-                # this one has no builtin implementation, don't define it
+-                pass
++            raise
+     # clean up our locals
+     del f
+     del opensslFuncName
+@@ -129,13 +110,6 @@ try:
+ 
+ except ImportError:
+     # We don't have the _hashlib OpenSSL module?
+-    # use the built in legacy interfaces via a wrapper function
+-    new = __py_new
+ 
+-    # lookup the C function to use directly for the named constructors
+-    md5 = __get_builtin_constructor('md5')
+-    sha1 = __get_builtin_constructor('sha1')
+-    sha224 = __get_builtin_constructor('sha224')
+-    sha256 = __get_builtin_constructor('sha256')
+-    sha384 = __get_builtin_constructor('sha384')
+-    sha512 = __get_builtin_constructor('sha512')
++    # We don't build the legacy modules
++    raise
+diff -up Python-2.6.5/Lib/test/test_hashlib.py.hashlib-fips Python-2.6.5/Lib/test/test_hashlib.py
+--- Python-2.6.5/Lib/test/test_hashlib.py.hashlib-fips	2008-09-17 21:22:16.000000000 -0400
++++ Python-2.6.5/Lib/test/test_hashlib.py	2010-07-14 10:54:45.138928009 -0400
+@@ -20,6 +20,19 @@ def hexstr(s):
+         r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
+     return r
+ 
++def openssl_enforces_fips():
++    # Use the "openssl" command (if present) to try to determine if the local
++    # OpenSSL is configured to enforce FIPS
++    from subprocess import Popen, PIPE
++    try:
++        p = Popen(['openssl', 'md5'],
++                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
++    except OSError:
++        # "openssl" command not found
++        return False
++    stdout, stderr = p.communicate(input=b'abc')
++    return b'unknown cipher' in stderr
++OPENSSL_ENFORCES_FIPS = openssl_enforces_fips()
+ 
+ class HashLibTestCase(unittest.TestCase):
+     supported_hash_names = ( 'md5', 'MD5', 'sha1', 'SHA1',
+@@ -36,7 +49,7 @@ class HashLibTestCase(unittest.TestCase)
+ 
+     def test_hexdigest(self):
+         for name in self.supported_hash_names:
+-            h = hashlib.new(name)
++            h = hashlib.new(name, usedforsecurity=False)
+             self.assert_(hexstr(h.digest()) == h.hexdigest())
+ 
+ 
+@@ -46,21 +59,21 @@ class HashLibTestCase(unittest.TestCase)
+         cees = 'c' * 126
+ 
+         for name in self.supported_hash_names:
+-            m1 = hashlib.new(name)
++            m1 = hashlib.new(name, usedforsecurity=False)
+             m1.update(aas)
+             m1.update(bees)
+             m1.update(cees)
+ 
+-            m2 = hashlib.new(name)
++            m2 = hashlib.new(name, usedforsecurity=False)
+             m2.update(aas + bees + cees)
+             self.assertEqual(m1.digest(), m2.digest())
+ 
+     def check(self, name, data, digest):
+         # test the direct constructors
+-        computed = getattr(hashlib, name)(data).hexdigest()
++        computed = getattr(hashlib, name)(data, usedforsecurity=False).hexdigest()
+         self.assert_(computed == digest)
+         # test the general new() interface
+-        computed = hashlib.new(name, data).hexdigest()
++        computed = hashlib.new(name, data, usedforsecurity=False).hexdigest()
+         self.assert_(computed == digest)
+ 
+ 
+@@ -197,6 +210,71 @@ class HashLibTestCase(unittest.TestCase)
+           "de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b")
+ 
+ 
++    def test_issue9146(self):
++        # Ensure that various ways to use "MD5" from "hashlib" don't segfault:
++        m = hashlib.md5(usedforsecurity=False)
++        m.update(b'abc\n')
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++        m = hashlib.new('md5', usedforsecurity=False)
++        m.update(b'abc\n')
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++        m = hashlib.md5(b'abc\n', usedforsecurity=False)
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++        m = hashlib.new('md5', b'abc\n', usedforsecurity=False)
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++
++    def assertRaisesUnknownCipher(self, callable_obj=None, *args, **kwargs):
++        try:
++            callable_obj(*args, **kwargs)
++        except ValueError, e:
++            if not e.args[0].endswith('unknown cipher'):
++                self.fail('Incorrect exception raised')
++        else:
++            self.fail('Exception was not raised')
++
++    def test_hashlib_fips_mode(self):        
++        # Ensure that we raise a ValueError on vanilla attempts to use MD5
++        # in hashlib in a FIPS-enforced setting:
++        if not OPENSSL_ENFORCES_FIPS:
++            return # skip test
++        self.assertRaisesUnknownCipher(hashlib.md5)
++        self.assertRaisesUnknownCipher(hashlib.new, 'md5')
++
++    def test_hashopenssl_fips_mode(self):
++        # Verify the _hashlib module's handling of md5:
++        if not OPENSSL_ENFORCES_FIPS:
++            return # skip test
++
++        import _hashlib
++
++        assert hasattr(_hashlib, 'openssl_md5')
++
++        # Ensure that _hashlib raises a ValueError on vanilla attempts to
++        # use MD5 in a FIPS-enforced setting:
++        self.assertRaisesUnknownCipher(_hashlib.openssl_md5)
++        self.assertRaisesUnknownCipher(_hashlib.new, 'md5')
++
++        # Ensure that in such a setting we can whitelist a callsite with
++        # usedforsecurity=False and have it succeed:
++        m = _hashlib.openssl_md5(usedforsecurity=False)
++        m.update('abc\n')
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++        m = _hashlib.new('md5', usedforsecurity=False)
++        m.update('abc\n')
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++        m = _hashlib.openssl_md5('abc\n', usedforsecurity=False)
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++        m = _hashlib.new('md5', 'abc\n', usedforsecurity=False)
++        self.assertEquals(m.hexdigest(), "0bee89b07a248e27c83fc3d5951213c1")
++        
++
++
+ def test_main():
+     test_support.run_unittest(HashLibTestCase)
+ 
+diff -up Python-2.6.5/Modules/_hashopenssl.c.hashlib-fips Python-2.6.5/Modules/_hashopenssl.c
+--- Python-2.6.5/Modules/_hashopenssl.c.hashlib-fips	2008-09-17 21:22:16.000000000 -0400
++++ Python-2.6.5/Modules/_hashopenssl.c	2010-07-13 21:19:26.440682524 -0400
+@@ -17,6 +17,8 @@
+ #include "structmember.h"
+ 
+ /* EVP is the preferred interface to hashing in OpenSSL */
++#include <openssl/ssl.h>
++#include <openssl/err.h>
+ #include <openssl/evp.h>
+ 
+ #define MUNCH_SIZE INT_MAX
+@@ -35,11 +37,19 @@ typedef struct {
+ 
+ static PyTypeObject EVPtype;
+ 
++/* Struct to hold all the cached information we need on a specific algorithm.
++   We have one of these per algorithm */
++typedef struct {
++    PyObject *name_obj;
++    EVP_MD_CTX ctxs[2];
++    /* ctx_ptrs will point to ctxs unless an error occurred, when it will
++       be NULL: */
++    EVP_MD_CTX *ctx_ptrs[2];
++    PyObject *error_msgs[2];
++} EVPCachedInfo;
+ 
+-#define DEFINE_CONSTS_FOR_NEW(Name)  \
+-    static PyObject *CONST_ ## Name ## _name_obj; \
+-    static EVP_MD_CTX CONST_new_ ## Name ## _ctx; \
+-    static EVP_MD_CTX *CONST_new_ ## Name ## _ctx_p = NULL;
++#define DEFINE_CONSTS_FOR_NEW(Name) \
++    static EVPCachedInfo cached_info_ ##Name;
+ 
+ DEFINE_CONSTS_FOR_NEW(md5)
+ DEFINE_CONSTS_FOR_NEW(sha1)
+@@ -63,6 +73,48 @@ newEVPobject(PyObject *name)
+     return retval;
+ }
+ 
++static void
++mc_ctx_init(EVP_MD_CTX *ctx, int usedforsecurity)
++{
++    EVP_MD_CTX_init(ctx);
++
++    /*
++      If the user has declared that this digest is being used in a
++      non-security role (e.g. indexing into a data structure), set
++      the exception flag for openssl to allow it
++    */
++    if (!usedforsecurity) {
++#ifdef EVP_MD_CTX_FLAG_NON_FIPS_ALLOW
++        EVP_MD_CTX_set_flags(ctx,
++                             EVP_MD_CTX_FLAG_NON_FIPS_ALLOW);
++#endif
++    }
++}
++
++/* Get an error msg for the last error as a PyObject */
++static PyObject *
++error_msg_for_last_error(void)
++{
++    char *errstr;
++
++    errstr = ERR_error_string(ERR_peek_last_error(), NULL);
++    ERR_clear_error();
++
++    return PyString_FromString(errstr); /* Can be NULL */
++}
++
++static void
++set_evp_exception(void)
++{
++    char *errstr;
++
++    errstr = ERR_error_string(ERR_peek_last_error(), NULL);
++    ERR_clear_error();
++
++    PyErr_SetString(PyExc_ValueError, errstr);
++}
++
++
+ /* Internal methods for a hash object */
+ 
+ static void
+@@ -239,15 +291,16 @@ EVP_repr(PyObject *self)
+ static int
+ EVP_tp_init(EVPobject *self, PyObject *args, PyObject *kwds)
+ {
+-    static char *kwlist[] = {"name", "string", NULL};
++    static char *kwlist[] = {"name", "string", "usedforsecurity", NULL};
+     PyObject *name_obj = NULL;
++    int usedforsecurity = 1;
+     char *nameStr;
+     unsigned char *cp = NULL;
+     Py_ssize_t len = 0;
+     const EVP_MD *digest;
+ 
+-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|s#:HASH", kwlist,
+-                                     &name_obj, &cp, &len)) {
++    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|s#i:HASH", kwlist,
++                                     &name_obj, &cp, &len, &usedforsecurity)) {
+         return -1;
+     }
+ 
+@@ -261,7 +314,12 @@ EVP_tp_init(EVPobject *self, PyObject *a
+         PyErr_SetString(PyExc_ValueError, "unknown hash function");
+         return -1;
+     }
+-    EVP_DigestInit(&self->ctx, digest);
++    mc_ctx_init(&self->ctx, usedforsecurity);
++    if (!EVP_DigestInit_ex(&self->ctx, digest, NULL)) {
++        set_evp_exception();
++        PyBuffer_Release(&view);
++        return -1;
++    }
+ 
+     self->name = name_obj;
+     Py_INCREF(self->name);
+@@ -349,7 +407,8 @@ static PyTypeObject EVPtype = {
+ static PyObject *
+ EVPnew(PyObject *name_obj,
+        const EVP_MD *digest, const EVP_MD_CTX *initial_ctx,
+-       const unsigned char *cp, Py_ssize_t len)
++       const unsigned char *cp, Py_ssize_t len,
++       int usedforsecurity)
+ {
+     EVPobject *self;
+ 
+@@ -364,7 +423,12 @@ EVPnew(PyObject *name_obj,
+     if (initial_ctx) {
+         EVP_MD_CTX_copy(&self->ctx, initial_ctx);
+     } else {
+-        EVP_DigestInit(&self->ctx, digest);
++        mc_ctx_init(&self->ctx, usedforsecurity);
++        if (!EVP_DigestInit_ex(&self->ctx, digest, NULL)) {
++            set_evp_exception();
++            Py_DECREF(self);
++            return NULL;
++        }
+     }
+ 
+     if (cp && len) {
+@@ -393,20 +457,28 @@ PyDoc_STRVAR(EVP_new__doc__,
+ An optional string argument may be provided and will be\n\
+ automatically hashed.\n\
+ \n\
+-The MD5 and SHA1 algorithms are always supported.\n");
++The MD5 and SHA1 algorithms are always supported.\n\
++\n\
++An optional \"usedforsecurity=True\" keyword argument is provided for use in\n\
++environments that enforce FIPS-based restrictions.  Some implementations of\n\
++OpenSSL can be configured to prevent the usage of non-secure algorithms (such\n\
++as MD5).  If you have a non-security use for these algorithms (e.g. a hash\n\
++table), you can override this argument by marking the callsite as\n\
++\"usedforsecurity=False\".");
+ 
+ static PyObject *
+ EVP_new(PyObject *self, PyObject *args, PyObject *kwdict)
+ {
+-    static char *kwlist[] = {"name", "string", NULL};
++    static char *kwlist[] = {"name", "string", "usedforsecurity", NULL};
+     PyObject *name_obj = NULL;
+     char *name;
+     const EVP_MD *digest;
+     unsigned char *cp = NULL;
+     Py_ssize_t len = 0;
++    int usedforsecurity = 1;
+ 
+-    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "O|s#:new", kwlist,
+-                                     &name_obj, &cp, &len)) {
++    if (!PyArg_ParseTupleAndKeywords(args, kwdict, "O|s#i:new", kwlist,
++                                     &name_obj, &cp, &len, &usedforsecurity)) {
+         return NULL;
+     }
+ 
+@@ -417,50 +489,114 @@ EVP_new(PyObject *self, PyObject *args, 
+ 
+     digest = EVP_get_digestbyname(name);
+ 
+-    return EVPnew(name_obj, digest, NULL, cp, len);
++    return EVPnew(name_obj, digest, NULL, cp, len, usedforsecurity);
+ }
+ 
+ /*
+- *  This macro generates constructor function definitions for specific
+- *  hash algorithms.  These constructors are much faster than calling
+- *  the generic one passing it a python string and are noticably
+- *  faster than calling a python new() wrapper.  Thats important for
++ *  This macro and function generates a family of constructor function
++ *  definitions for specific hash algorithms.  These constructors are much
++ *  faster than calling the generic one passing it a python string and are
++ *  noticably faster than calling a python new() wrapper.  That's important for
+  *  code that wants to make hashes of a bunch of small strings.
+  */
+ #define GEN_CONSTRUCTOR(NAME)  \
+     static PyObject * \
+-    EVP_new_ ## NAME (PyObject *self, PyObject *args) \
++    EVP_new_ ## NAME (PyObject *self, PyObject *args, PyObject *kwdict) \
+     { \
+-        unsigned char *cp = NULL; \
+-        Py_ssize_t len = 0; \
+-     \
+-        if (!PyArg_ParseTuple(args, "|s#:" #NAME , &cp, &len)) { \
+-            return NULL; \
+-        } \
+-     \
+-        return EVPnew( \
+-                CONST_ ## NAME ## _name_obj, \
+-                NULL, \
+-                CONST_new_ ## NAME ## _ctx_p, \
+-                cp, len); \
++        return implement_specific_EVP_new(self, args, kwdict,      \
++                                          "|s#i:" #NAME,           \
++                                          &cached_info_ ## NAME ); \
++    }
++
++static PyObject *
++implement_specific_EVP_new(PyObject *self, PyObject *args, PyObject *kwdict,
++                           const char *format,
++                           EVPCachedInfo *cached_info)
++{
++    static char *kwlist[] = {"string", "usedforsecurity", NULL}; 
++    unsigned char *cp = NULL;
++    Py_ssize_t len = 0;
++    int usedforsecurity = 1;
++    int idx;
++    PyObject *ret_obj = NULL;
++
++    assert(cached_info);
++
++    if (!PyArg_ParseTupleAndKeywords(args, kwdict, format, kwlist,
++                                      &cp, &len, &usedforsecurity)) {
++        return NULL;
++    }
++
++    idx = usedforsecurity ? 1 : 0;
++
++    /*
++     * If an error occurred during creation of the global content, the ctx_ptr
++     * will be NULL, and the error_msg will hopefully be non-NULL:
++     */
++    if (cached_info->ctx_ptrs[idx]) {
++        /* We successfully initialized this context; copy it: */
++        ret_obj = EVPnew(cached_info->name_obj,
++                         NULL,
++                         cached_info->ctx_ptrs[idx],
++                         cp, len,
++                         usedforsecurity);
++    } else {
++        /* Some kind of error happened initializing the global context for
++           this (digest, usedforsecurity) pair.
++           Raise an exception with the saved error message: */
++        if (cached_info->error_msgs[idx]) {
++            PyErr_SetObject(PyExc_ValueError, cached_info->error_msgs[idx]);
++        } else {
++            PyErr_SetString(PyExc_ValueError, "Error initializing hash");
++        }
+     }
+ 
++    return ret_obj;
++}
++
+ /* a PyMethodDef structure for the constructor */
+ #define CONSTRUCTOR_METH_DEF(NAME)  \
+-    {"openssl_" #NAME, (PyCFunction)EVP_new_ ## NAME, METH_VARARGS, \
++    {"openssl_" #NAME, (PyCFunction)EVP_new_ ## NAME, \
++        METH_VARARGS|METH_KEYWORDS,  \
+         PyDoc_STR("Returns a " #NAME \
+                   " hash object; optionally initialized with a string") \
+     }
+ 
+-/* used in the init function to setup a constructor */
+-#define INIT_CONSTRUCTOR_CONSTANTS(NAME)  do { \
+-    CONST_ ## NAME ## _name_obj = PyString_FromString(#NAME); \
+-    if (EVP_get_digestbyname(#NAME)) { \
+-        CONST_new_ ## NAME ## _ctx_p = &CONST_new_ ## NAME ## _ctx; \
+-        EVP_DigestInit(CONST_new_ ## NAME ## _ctx_p, EVP_get_digestbyname(#NAME)); \
+-    } \
++/*
++  Macro/function pair to set up the constructors.
++
++  Try to initialize a context for each hash twice, once with
++  EVP_MD_CTX_FLAG_NON_FIPS_ALLOW and once without.
++  
++  Any that have errors during initialization will end up wit a NULL ctx_ptrs
++  entry, and err_msgs will be set (unless we're very low on memory)
++*/
++#define INIT_CONSTRUCTOR_CONSTANTS(NAME)  do {    \
++    init_constructor_constant(&cached_info_ ## NAME, #NAME); \
+ } while (0);
+ 
++static void
++init_constructor_constant(EVPCachedInfo *cached_info, const char *name)
++{
++    assert(cached_info);
++    cached_info->name_obj = PyString_FromString(name);
++    if (EVP_get_digestbyname(name)) {
++        int i;
++        for (i=0; i<2; i++) {
++            mc_ctx_init(&cached_info->ctxs[i], i);
++            if (EVP_DigestInit_ex(&cached_info->ctxs[i],
++                                  EVP_get_digestbyname(name), NULL)) {
++                /* Success: */
++                cached_info->ctx_ptrs[i] = &cached_info->ctxs[i];
++            } else {
++                /* Failure: */
++                cached_info->ctx_ptrs[i] = NULL;
++                cached_info->error_msgs[i] = error_msg_for_last_error();
++            }
++        }
++    }
++}
++
+ GEN_CONSTRUCTOR(md5)
+ GEN_CONSTRUCTOR(sha1)
+ GEN_CONSTRUCTOR(sha224)
+@@ -489,13 +625,10 @@ init_hashlib(void)
+ {
+     PyObject *m;
+ 
++    SSL_load_error_strings();
++    SSL_library_init();
+     OpenSSL_add_all_digests();
+ 
+-    /* TODO build EVP_functions openssl_* entries dynamically based
+-     * on what hashes are supported rather than listing many
+-     * but having some be unsupported.  Only init appropriate
+-     * constants. */
+-
+     Py_TYPE(&EVPtype) = &PyType_Type;
+     if (PyType_Ready(&EVPtype) < 0)
+         return;
+diff -up Python-2.6.5/Modules/Setup.dist.hashlib-fips Python-2.6.5/Modules/Setup.dist
+--- Python-2.6.5/Modules/Setup.dist.hashlib-fips	2010-07-13 21:19:26.257683228 -0400
++++ Python-2.6.5/Modules/Setup.dist	2010-07-13 21:19:26.442682290 -0400
+@@ -248,14 +248,14 @@ imageop imageop.c	# Operations on images
+ # Message-Digest Algorithm, described in RFC 1321.  The necessary files
+ # md5.c and md5.h are included here.
+ 
+-_md5 md5module.c md5.c
++#_md5 md5module.c md5.c
+ 
+ 
+ # The _sha module implements the SHA checksum algorithms.
+ # (NIST's Secure Hash Algorithms.)
+-_sha shamodule.c
+-_sha256 sha256module.c
+-_sha512 sha512module.c
++#_sha shamodule.c
++#_sha256 sha256module.c
++#_sha512 sha512module.c
+ 
+ 
+ # SGI IRIX specific modules -- off by default.
