@@ -191,7 +191,8 @@ class RPM(object):
 
     @property
     def build_time_ascii(self):
-        return time.asctime(time.localtime(self.build_time_int))
+        #return time.asctime(time.localtime(self.build_time_int))
+        return time.strftime("%Y-%m-%d", time.localtime(self.build_time_int))
 
     @property
     def dependencies(self):
