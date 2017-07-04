@@ -2,8 +2,8 @@
 %define netcdf_min_version 4.3.1
 Summary: Provides an object-oriented python interface to the netCDF version 4 library.
 Name: python27-netCDF4
-Version: 1.0.7
-Release: 4.ceda%{?dist}
+Version: 1.2.9
+Release: 1.ceda%{?dist}
 Source0: netCDF4-%{version}.tar.gz
 License: OSI Approved
 Group: Development/Libraries
@@ -44,6 +44,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Tue Jul  4 2017  <builderdev@builder.jc.rl.ac.uk> - 1.2.9-1.ceda
+- bump version to 1.2.9
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.0.7-4.ceda
 - rebuild against netcdf 4.4.0
 
