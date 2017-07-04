@@ -159,6 +159,7 @@ Requires: python27-cis >= 1.4.0-1.ceda
 Requires: python27-cmor >= 2.9.2-3.ceda
 Requires: python27-cycler >= 0.10.0-1.ceda
 Requires: python27-eofs >= 1.2.0-1.ceda
+Requires: python27-esgf-pyclient >= 0.1.8-1.ceda
 Requires: python27-h5py >= 2.6.0-1.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
 Requires: python27-iris >= 1.10.0-2.ceda
