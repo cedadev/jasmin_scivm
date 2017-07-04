@@ -146,6 +146,7 @@ Requires: python27-Pydap >= 3.1.RC1-2.ceda
 Requires: python27-Pygments >= 1.5-3.ceda
 Requires: python27-ScientificPython >= 2.9.4-2.ceda
 Requires: python27-Shapely >= 1.5.17-1.ceda
+Requires: python27-astral >= 1.4-1.ceda.el6
 Requires: python27-basemap >= 1.0.5-4.ceda
 Requires: python27-biggus >= 0.13.0-1.ceda
 Requires: python27-cartopy >= 0.14.2-2.ceda
