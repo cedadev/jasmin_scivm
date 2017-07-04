@@ -185,6 +185,7 @@ Requires: python27-pyke >= 1.1.1-1.ceda
 Requires: python27-pyshp >= 1.2.10-1.ceda
 Requires: python27-pyspharm >= 1.0.8-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
+Requires: python27-requests >= 2.18.1-1.ceda
 Requires: python27-rpy2 >= 2.3.9-1.ceda
 Requires: python27-scipy >= 0.17.0-1.ceda
 Requires: python27-setuptools >= 18.2-1.ceda
