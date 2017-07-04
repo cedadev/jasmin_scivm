@@ -1,8 +1,8 @@
 %define pname Pygments
 Summary: Pygments is a syntax highlighting package written in Python.
 Name: python27-%{pname}
-Version: 1.5
-Release: 3.ceda%{?dist}
+Version: 2.2.0
+Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD License
 Group: Development/Libraries
@@ -64,6 +64,8 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Tue Jul  4 2017  <builderdev@builder.jc.rl.ac.uk> - 2.2.0-1.ceda
+- update to 2.2.0
 
 * Thu Feb  6 2014  <builderdev@builder.jc.rl.ac.uk> - 1.5-3.ceda
 - comment out renaming of executables
