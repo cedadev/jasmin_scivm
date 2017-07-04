@@ -98,6 +98,7 @@ class RPM(object):
         self.local_path = local_path_finder(name)
         self.is_local = (self.local_path != None)
         self.remote_path = None
+        self._query_cache = {}
 
     @property
     def path(self):
@@ -146,14 +147,18 @@ class RPM(object):
         """
         return what 'rpm -qp' reports on a package file for a given query tag
         """
+        if rpm_tag in self._query_cache:
+            return self._query_cache[rpm_tag]
+
         command = 'rpm -qp --queryformat="%%{%s}" %s' % (rpm_tag,
                                                          self.path)
         try:
             output = get_output(command)
         except Exception:
-            return None
+            output = None
         if output == "(none)":
-            return None
+            output = None
+        self._query_cache[rpm_tag] = output
         return output
 
     @property
@@ -186,7 +191,8 @@ class RPM(object):
 
     @property
     def build_time_ascii(self):
-        return time.asctime(time.localtime(self.build_time_int))
+        #return time.asctime(time.localtime(self.build_time_int))
+        return time.strftime("%Y-%m-%d", time.localtime(self.build_time_int))
 
     @property
     def dependencies(self):
@@ -284,7 +290,7 @@ class MakeDocumentation(object):
     
     def _write_markdown_table_to_fh(self, fh):
         """
-        (see write_markdown_table)
+        (see write_table)
         """
         # fh.write("| **Package** | Version | Release | Build date | Summary |\n")
         # fh.write("| ------- | ------- | ------- | ---------- | ------- |\n")
@@ -306,12 +312,64 @@ class MakeDocumentation(object):
             fh.write("\n")
 
 
+    def _write_html_table_to_fh(self, fh):
+        """
+        (see write_table)
+        """
+        # fh.write("| **Package** | Version | Release | Build date | Summary |\n")
+        # fh.write("| ------- | ------- | ------- | ---------- | ------- |\n")
+        # for rpm in self.packages_in_name_order:
+        #     fh.write("| %s | %s | %s | %s | %s |\n" %
+        #              (self._markdown_link(rpm.name, rpm.url),
+        #               rpm.version,
+        #               rpm.release,
+        #               rpm.build_time_ascii,
+        #               rpm.summary))
+
+        fh.write("""<table>
+<tr>
+ <th>Package</th>
+ <th>Version</th>
+ <th>Release</th>
+ <th>Build date</th>
+ <th>Summary</th>
+</tr>
+""")
+        row_format = """<tr>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+   <td>%s</td>
+</tr>
+"""
+        
+        for rpm in self.packages_in_name_order:
+            fh.write(row_format % (self._html_link(rpm.name, rpm.url), 
+                                   rpm.version,
+                                   rpm.release,
+                                   rpm.build_time_ascii,
+                                   rpm.summary))
+        fh.write("</table>\n")
+
+
     def _markdown_link(self, link_text, target):
         if target:
             return "[%s](%s)" % (link_text, target)
         return link_text
 
-    def write_markdown_table(self, out = sys.stdout):
+    def _html_link(self, link_text, target):
+        if target:
+            return '<a href="%s">%s</a>' % (target, link_text)
+        return link_text
+
+    def write_markdown_table(self, out=sys.stdout):
+        self.write_table('markdown', out)
+
+    def write_html_table(self, out=sys.stdout):
+        self.write_table('html', out)
+
+    def write_table(self, format, out=sys.stdout):
         """
         Write a table to specified output, which can be an open file handle
         or a filename
@@ -320,9 +378,15 @@ class MakeDocumentation(object):
         if isinstance(out, str):
             file_opened = out
             out = open(out, "w")
-        self._write_markdown_table_to_fh(out)
+        if format == 'html':
+            self._write_html_table_to_fh(out)
+        elif format == 'markdown': 
+            self._write_markdown_table_to_fh(out)
+        else:
+            raise Exception("unrecognsed 'format' argument - must be 'html' or 'markdown'")
         if file_opened:
             out.close()
+        
 
 
 def main():
@@ -335,6 +399,7 @@ def main():
         kwargs = {"out": sys.argv[1]}
     except IndexError:
         kwargs = {}
+    #m.write_html_table(**kwargs)
     m.write_markdown_table(**kwargs)
 
 
