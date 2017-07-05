@@ -188,6 +188,7 @@ Requires: python27-pyspharm >= 1.0.8-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
 Requires: python27-requests >= 2.18.1-1.ceda
 Requires: python27-rpy2 >= 2.3.9-1.ceda
+Requires: python27-scikit-image >= 0.13.0-1.ceda
 Requires: python27-scipy >= 0.17.0-1.ceda
 Requires: python27-setuptools >= 18.2-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
