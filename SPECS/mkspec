@@ -26,11 +26,13 @@ rm -fr $tmpunpack
 
 cd $specdir
 cp python27-TEMPLATE.spec $specname
-emacs $specname $tmpspec
+
+echo "alt-X specedit"
+emacs -l mkspec.emacs $specname $tmpspec
 
 cat <<EOF
 ====================================
 cd $specdir
-rpmbuild -bb $specname
+rpmbuild -bb -bs $specname
 ====================================
 EOF
