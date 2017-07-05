@@ -18,6 +18,7 @@ Source RPM for meta-RPMs for JASMIN science VM and for Lotus VM
 Summary: Adds common configuration for JASMIN science VM and for Lotus VM
 
 Obsoletes: gdal-ruby
+Obsoletes: python-nose
 
 # Requires: jasper-devel >= 1.900
 
