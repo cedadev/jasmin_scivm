@@ -132,12 +132,12 @@ Requires: perl-Image-ExifTool >= 9.98-1.ceda
 Requires: perl-XML-Parser >= 2.36
 Requires: perl-core >= 5.10.1
 Requires: perl-devel >= 5.10.1
+Requires: postgresql-devel
 Requires: proj >= 4.9.0-1.ceda
 Requires: proj-devel >= 4.9.0-1.ceda
 Requires: proj-epsg >= 4.9.0-1.ceda
 Requires: proj-nad >= 4.9.0-1.ceda
 Requires: proj-static >= 4.9.0-1.ceda
-
 Requires: python27 >= 2.7.3-3.ceda
 Requires: python27-Cython >= 0.24-1.ceda
 Requires: python27-Jug >= 0.9.6-1.ceda
@@ -199,7 +199,9 @@ Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
 Requires: python27-PyYAML >= 3.12-1.ceda
 Requires: python27-Sphinx >= 1.6.3-1.ceda
+Requires: redhat-lsb
 Requires: rjags >= 4.6-1.ceda
+Requires: sqlite-devel
 Requires: subversion >= 1.8.17-1
 Requires: subversion-devel >= 1.8.17-1
 Requires: subversion-tools >= 1.8.17-1
