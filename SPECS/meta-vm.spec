@@ -159,6 +159,7 @@ Requires: python27-cfview >= 0.6.10-1.ceda
 Requires: python27-cis >= 1.5.4-1.ceda
 Requires: python27-cmor >= 2.9.2-3.ceda
 Requires: python27-cycler >= 0.10.0-1.ceda
+Requires: python27-ecmwf-api-client >= 0:1.4.2-1.ceda
 Requires: python27-eofs >= 1.2.0-1.ceda
 Requires: python27-esgf-pyclient >= 0.1.8-1.ceda
 Requires: python27-h5py >= 2.6.0-1.ceda
