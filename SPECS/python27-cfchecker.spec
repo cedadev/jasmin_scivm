@@ -2,7 +2,7 @@
 
 Summary: The NetCDF Climate Forcast Conventions compliance checker
 Name: python27-%{pname}
-Version: 2.0.9
+Version: 3.0.5
 Release: 1.ceda%{?dist}
 Source0: https://github.com/cedadev/cf-checker/archive/a8e347beba09c2609e3d83d50026c556edb78c72.zip
 License: UNKNOWN
@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 %{spooldir}
 
 %changelog
+* Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 3.0.5-1.ceda
+- update to 3.0.5
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.0.9-1.ceda
 - move to 2.0.9 (git release a8e347) and compile against netcdf 4.4.0
 
