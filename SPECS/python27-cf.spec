@@ -1,7 +1,7 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 1.3.2
+Version: 1.5.4.post1
 Release: 1.ceda%{?dist}
 Source0: cf-python-%{version}.tar.gz
 License: OSI Approved
@@ -11,8 +11,8 @@ Prefix: %{_prefix}
 Vendor: David Hassell <d.c.hassell at reading.ac.uk>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://cfpython.bitbucket.org/
-Requires: python27-netCDF4 esmf-python27
-BuildRequires: python27-netCDF4
+Requires: python27-netCDF4 >= 1.2.9-1.ceda esmf-python27
+BuildRequires: python27-netCDF4 >= 1.2.9-1.ceda
 Requires: python27 python27-psutil
 BuildRequires: python27
 
@@ -42,13 +42,6 @@ The package provides command line utilities for viewing CF fields (cfdump) and a
 %prep
 %setup -n %{pname}-%{version}
 
-
-# temporary workaround to add build-id
-# (may be fixed in later versions as pull request sent)
-# https://bitbucket.org/cfpython/cf-python/pull-requests/16/add-build-id-to-ldflags-in-umread-makefile
-perl -p -i -e 's/LDFLAGS=(.*)/LDFLAGS=$1 --build-id/' cf/um/umread/c-lib/Makefile
-
-
 %build
 python2.7 setup.py build
 
@@ -56,35 +49,32 @@ python2.7 setup.py build
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-%define man1dir %{_datadir}/man/man1
-tmp_man1dir=$RPM_BUILD_ROOT/%{man1dir}
-mkdir -p $tmp_man1dir
-cp scripts/man1/*.1 $tmp_man1dir
-
 %define clibdir /usr/lib/python2.7/site-packages/cf/um/umread/c-lib
 
 # delete the C source and object files that shouldn't have been installed,
 # and remove the files (in fact source only) from the list
+# workaround for issue reported at 
+# https://bitbucket.org/cfpython/cf-python/issues/23/umread-c-source-code-installed
 clib=$RPM_BUILD_ROOT%{clibdir}
 find $clib -not -name umfile.so -not -type d | xargs rm
 rmdir $clib/bits $clib/type-dep
 perl -n -i -e 'print unless m{^%{clibdir}}' INSTALLED_FILES
 
 
-# 
-# weights.py and weights2.py have syntax errors - removed compiled versions 
-# from file list
-#perl -i -n -e 'print unless /\/weights(2)?.(pyo|pyc)/' INSTALLED_FILES
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
-%doc %man1dir/*.1.gz
 %{clibdir}/umfile.so
 
 %changelog
+* Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 1.5.4post1-1.ceda
+- update to 1.5.4post1
+- remove installation of man pages
+- Add dependency on latest python27-netCDF4 (1.2.9-1). Earlier cf-python not working with latest
+   netCDF4, and guessing that converse might be true.
+
 * Sun Oct 16 2016  <builderdev@builder.jc.rl.ac.uk> - 1.3.2-1.ceda
 - update version
 - man pages are now installed properly from the tarball so no longer 
