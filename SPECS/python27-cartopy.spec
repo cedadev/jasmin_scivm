@@ -1,6 +1,6 @@
 %define pname cartopy
-%define version 0.14.2
-%define release 2.ceda%{?dist}
+%define version 0.15.1
+%define release 1.ceda%{?dist}
 
 Summary: a cartographic python library with matplotlib support
 Name: python27-%{pname}
@@ -45,6 +45,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 0.15.1-1.ceda%{?dist}
+- update to 1.15.1
+
 * Thu Oct 20 2016  <builderdev@builder.jc.rl.ac.uk> - 0.14.2-2.ceda%{?dist}
 - update dependencies
 
