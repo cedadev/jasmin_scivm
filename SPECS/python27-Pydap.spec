@@ -12,7 +12,7 @@ BuildArch: noarch
 Vendor: Roberto De Almeida <rob@pydap.org>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://pydap.org/
-Requires: python27-httplib2
+Requires: python27-httplib2 python27-singledispatch python27-WebOb
 
 %description
 
@@ -40,7 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 
 * Thu Jul  6 2017  <builderdev@builder.jc.rl.ac.uk> - 3.2.2-1.ceda
-- bump version and add httplib2 dependency
+- bump version and add dependencies httplib2, singledispatch, WebOb
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
