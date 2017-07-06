@@ -17,6 +17,9 @@ Url: http://numpy.scipy.org
 Requires: python27 python27-Cython swig
 BuildRequires: python27 python27-Cython swig
 
+# conflict because we create /usr/bin/f2py symlink below
+Conflicts: python-numpy  
+
 %description
 NumPy is a general-purpose array-processing package designed to
 efficiently manipulate large multi-dimensional arrays of arbitrary
@@ -43,6 +46,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 # so remove everything from site-packages/numpy from the list, and then add
 # it (recursively) below
 egrep -v "^%{packdir}/" INSTALLED_FILES > INSTALLED_FILES1
+pushd $RPM_BUILD_ROOT/%{_bindir}
+ln -s f2py2.7 f2py
+popd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -50,6 +56,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 1.13.0-1.ceda
 - update to 1.13.0
+- add a conflicts with python27-numpy, and add a symlink /usr/bin/f2py
 
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.11.0-1.ceda
 - update to 1.11.0
@@ -59,5 +66,6 @@ rm -rf $RPM_BUILD_ROOT
 - upgrade to 1.10.1
 
 %files -f INSTALLED_FILES1
+%{_bindir}/f2py
 %defattr(-,root,root)
 %{packdir}

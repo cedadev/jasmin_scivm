@@ -19,6 +19,7 @@ Summary: Adds common configuration for JASMIN science VM and for Lotus VM
 
 Obsoletes: gdal-ruby
 Obsoletes: python-nose
+Obsoletes: python-numpy
 
 # Requires: jasper-devel >= 1.900
 
