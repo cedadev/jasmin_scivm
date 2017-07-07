@@ -1,7 +1,7 @@
 %define pname cf-python
 Summary: Python interface to the CF data model
 Name: python27-cf
-Version: 1.5.4.post1
+Version: 1.5.4.post3
 Release: 1.ceda%{?dist}
 Source0: cf-python-%{version}.tar.gz
 License: OSI Approved
@@ -69,6 +69,9 @@ rm -rf $RPM_BUILD_ROOT
 %{clibdir}/umfile.so
 
 %changelog
+* Fri Jul  7 2017  <builderdev@builder.jc.rl.ac.uk> - 1.5.4.post3-1.ceda
+- bump version
+
 * Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 1.5.4post1-1.ceda
 - update to 1.5.4post1
 - remove installation of man pages
