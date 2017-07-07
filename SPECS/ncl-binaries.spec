@@ -1,12 +1,11 @@
 Summary: NCAR Command Language
 Name: ncl
-Version: 6.3.0
-Release: 3.ceda%{dist}
+Version: 6.4.0
+Release: 1.ceda%{dist}
 License: UCAR
 Group: Scientific support
 URL: http://www.ncl.ucar.edu/
-Source0: ncl_ncarg-6.3.0.Linux_RHEL6.4_x86_64_gcc472.tar.gz
-Patch0: ncl-mreg.patch
+Source0: ncl_ncarg-%{version}-RHEL6.4_64bit_gnu447.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix} 
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
@@ -27,7 +26,6 @@ rm -fr ncl
 mkdir ncl
 cd ncl
 tar xvfz %{SOURCE0}
-patch -p1 < %{PATCH0}
 
 %build
 
@@ -50,6 +48,10 @@ echo "NCARG_ROOT=%{root} ; export NCARG_ROOT" > $RPM_BUILD_ROOT/%{profile_sh}
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Fri Jul  7 2017  <builderdev@builder.jc.rl.ac.uk> - 6.4.0-1.ceda%{dist}
+- bump to 6.4.0
+- remove patch, now patched in distro
+
 * Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 6.3.0-3.ceda%{dist}
 - add patch per github issue 71
 
