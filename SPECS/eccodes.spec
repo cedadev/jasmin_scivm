@@ -6,7 +6,7 @@
 
 Name:    eccodes
 Version: %{vers}
-Release: 1%{?dist}.ceda
+Release: 1.ceda%{?dist}
 Summary: API and tools for encoding/decoding WMO GRIB, BUFR and GTS
 Group:	 Scientific support
 License: http://www.apache.org/licenses/LICENSE-2.0	
