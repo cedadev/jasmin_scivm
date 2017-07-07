@@ -24,6 +24,7 @@ Requires: python27-imagesize >= 0.7.1-1.ceda
 Requires: python27-requests >= 2.18.1-1.ceda
 Requires: python27-setuptools
 Requires: python27-sphinxcontrib-websupport
+Requires: python27-typing >= 3.6.1-1.ceda
 BuildRequires: python27
 BuildArch: noarch
 
