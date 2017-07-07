@@ -1,11 +1,13 @@
 %global netcdf_version 4.4.0
 
 Name: netcdf-c++
+# patch0 is for issue fixed in 4.3 - remove patch when upgrading
 Version: 4.2
-Release: 4.ceda%{?dist}
+Release: 5.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-cxx4-%{version}.tar.gz	
+Patch0: netcdf-cxx4-libpath.patch
 URL: http://www.unidata.ucar.edu/software/netcdf/
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
 BuildRequires: gcc, hdf5-devel, zlib-devel, openssl-devel, netcdf, gcc-c++, libstdc++-devel
@@ -49,6 +51,7 @@ For further information see the description for the netcdf (non-devel) package.
 
 %prep				
 %setup -n netcdf-cxx4-%{version}
+%patch0 -p1
 
 %build				
 %configure --with-pic
@@ -92,6 +95,9 @@ fi
 
 
 %changelog
+* Thu Jul  6 2017  <builderdev@builder.jc.rl.ac.uk> - 4.2-5.ceda
+- patching to fix libdir reported by ncxx-config
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.2-4.ceda
 - update netcdf version to 4.4.0
 * Thu Jan 23 2014  <builderdev@builder.jc.rl.ac.uk> - 4.2-2.ceda

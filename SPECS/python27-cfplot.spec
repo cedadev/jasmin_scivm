@@ -1,7 +1,7 @@
-%define pname cfplot
+%define pname cf-plot
 Summary: Climate plots in Python
 Name: python27-%{pname}
-Version: 1.9.10
+Version: 2.1.35
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: LICENSE.txt
@@ -10,10 +10,12 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Andy Heaps <a.j.heaps@reading.ac.uk>
-Url: http://climate.ncas.ac.uk/~andy/cfplot_sphinx/_build/html
-Packager: Andy Heaps <a.j.heaps@reading.ac.uk>
+Url: http://ajheaps.github.io/cf-plot/
+Packager: Andy Heaps <a.j.heaps@reading.ac.uk> and Alan Iwi <alan.iwi@stfc.ac.uk>
 Requires: python27 python27-cf
 BuildRequires: python27 python27-cf
+Obsoletes: python27-cfplot
+Provides: python27-cfplot
 
 %description
 =====
@@ -26,9 +28,7 @@ researchers commonly make.
 
 Documentation
 =============
-Please refer to the cfplot homepage http://climate.ncas.ac.uk/~andy/cfplot_sphinx/_build/html
-
-
+Please refer to the cfplot homepage http://ajheaps.github.io/cf-plot/
 
 
 %prep
@@ -45,6 +45,12 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 2.1.35-1.ceda
+- upgrade to 2.1.35
+- change URL
+- change package name to include hyphen (python27-cf-plot), and obsolete python27-cfplot
+   (also "provides" python27-cfplot, so that can be updated with existing cfview)
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.9.10-1.ceda
 - upgrade to 1.9.10
 

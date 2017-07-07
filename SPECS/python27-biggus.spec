@@ -1,7 +1,7 @@
 %define pname biggus
 Summary: Virtual large arrays and lazy evaluation
 Name: python27-%{pname}
-Version: 0.13.0
+Version: 0.15.0
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: UNKNOWN

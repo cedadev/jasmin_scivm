@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 31test.ceda
+Release: 32.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -18,6 +18,8 @@ Source RPM for meta-RPMs for JASMIN science VM and for Lotus VM
 Summary: Adds common configuration for JASMIN science VM and for Lotus VM
 
 Obsoletes: gdal-ruby
+Obsoletes: python-nose
+Obsoletes: python-numpy
 
 # Requires: jasper-devel >= 1.900
 
@@ -38,6 +40,10 @@ Requires: coda >= 0.18.1-1.ceda
 Requires: ddd >= 3.3.12
 Requires: diffuse >= 0.4.3-1
 Requires: dvipng >= 1.11
+Requires: eccodes-devel >= 2.4.0-1.ceda
+Requires: eccodes-fortran >= 2.4.0-1.ceda
+Requires: eccodes >= 2.4.0-1.ceda
+Requires: eccodes-python27 >= 2.4.0-1.ceda
 Requires: emacs >= 23.1
 Requires: emacs-common-ess >= 15.03.1-1.ceda
 Requires: emacs-ess >= 15.03.1-1.ceda
@@ -74,10 +80,10 @@ Requires: grass-devel = 6.4.4-3.ceda.el6
 Requires: grass-libs = 6.4.4-3.ceda.el6
 
 # and likewise
-Requires: grib_api = 1.17.0-1.ceda.el6
-Requires: grib_api-devel = 1.17.0-1.ceda.el6
-Requires: grib_api-fortran = 1.17.0-1.ceda.el6
-Requires: grib_api-python27 = 1.17.0-1.ceda.el6
+Requires: grib_api = 1.23.0-1.ceda.el6
+Requires: grib_api-devel = 1.23.0-1.ceda.el6
+Requires: grib_api-fortran = 1.23.0-1.ceda.el6
+Requires: grib_api-python27 = 1.23.0-1.ceda.el6
 
 Requires: gsl-devel >= 1.13
 Requires: gsl-static >= 1.13
@@ -105,14 +111,14 @@ Requires: mtk-devel >= 1.4.3-1.ceda
 Requires: mtk-python27 >= 1.4.3-1.ceda
 Requires: ncBrowse >= 1.6.5
 Requires: nccmp >= 1.7.5.1-2.ceda
-Requires: ncl >= 6.3.0-3.ceda
+Requires: ncl >= 6.4.0-1.ceda
 Requires: nco >= 4.5.5-1.ceda
 Requires: nco-devel >= 4.5.5-1.ceda
 Requires: ncview >= 2.1.7-1.ceda
 Requires: nedit >= 5.5
 Requires: netcdf >= 4.4.0-1.ceda
-Requires: netcdf-c++ >= 4.2-4.ceda
-Requires: netcdf-c++-devel >= 4.2-4.ceda
+Requires: netcdf-c++ >= 4.2-5.ceda
+Requires: netcdf-c++-devel >= 4.2-5.ceda
 Requires: netcdf-devel >= 4.4.0-1.ceda
 Requires: netcdf-fortran >= 4.4.3-2.ceda
 Requires: netcdf-fortran-devel >= 4.4.3-2.ceda
@@ -128,45 +134,48 @@ Requires: perl-Image-ExifTool >= 9.98-1.ceda
 Requires: perl-XML-Parser >= 2.36
 Requires: perl-core >= 5.10.1
 Requires: perl-devel >= 5.10.1
+Requires: postgresql-devel
 Requires: proj >= 4.9.0-1.ceda
 Requires: proj-devel >= 4.9.0-1.ceda
 Requires: proj-epsg >= 4.9.0-1.ceda
 Requires: proj-nad >= 4.9.0-1.ceda
 Requires: proj-static >= 4.9.0-1.ceda
-
 Requires: python27 >= 2.7.3-3.ceda
 Requires: python27-Cython >= 0.24-1.ceda
 Requires: python27-Jug >= 0.9.6-1.ceda
 Requires: python27-PIL >= 1.1.7-2.ceda
-Requires: python27-Pydap >= 3.1.RC1-2.ceda
-Requires: python27-Pygments >= 1.5-3.ceda
+Requires: python27-Pydap >= 3.2.2-1.ceda
+Requires: python27-Pygments >= 2.2.0-1.ceda
 Requires: python27-ScientificPython >= 2.9.4-2.ceda
 Requires: python27-Shapely >= 1.5.17-1.ceda
+Requires: python27-astral >= 1.4-1.ceda.el6
 Requires: python27-basemap >= 1.0.5-4.ceda
-Requires: python27-biggus >= 0.13.0-1.ceda
-Requires: python27-cartopy >= 0.14.2-2.ceda
+Requires: python27-biggus >= 0.15.0-1.ceda
+Requires: python27-cartopy >= 0.15.1-1.ceda
 Requires: python27-cdat_lite >= 6.0rc2-6.ceda
-Requires: python27-cf >= 1.3.2-1.ceda
-Requires: python27-cf-checker >= 2.0.9-1.ceda
-Requires: python27-cf_units >= 1.1.3-1.ceda
-Requires: python27-cfplot >= 1.9.10-1.ceda
-Requires: python27-cfview >= 0.6.10-1.ceda
-Requires: python27-cis >= 1.4.0-1.ceda
+Requires: python27-cf >= 1.5.4.post4-1.ceda
+Requires: python27-cf-checker >= 3.0.5-1.ceda
+Requires: python27-cf_units >= 1.1.3-2.ceda
+Requires: python27-cf-plot >= 2.1.35-1.ceda
+Requires: python27-cf-view >= 1.0.4-1.ceda
+Requires: python27-cis >= 1.5.4-1.ceda
 Requires: python27-cmor >= 2.9.2-3.ceda
 Requires: python27-cycler >= 0.10.0-1.ceda
+Requires: python27-ecmwf-api-client >= 1.4.2-1.ceda
 Requires: python27-eofs >= 1.2.0-1.ceda
+Requires: python27-esgf-pyclient >= 0.1.8-1.ceda
 Requires: python27-h5py >= 2.6.0-1.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 1.10.0-2.ceda
+Requires: python27-iris >= 1.13.0-1.ceda
 Requires: python27-iris-grib >= 0.9.0-1.ceda
 Requires: python27-iris_sample_data >= 2.0.0-1.ceda
 Requires: python27-matplotlib >= 1.5.3-1.ceda
 Requires: python27-mo_pack >= 0.2.0-1.ceda
 Requires: python27-nappy >= 1.1.2-2.ceda
 Requires: python27-nc-time-axis >= 1.0.0-1.ceda
-Requires: python27-netCDF4 >= 1.0.7-4.ceda
-Requires: python27-nose >= 1.3.4-1.ceda
-Requires: python27-numpy >= 1.11.0-1.ceda
+Requires: python27-netCDF4 >= 1.2.9-1.ceda
+Requires: python27-nose >= 1.3.7-1.ceda
+Requires: python27-numpy >= 1.13.0-1.ceda
 Requires: python27-pandas >= 0.19.1-1.ceda
 Requires: python27-pycairo >= 1.8.6-1.ceda
 Requires: python27-psycopg2 >= 2.6.2-1.ceda
@@ -177,11 +186,15 @@ Requires: python27-pygtk2 >= 2.16.0-1.ceda
 Requires: python27-pygtk2-libglade >= 2.16.0-1.ceda
 Requires: python27-pyhdf >= 0.8_1-2.ceda
 Requires: python27-pyke >= 1.1.1-1.ceda
+Requires: python27-pyproj >= 1.9.5.1-1.ceda
 Requires: python27-pyshp >= 1.2.10-1.ceda
 Requires: python27-pyspharm >= 1.0.8-1.ceda
 Requires: python27-pyzmq >= 2.2.0.1-3.ceda
+Requires: python27-requests >= 2.18.1-1.ceda
 Requires: python27-rpy2 >= 2.3.9-1.ceda
-Requires: python27-scipy >= 0.17.0-1.ceda
+Requires: python27-scikit-image >= 0.13.0-1.ceda
+Requires: python27-scipy >= 0.19.1-1.ceda
+Requires: python27-seaborn >= 0.7.1-1.ceda
 Requires: python27-setuptools >= 18.2-1.ceda
 Requires: python27-six >= 1.5.2-1.ceda
 Requires: python27-scikit-learn >= 0.17b1-1.ceda
@@ -189,7 +202,10 @@ Requires: python27-tornado >= 3.2-1.ceda
 Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
 Requires: python27-PyYAML >= 3.12-1.ceda
+Requires: python27-Sphinx >= 1.6.3-1.ceda
+Requires: redhat-lsb
 Requires: rjags >= 4.6-1.ceda
+Requires: sqlite-devel
 Requires: subversion >= 1.8.17-1
 Requires: subversion-devel >= 1.8.17-1
 Requires: subversion-tools >= 1.8.17-1
@@ -251,6 +267,40 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Fri Jul  7 2017  <builderdev@builder.jc.rl.ac.uk> - 1.1-32test.ceda
+- eccodes >= 2.4.0-1.ceda
+- eccodes-devel >= 2.4.0-1.ceda
+- eccodes-fortran >= 2.4.0-1.ceda
+- eccodes-python27 >= 2.4.0-1.ceda
+- grib_api = 1.23.0-1.ceda.el6
+- grib_api-devel = 1.23.0-1.ceda.el6
+- grib_api-fortran = 1.23.0-1.ceda.el6
+- grib_api-python27 = 1.23.0-1.ceda.el6
+- ncl >= 6.4.0-1.ceda
+- python27-astral >= 1.4-1.ceda.el6
+- python27-biggus >= 0.15.0-1.ceda
+- python27-cartopy >= 0.15.1-1.ceda
+- python27-cf >= 1.5.4.post4-1.ceda
+- python27-cf-checker >= 3.0.5-1.ceda
+- python27-cf-plot >= 2.1.35-1.ceda
+- python27-cf_units >= 1.1.3-2.ceda
+- python27-cf-view >= 1.0.4-1.ceda
+- python27-cis >= 1.5.4-1.ceda
+- python27-ecmwf-api-client >= 1.4.2-1.ceda
+- python27-esgf-pyclient >= 0.1.8-1.ceda
+- python27-iris >= 1.13.0-1.ceda
+- python27-netCDF4 >= 1.2.9-1.ceda
+- python27-nose >= 1.3.7-1.ceda
+- python27-numpy >= 1.13.0-1.ceda
+- python27-Pydap >= 3.2.2-1.ceda
+- python27-Pygments >= 2.2.0-1.ceda
+- python27-pyproj >= 1.9.5.1-1.ceda
+- python27-requests >= 2.18.1-1.ceda
+- python27-scikit-image >= 0.13.0-1.ceda
+- python27-scipy >= 0.19.1-1.ceda
+- python27-seaborn >= 0.7.1-1.ceda
+- python27-Sphinx >= 1.6.3-1.ceda
+
 * Mon Dec 12 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - - python27-PyYAML >= 3.12-1.ceda
 

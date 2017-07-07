@@ -10,7 +10,7 @@
 name=$1
 
 base=/home/builderdev/rpmbuild/
-tarfile=`ls /$base/SOURCES/$name*.tar.* | tail -1`
+sourcefile=`ls /$base/SOURCES/$name*.{tar.*,zip} | tail -1`
 specdir=$base/SPECS
 specname=python27-$name.spec
 tmpspec=/tmp/tmpspec
@@ -18,7 +18,7 @@ tmpspec=/tmp/tmpspec
 tmpunpack=/home/builderdev/tmp/$name.tmp
 mkdir $tmpunpack || exit 1
 cd $tmpunpack
-tar xfz $tarfile || tar xfj $tarfile
+tar xfz $sourcefile || tar xfj $sourcefile || unzip $sourcefile
 cd $name*
 python2.7 setup.py bdist_rpm --spec-only
 cp dist/*.spec $tmpspec
@@ -26,11 +26,13 @@ rm -fr $tmpunpack
 
 cd $specdir
 cp python27-TEMPLATE.spec $specname
-emacs $specname $tmpspec
+
+echo "alt-X specedit"
+emacs -l mkspec.emacs $specname $tmpspec
 
 cat <<EOF
 ====================================
 cd $specdir
-rpmbuild -bb $specname
+rpmbuild -bb -bs $specname
 ====================================
 EOF

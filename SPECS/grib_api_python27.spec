@@ -2,7 +2,7 @@
 Summary: The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
 %define rel 1.ceda%{?dist}
 
-%define version 1.17.0
+%define version 1.23.0
 %define automake_version 1.13.4
 %define pkgname grib_api
 %define prefix /usr
@@ -41,24 +41,10 @@ Buildroot: /tmp/%{pkgname}-root
 URL: http://www.ecmwf.int
 Prefix: %{prefix}
 BuildArchitectures: %{_target_cpu}
-Packager: Software Support <software.support@ecmwf.int>
+Packager: alan.iwi@stfc.ac.uk - forked from ECMWF RPM
 
 %description 
 The ECMWF GRIB API is an application program interface accessible from C and FORTRAN programs developed for encoding and decoding WMO FM-92 GRIB edition 1 and edition 2 messages.
-
-%changelog
-* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.17.0-1.ceda%{?dist}
-- update to 1.17.0
-- automake now bundled in source
-
-* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda
-- make -devel depend on exact version of base package
-
-* Thu Mar 15 2012 - Get the changelog from JIRA
-- Multiple bugfixes
-
-* Mon May 26 2005 - Get the changelog from JIRA
-- Added kmymoney-ofx package
 
 %prep
 %setup -n %{pkgname}-%{version}-Source
@@ -89,6 +75,20 @@ make
 echo Cleaning RPM_BUILD_ROOT: "$RPM_BUILD_ROOT"
 rm -rf "$RPM_BUILD_ROOT"
 make DESTDIR="$RPM_BUILD_ROOT" install
+#
+# rename files to avoid a conflict with new eccodes package
+# 
+pushd $RPM_BUILD_ROOT/usr/bin
+for f in * ; do mv $f ${f}_from_legacy_grib_api ; done
+popd
+pushd $RPM_BUILD_ROOT/usr/include
+mkdir legacy_grib_api
+mv grib_api* legacy_grib_api/
+popd
+pushd $RPM_BUILD_ROOT/usr/lib/python2.7/site-packages
+rm __init__.py*
+for i in gribapi.py*; do mv $i legacy_$i; done
+popd
 
 %clean
 
@@ -122,9 +122,9 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 %files devel
 %defattr(-, root, root)
 #%doc doc
-%prefix/include/grib_api.h
-%prefix/include/grib_api_windef.h
-%prefix/include/grib_api_version.h
+%prefix/include/legacy_grib_api/grib_api.h
+%prefix/include/legacy_grib_api/grib_api_windef.h
+%prefix/include/legacy_grib_api/grib_api_version.h
 %prefix/lib*/libgrib_api.a
 %prefix/lib*/libgrib_api.la
 %prefix/lib*/pkgconfig/*
@@ -165,9 +165,28 @@ The ECMWF GRIB API is an application program interface accessible from C and FOR
 and edition 2 messages.
 %files fortran
 %defattr(-, root,root)
-%prefix/include/*.mod
-%prefix/include/*f77*
+%prefix/include/legacy_grib_api/*.mod
+%prefix/include/legacy_grib_api/*f77*
 %prefix/lib*/*f90*
 %prefix/lib*/*f77*
 %endif
+
+%changelog
+* Mon Jul  3 2017  <builderdev@builder.jc.rl.ac.uk> - 1.23.0-2.ceda%{?dist}
+- update to 1.23.0
+- rename all executables and include files to avoid conflicts with 
+    versions from new eccodes package
+
+* Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.17.0-1.ceda%{?dist}
+- update to 1.17.0
+- automake now bundled in source
+
+* Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 1.12.1-2.ceda
+- make -devel depend on exact version of base package
+
+* Thu Mar 15 2012 - Get the changelog from JIRA
+- Multiple bugfixes
+
+* Mon May 26 2005 - Get the changelog from JIRA
+- Added kmymoney-ofx package
 
