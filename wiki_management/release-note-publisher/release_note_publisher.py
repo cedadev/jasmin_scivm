@@ -48,7 +48,7 @@ def list_all_releases(releases):
 def main():
     releases = release_info.read_releases()
     list_all_releases(releases)
-    do_wiki_page(releases)
+    #do_wiki_page(releases)
     time.sleep(1)
     do_email(releases)
 
