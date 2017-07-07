@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 32test.ceda
+Release: 32.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
