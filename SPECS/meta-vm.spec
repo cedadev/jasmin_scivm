@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 32.ceda
+Release: 32test.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -267,6 +267,40 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Fri Jul  7 2017  <builderdev@builder.jc.rl.ac.uk> - 1.1-32test.ceda
+- eccodes >= 2.4.0-1.ceda
+- eccodes-devel >= 2.4.0-1.ceda
+- eccodes-fortran >= 2.4.0-1.ceda
+- eccodes-python27 >= 2.4.0-1.ceda
+- grib_api = 1.23.0-1.ceda.el6
+- grib_api-devel = 1.23.0-1.ceda.el6
+- grib_api-fortran = 1.23.0-1.ceda.el6
+- grib_api-python27 = 1.23.0-1.ceda.el6
+- ncl >= 6.4.0-1.ceda
+- python27-astral >= 1.4-1.ceda.el6
+- python27-biggus >= 0.15.0-1.ceda
+- python27-cartopy >= 0.15.1-1.ceda
+- python27-cf >= 1.5.4.post1-1.ceda
+- python27-cf-checker >= 3.0.5-1.ceda
+- python27-cf-plot >= 2.1.35-1.ceda
+- python27-cf_units >= 1.1.3-2.ceda
+- python27-cf-view >= 1.0.4-1.ceda
+- python27-cis >= 1.5.4-1.ceda
+- python27-ecmwf-api-client >= 1.4.2-1.ceda
+- python27-esgf-pyclient >= 0.1.8-1.ceda
+- python27-iris >= 1.13.0-1.ceda
+- python27-netCDF4 >= 1.2.9-1.ceda
+- python27-nose >= 1.3.7-1.ceda
+- python27-numpy >= 1.13.0-1.ceda
+- python27-Pydap >= 3.2.2-1.ceda
+- python27-Pygments >= 2.2.0-1.ceda
+- python27-pyproj >= 1.9.5.1-1.ceda
+- python27-requests >= 2.18.1-1.ceda
+- python27-scikit-image >= 0.13.0-1.ceda
+- python27-scipy >= 0.19.1-1.ceda
+- python27-seaborn >= 0.7.1-1.ceda
+- python27-Sphinx >= 1.6.3-1.ceda
+
 * Mon Dec 12 2016  <builderdev@builder.jc.rl.ac.uk> - 1.1-31test.ceda
 - - python27-PyYAML >= 3.12-1.ceda
 
