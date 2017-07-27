@@ -34,10 +34,13 @@ def _read_release_contents(version, dirname = config.release_notes_dir):
     version, in the directory where these are kept
     """
     filename = os.path.join(dirname, version)
-    f = open(filename)
-    contents = f.read()
-    f.close()
-    return contents
+    try:
+        f = open(filename)
+        contents = f.read()
+        f.close()
+        return contents
+    except:
+        return ""
 
 
 _todays_date = datetime.date(*time.localtime()[:3])
