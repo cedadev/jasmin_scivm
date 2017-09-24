@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#
+# Build an RPM. If successful, then also build the source RPM and keep 
+# a record of how long it took to build.
+#
+specfile=$1
+timefile=.${specfile/spec/buildtime}
+timetmp=_time_tmp.$$
+buildtmp=_build_tmp.$$
+
+if [ -e $timefile ]
+then
+    lasttime=$(awk '/real/{print int($2)}' $timefile)
+    echo "previous build took $lasttime seconds"
+    endtime=$(date -d "+$lasttime second")
+    echo "estimated completion time: $endtime"
+    echo "====================================="
+    if [ $lasttime -gt 60 ]
+    then
+	sleep 3  # give some time to read it before more output is printed
+    fi
+fi
+
+/usr/bin/time -p -o $timetmp rpmbuild -bb $specfile 2>&1 | tee $buildtmp
+status=${PIPESTATUS[0]}
+
+if [ $status -eq 0 ]
+then
+    mv $timetmp $timefile
+    rpmbuild -bs $specfile
+    rpms=$(perl -lane '/^Wrote: (.*\.rpm)/ && ! /debuginfo/ && print $F[1]' $buildtmp)
+    echo "Rpms built:"
+    echo $rpms | fmt -1
+    echo -n "Install? "
+    read ans
+    ans=$(echo $ans | cut -b 1)
+    if [ $ans = y -o $ans = Y ]
+    then
+	sudo yum localinstall $rpms
+    fi
+else
+    rm -f $timetmp
+fi
+rm -f $buildtmp
+
+exit $status

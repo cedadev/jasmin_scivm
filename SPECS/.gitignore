@@ -4,3 +4,8 @@ notused
 SOURCES
 BUILD
 non-jap
+.*tmp
+.*tmp.*
+_*tmp
+_*tmp.*
+.*.buildtime
