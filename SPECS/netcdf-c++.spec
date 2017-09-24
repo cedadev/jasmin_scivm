@@ -1,9 +1,9 @@
-%global netcdf_version 4.4.0
+%global netcdf_version 4.4.1
 
 Name: netcdf-c++
 # patch0 is for issue fixed in 4.3 - remove patch when upgrading
 Version: 4.2
-Release: 5.ceda%{?dist}
+Release: 6pre1.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-cxx4-%{version}.tar.gz	
@@ -95,6 +95,9 @@ fi
 
 
 %changelog
+* Sun Sep 17 2017  <builderdev@builder.jc.rl.ac.uk> - 4.2-6pre1.ceda
+- update netcdf version to 4.4.1
+
 * Thu Jul  6 2017  <builderdev@builder.jc.rl.ac.uk> - 4.2-5.ceda
 - patching to fix libdir reported by ncxx-config
 

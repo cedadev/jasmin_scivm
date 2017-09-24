@@ -1,8 +1,8 @@
-%global netcdf_version 4.4.0
+%global netcdf_version 4.4.1
 
 Name: netcdf-fortran
 Version: 4.4.3
-Release: 2.ceda%{?dist}
+Release: 3pre1.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-fortran-%{version}.tar.gz	
@@ -92,6 +92,9 @@ fi
 %{_includedir}/*.mod
 
 %changelog
+* Sun Sep 17 2017  <builderdev@builder.jc.rl.ac.uk> - 4.4.3-3pre1.ceda
+- update netcdf version to 4.4.1
+
 * Fri Apr  8 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.3-2.ceda
 - hard-code fix to has-f90 in nf-config
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.3-1.ceda

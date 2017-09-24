@@ -44,7 +44,7 @@
 
 Name:      gdal
 Version:   2.1.1
-Release:   1.ceda%{?dist}
+Release:   2pre1.ceda%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -72,6 +72,10 @@ Patch3:    %{name}-completion.patch
 Patch8:    %{name}-1.9.0-java.patch
 Patch9:    %{name}-2.1.0-zlib.patch
 
+# patch added in JAP after compilation failure on currently installed jasper
+# based on https://trac.osgeo.org/gdal/changeset/39441
+Patch100: gdal.size_max.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: ant
@@ -93,7 +97,7 @@ BuildRequires: geos-devel
 BuildRequires: ghostscript
 BuildRequires: hdf-devel >= 4.2.9-1.ceda
 BuildRequires: hdf-static
-BuildRequires: hdf5-devel
+BuildRequires: hdf5-devel >= 1.10.1-1pre1.ceda
 BuildRequires: java-devel >= 1:1.6.0
 BuildRequires: jasper-devel
 BuildRequires: jpackage-utils
@@ -295,6 +299,7 @@ rm -r frmts/grib/degrib18/g2clib-1.0.4
 %patch3 -p1 -b .completion~
 %patch8 -p1 -b .java~
 %patch9 -p1 -b .zlib~
+%patch100 -p1 -b .sizemax~
 
 # Copy in PROVENANCE.TXT-fedora
 cp -p %SOURCE4 .
@@ -816,6 +821,10 @@ rm -rf $RPM_BUILD_ROOT
 #Or as before, using ldconfig
 
 %changelog
+* Sun Sep 17 2017  <builderdev@builder.jc.rl.ac.uk> - 2.1.1-2pre1.ceda
+- compile against later hdf5
+- add patch100 above
+
 * Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 2.1.1-1.ceda
 - add CEDA modifications as previously done for 2.0:
   - make -libs depend on exact version of base package

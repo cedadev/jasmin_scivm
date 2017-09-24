@@ -1,7 +1,7 @@
-%define full_version 4.4.0
+%define full_version 4.4.1.1
 Name: netcdf
-Version: 4.4.0
-Release: 1.ceda%{?dist}
+Version: 4.4.1
+Release: 1pre1.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-%{full_version}.tar.gz	
@@ -100,6 +100,9 @@ fi
 %{_includedir}/netcdf_mem.h
 
 %changelog
+* Sun Sep 17 2017  <builderdev@builder.jc.rl.ac.uk> - 4.4.1-1pre1.ceda
+- bump version (also compiling against later hdf5)
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.4.0-1.ceda
 - update to 4.4.0
 * Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 4.3.3-1.ceda
