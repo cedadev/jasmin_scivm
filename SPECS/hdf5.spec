@@ -1,7 +1,7 @@
 # The name of the package.
 Name: hdf5
 Version: 1.10.1
-Release: 1pre1.ceda%{?dist}
+Release: 1pre2.ceda%{?dist}
 License: BSD-style		
 Group: Development/Libraries	
 Source: hdf5-%{version}.tar.bz2	
@@ -47,7 +47,18 @@ For further information see the description for the hdf5 (non-devel) package.
 %setup -n hdf5-%{version}
 
 %build				
-%configure --enable-fortran --enable-cxx --enable-static-exec --with-zlib=/usr
+%configure \
+   --with-zlib=/usr \
+   --with-pthread=yes \
+   --enable-cxx \
+   --enable-fortran \
+   --enable-fortran2003 \
+   --enable-static-exec \
+   --enable-threadsafe \
+   --enable-build-mode=production \
+   --enable-unsupported \
+   --with-ssl
+
 make				
 
 %install			
@@ -110,6 +121,9 @@ fi
 
 #list of changes to this spec file since last version.
 %changelog
+* Sun Sep 24 2017  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-1pre2.ceda
+- try with all configure options used in conda forge
+
 * Sun Sep 17 2017  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-1.ceda
 - bump to 1.10.1
 - use more wildcards in file lists above, rather than explicit lists of files
