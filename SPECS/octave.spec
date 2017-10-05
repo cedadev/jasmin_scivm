@@ -20,7 +20,7 @@
 Name:           octave
 Epoch:          6
 Version:        4.0.0
-Release:        2.ceda%{?dist}
+Release:        3.ceda%{?dist}
 Summary:        A high-level language for numerical computations
 Group:          Applications/Engineering
 License:        GPLv3+
@@ -366,6 +366,9 @@ fi
 %{_pkgdocdir}/refcard*.pdf
 
 %changelog
+* Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 6:4.0.0-3.ceda
+- compile against hdf5-1.10.1
+
 * Sun Dec  6 2015  <builderdev@builder.jc.rl.ac.uk> - 6:4.0.0-2.ceda
 - recompile against hdf5-1.8.12
 
