@@ -5,14 +5,14 @@
 %define python_command python%{python_version}
 
 Name: %{python_package}-cmor
-Version: 2.9.2
-Release: 3.ceda%{?dist}
+Version: 3.2.7
+Release: 1.ceda%{?dist}
 License: unknown
 Group: Scientific support	
 Source: cmor-%{version}.tar.gz	
-Patch1: cmor-uuid.patch
-Patch2: cmor-makefile-destdir-292.patch
-URL: http://www2-pcmdi.llnl.gov/cmor/
+Patch1: cmor-uuid-327.patch
+Patch2: cmor-makefile-destdir-327.patch
+URL: http://cmor.llnl.gov/
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
 BuildRequires: autoconf, gcc, hdf5, netcdf, uuid-devel, zlib-devel, udunits
 Requires: %{python_package}
@@ -38,7 +38,7 @@ code requiring CMOR.
 For further information see the description for the %{name} package.
 
 %prep				
-%setup -n cmor-%{version}
+%setup -n cmor-cmor-%{version}
 #%setup -n cmor
 %patch1 -p1
 %patch2 -p1
@@ -76,40 +76,20 @@ if test `whoami` == root; then
 fi
 
 %files -f PYTHON_INSTALLED_FILES
-%defattr(0644,root,root)
 
 %files -n %{libs_name}
 
-%defattr(-,root,root)
 %{cmor_lib}
-%{_includedir}/cdTime/cdunifpp/cdunifpp_frename.h
-%{_includedir}/cdTime/cdunifpp/cdunifpp.h
-%{_includedir}/cdTime/cdunifpp/crayio.h
-%{_includedir}/cdTime/cdunifpp/util.h
-%{_includedir}/cdTime/cdunifpp/vardef.h
-%{_includedir}/cdTime/cddrs.h
-%{_includedir}/cdTime/cddrsint.h
-%{_includedir}/cdTime/cdms.h
-%{_includedir}/cdTime/cdmsint.h
-%{_includedir}/cdTime/cdmsint_new.h
-%{_includedir}/cdTime/cdrra.h
-%{_includedir}/cdTime/cdunif.h
-%{_includedir}/cdTime/cdunifint.h
-%{_includedir}/cdTime/cfortran.h
-%{_includedir}/cdTime/drscdf.h
-%{_includedir}/cdTime/drsdef.h
-%{_includedir}/cdTime/fcddrs.h
-%{_includedir}/cdTime/gaussLats.h
-%{_includedir}/cdTime/grads.h
-%{_includedir}/cdTime/gx.h
-%{_includedir}/cdTime/isdb.h
-%{_includedir}/cmor_func_def.h
-%{_includedir}/cmor.h
-%{_includedir}/cmor_locale.h
-%{_includedir}/cmor_md5.h
-%{_includedir}/cmor_users_functions.mod
+%{_includedir}/cdTime/cdunifpp/*.h
+%{_includedir}/cdTime/*.h
+%{_includedir}/cmor*.h
+%{_includedir}/cmor*.mod
+%{_includedir}/json-c/*.h
 
 %changelog
+* Thu Sep 28 2017  <builderdev@builder.jc.rl.ac.uk> - 3.2.7-1.ceda
+- bump version and update patches and URL
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.9.2-3.ceda
 - rename -devel to -libs (because -devel with no base package is confusing)
 

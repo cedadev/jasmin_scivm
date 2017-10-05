@@ -1,0 +1,44 @@
+diff --git a/Makefile.in b/Makefile.in
+index 636650a..e1bc2e3 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -6,6 +6,7 @@ CPPFLAGS_USER=""
+ USERFFLAGS=@USERFFLAGS@
+ #MODULE_SUFFIX="mod"
+ PREFIX=@prefix@
++INSTALLPREFIX=${DESTDIR}${PREFIX}
+ PYTHONPATH=@prefix@/lib/python2.7/site-packages
+ FCFLAGS=@FCFLAGS@
+ PYTHONEXEC=@PYTHONEXEC@
+@@ -114,19 +115,19 @@ distclean: clean
+ 	@echo "Completely cleaning [$(WHEREAMI)]..."
+ 	@rm -f $(DISTFILES)
+ install: cmor
+-	mkdir -p ${PREFIX}/lib
+-	mkdir -p ${PREFIX}/include
+-	mkdir -p ${PREFIX}/include/cdTime
+-	mkdir -p ${PREFIX}/include/json-c
+-	mkdir -p ${PREFIX}/include/cdTime/cdunifpp
+-	cp -p $(LIBNAME) ${PREFIX}/lib
+-	cp -pr include/*.h @MODFILES@ ${PREFIX}/include
+-	cp -pr include/json-c/*.h ${PREFIX}/include/json-c
+-	cp -pr include/cdTime/*.h ${PREFIX}/include/cdTime
+-	cp -pr include/cdTime/cdunifpp/*.h ${PREFIX}/include/cdTime/cdunifpp
++	mkdir -p ${INSTALLPREFIX}/lib
++	mkdir -p ${INSTALLPREFIX}/include
++	mkdir -p ${INSTALLPREFIX}/include/cdTime
++	mkdir -p ${INSTALLPREFIX}/include/json-c
++	mkdir -p ${INSTALLPREFIX}/include/cdTime/cdunifpp
++	cp -p $(LIBNAME) ${INSTALLPREFIX}/lib
++	cp -pr include/*.h @MODFILES@ ${INSTALLPREFIX}/include
++	cp -pr include/json-c/*.h ${INSTALLPREFIX}/include/json-c
++	cp -pr include/cdTime/*.h ${INSTALLPREFIX}/include/cdTime
++	cp -pr include/cdTime/cdunifpp/*.h ${INSTALLPREFIX}/include/cdTime/cdunifpp
+ uninstall: distclean 
+-	rm ${PREFIX}/lib/$(LIBNAME)    
+-	cd ${PREFIX} ; rm $(INCFILES)  
++	rm ${INSTALLPREFIX}/lib/$(LIBNAME)    
++	cd ${INSTALLPREFIX} ; rm $(INCFILES)  
+ backup: clean
+ 	@echo "Creating full backup tar file..."
+ 	@(cd ..; \

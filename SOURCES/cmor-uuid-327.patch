@@ -1,0 +1,36 @@
+diff --git a/configure.ac b/configure.ac
+index 43c9486..95bdf8e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -168,25 +168,12 @@ fi
+ LDFLAGS=${LDFLAGS}" -lm "
+ 
+ 
+-AC_ARG_WITH([uuid],[AS_HELP_STRING([--with-uuid],[enable support for uuid in none standard location])],[],[with_uuid="no"])
+-with_uuidb="-"${with_uuid}
+-if [ test ${with_uuidb} != "-yes" ] ; then
+-  if [ test ${with_uuidb} != "-no" ] ; then
+-   UUIDFLAGS=" -I${with_uuid}/include"
+-   if [ test ${RTAG} != "none" ] ; then
+-     UUIDLDFLAGS=" -L${with_uuid}/lib  ${RTAG}${with_uuid}/lib -luuid"
+-   else
+-     UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
+-   fi
+-  else
+-    UUIDLDFLAGS="-luuid"
+-    UUIDFLAGS=""
+-  fi
+-else
+-  UUIDLDFLAGS="-luuid"
+-  UUIDFLAGS=""
+-fi
+-AC_CHECK_LIB([uuid],[uuid_create],[],[AC_ERROR([Could not get a working uuid])],[ ${UUIDFLAGS} ${UUIDLDFLAGS}  ])
++
++UUIDLIB=`uuid-config --libs | sed 's/-l//g'`
++UUIDLDFLAGS="`uuid-config --libs` `uuid-config --ldflags`"
++UUIDFLAGS=`uuid-config --cflags`
++
++AC_CHECK_LIB([${UUIDLIB}],[uuid_create],[],[AC_ERROR([Could not get a working uuid])],[ ${UUIDFLAGS} ${UUIDLDFLAGS}  ])
+ 
+ LIBS=""
+ AC_ARG_WITH([udunits2],[AS_HELP_STRING([--with-udunits2],[enable support for udunits2 in none standard location])],[],[with_udunits2="no"])
