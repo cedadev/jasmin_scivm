@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 32.ceda
+Release: 33pre1.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -91,8 +91,8 @@ Requires: gtk2-devel
 Requires: gv >= 3.7.1
 Requires: hdf >= 4.2.9-1.ceda
 Requires: hdf-devel >= 4.2.9-1.ceda
-Requires: hdf5 >= 1.8.12-2.ceda
-Requires: hdf5-devel >= 1.8.12-2.ceda
+Requires: hdf5 >= 1.10.1-1.ceda
+Requires: hdf5-devel >= 1.10.1-1.ceda
 Requires: hdfeos2 >= 19.1.00-1.ceda
 Requires: hdfeos5 >= 1.15-1.ceda
 Requires: jasper-devel >= 1.900.1-16

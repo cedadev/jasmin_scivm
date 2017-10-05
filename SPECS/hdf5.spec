@@ -1,7 +1,7 @@
 # The name of the package.
 Name: hdf5
 Version: 1.10.1
-Release: 1pre2.ceda%{?dist}
+Release: 1.ceda%{?dist}
 License: BSD-style		
 Group: Development/Libraries	
 Source: hdf5-%{version}.tar.bz2	
@@ -49,15 +49,12 @@ For further information see the description for the hdf5 (non-devel) package.
 %build				
 %configure \
    --with-zlib=/usr \
-   --with-pthread=yes \
    --enable-cxx \
    --enable-fortran \
-   --enable-fortran2003 \
    --enable-static-exec \
    --enable-threadsafe \
-   --enable-build-mode=production \
-   --enable-unsupported \
-   --with-ssl
+   --with-pthread=/usr/lib64 \
+   --enable-unsupported 
 
 make				
 
@@ -121,6 +118,10 @@ fi
 
 #list of changes to this spec file since last version.
 %changelog
+* Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-1.ceda
+- settling on addition of --enable-threadsafe for production release
+  (requires --with-pthread and --enable-unsupported)
+
 * Sun Sep 24 2017  <builderdev@builder.jc.rl.ac.uk> - 1.10.1-1pre2.ceda
 - try with all configure options used in conda forge
 
