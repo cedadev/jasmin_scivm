@@ -1,7 +1,7 @@
 %define pname cf-plot
 Summary: Climate plots in Python
 Name: python27-%{pname}
-Version: 2.1.35
+Version: 2.1.51
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: LICENSE.txt
@@ -45,6 +45,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Oct  5 2017  <builderdev@builder.jc.rl.ac.uk> - 2.1.51-1.ceda
+- bump version
+
 * Wed Jul  5 2017  <builderdev@builder.jc.rl.ac.uk> - 2.1.35-1.ceda
 - upgrade to 2.1.35
 - change URL
