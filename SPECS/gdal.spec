@@ -44,7 +44,7 @@
 
 Name:      gdal
 Version:   2.1.1
-Release:   2pre1.ceda%{?dist}
+Release:   2.ceda%{?dist}
 Summary:   GIS file format library
 Group:     System Environment/Libraries
 License:   MIT
@@ -97,7 +97,7 @@ BuildRequires: geos-devel
 BuildRequires: ghostscript
 BuildRequires: hdf-devel >= 4.2.9-1.ceda
 BuildRequires: hdf-static
-BuildRequires: hdf5-devel >= 1.10.1-1pre1.ceda
+BuildRequires: hdf5-devel >= 1.10.1-1.ceda
 BuildRequires: java-devel >= 1:1.6.0
 BuildRequires: jasper-devel
 BuildRequires: jpackage-utils
@@ -821,6 +821,9 @@ rm -rf $RPM_BUILD_ROOT
 #Or as before, using ldconfig
 
 %changelog
+* Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 2.1.1-2.ceda
+- compile against new hdf5 build
+
 * Sun Sep 17 2017  <builderdev@builder.jc.rl.ac.uk> - 2.1.1-2pre1.ceda
 - compile against later hdf5
 - add patch100 above
