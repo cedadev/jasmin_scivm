@@ -1,0 +1,29 @@
+diff -ru gdal-2.1.1-orig/frmts/jpeg2000/jpeg2000dataset.cpp gdal-2.1.1/frmts/jpeg2000/jpeg2000dataset.cpp
+--- gdal-2.1.1-orig/frmts/jpeg2000/jpeg2000dataset.cpp	2016-07-07 11:35:31.000000000 +0100
++++ gdal-2.1.1/frmts/jpeg2000/jpeg2000dataset.cpp	2017-09-17 21:41:47.000000000 +0100
+@@ -28,6 +28,11 @@
+  * DEALINGS IN THE SOFTWARE.
+  ****************************************************************************/
+ 
++#ifndef __STDC_LIMIT_MACROS
++// Needed on RHEL 6 for SIZE_MAX availability, needed by Jasper
++#define __STDC_LIMIT_MACROS 1
++#endif
++
+ #include "cpl_string.h"
+ #include "gdal_frmts.h"
+ #include "gdaljp2abstractdataset.h"
+diff -ru gdal-2.1.1-orig/frmts/jpeg2000/jpeg2000_vsil_io.cpp gdal-2.1.1/frmts/jpeg2000/jpeg2000_vsil_io.cpp
+--- gdal-2.1.1-orig/frmts/jpeg2000/jpeg2000_vsil_io.cpp	2016-07-07 11:35:31.000000000 +0100
++++ gdal-2.1.1/frmts/jpeg2000/jpeg2000_vsil_io.cpp	2017-09-17 21:41:25.000000000 +0100
+@@ -73,6 +73,10 @@
+  * 
+  * __END_OF_JASPER_LICENSE__
+  */
++#ifndef __STDC_LIMIT_MACROS
++// Needed on RHEL 6 for SIZE_MAX availability, needed by Jasper
++#define __STDC_LIMIT_MACROS 1
++#endif
+ 
+ #include "jpeg2000_vsil_io.h"
+ #include "cpl_vsi.h"
