@@ -3,7 +3,7 @@ Summary: Core components of the Climate Data Analysis tools.  This software is b
 Name: python27-%{pname}
 Version: 6.0rc2
 %define git_sha 5b1b1dd
-Release: 6.ceda%{?dist}
+Release: 7.ceda%{?dist}
 #Source0: %{pname}-%{version}.tar.gz
 Source0: %{pname}-%{git_sha}.tar.gz
 License: http://www-pcmdi.llnl.gov/software-portal/cdat/docs/cdat-license
@@ -415,6 +415,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-7.ceda
+- compile against later hdf5
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 6.0rc2-5.ceda
 - rebuild against netcdf 4.4.0
 - add standalone libcdms package
