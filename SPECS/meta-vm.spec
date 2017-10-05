@@ -57,10 +57,11 @@ Requires: firefox >= 17.0.3
 Requires: gcc-gfortran >= 4.4.7
 Requires: gdal >= 2.1.1-2.ceda 
 Requires: gdal-devel >= 2.1.1-2.ceda
-Requires: gdal >= 2.1.1-2.ceda
+Requires: gdal-doc >= 2.1.1-2.ceda
 Requires: gdal-perl >= 2.1.1-2.ceda
 Requires: gdal-libs >= 2.1.1-2.ceda
 Requires: gdal-java >= 2.1.1-2.ceda
+Requires: gdal-javadoc >= 2.1.1-2.ceda
 Requires: gdal-python27 >= 2.1.1-2.ceda
 Requires: geany >= 0.21
 Requires: geos >= 3.5.0-2.ceda
@@ -100,7 +101,7 @@ Requires: ksh >= 20100621
 Requires: lapack >= 3.2.1
 Requires: lapack-devel >= 3.2.1
 Requires: leafpad >= 0.8.18
-Requires: libcdms >= 6.0rc2-6.ceda
+Requires: libcdms >= 6.0rc2-7.ceda
 Requires: libdrs >= 20130102-3.ceda
 Requires: libuuid >= 2.17.2
 Requires: llvm-devel >= 3.4.2-4
@@ -267,6 +268,38 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Thu Oct  5 2017  <builderdev@builder.jc.rl.ac.uk> - 1.1-33pre1.ceda
+- cdo >= 1.7.2-2.ceda
+- eccodes-devel >= 2.4.1-1.ceda
+- eccodes-fortran >= 2.4.1-1.ceda
+- eccodes >= 2.4.1-1.ceda
+- eccodes-python27 >= 2.4.1-1.ceda
+- gdal >= 2.1.1-2.ceda 
+- gdal-devel >= 2.1.1-2.ceda
+- gdal >= 2.1.1-2.ceda
+- gdal-perl >= 2.1.1-2.ceda
+- gdal-libs >= 2.1.1-2.ceda
+- gdal-java >= 2.1.1-2.ceda
+- gdal-python27 >= 2.1.1-2.ceda
+- hdf5 >= 1.10.1-1.ceda
+- hdf5-devel >= 1.10.1-1.ceda
+- nccmp >= 1.8.2.1-1.ceda
+- netcdf >= 4.4.1-1.ceda
+- netcdf-c++ >= 4.2-6.ceda
+- netcdf-c++-devel >= 4.2-6.ceda
+- netcdf-devel >= 4.4.1-1.ceda
+- netcdf-fortran >= 4.4.3-3.ceda
+- netcdf-fortran-devel >= 4.4.3-3.ceda
+- octave >= 4.0.0-3.ceda
+- octave-devel >= 4.0.0-3.ceda
+- octave-doc >= 4.0.0-3.ceda
+- python27-cdat_lite >= 6.0rc2-7.ceda
+- python27-cf >= 2.0.6-1.ceda
+- python27-cf-plot >= 2.1.51-1.ceda
+- python27-h5py >= 2.7.1-1.ceda
+- umutil >= 20130102-3.ceda
+- umutil-lib >= 20130102-3.ceda
+
 * Fri Jul  7 2017  <builderdev@builder.jc.rl.ac.uk> - 1.1-32test.ceda
 - eccodes >= 2.4.0-1.ceda
 - eccodes-devel >= 2.4.0-1.ceda
