@@ -3,7 +3,7 @@
 Name: netcdf-c++
 # patch0 is for issue fixed in 4.3 - remove patch when upgrading
 Version: 4.2
-Release: 6pre1.ceda%{?dist}
+Release: 6.ceda%{?dist}
 License: http://www.unidata.ucar.edu/software/netcdf/copyright.html
 Group: Scientific support	
 Source: netcdf-cxx4-%{version}.tar.gz	
