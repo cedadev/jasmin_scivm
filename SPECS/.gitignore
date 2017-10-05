@@ -9,3 +9,4 @@ non-jap
 _*tmp
 _*tmp.*
 .*.buildtime
+.*.buildtime.lastfailed
