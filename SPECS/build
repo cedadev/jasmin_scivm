@@ -35,11 +35,12 @@ then
     echo -n "Install? "
     read ans
     ans=$(echo $ans | cut -b 1)
-    if [ $ans = y -o $ans = Y ]
+    if [ "$ans" = y -o "$ans" = Y ]
     then
 	sudo yum localinstall $rpms
     fi
 else
+    mv $timetmp $timefile.lastfailed
     rm -f $timetmp
 fi
 rm -f $buildtmp
