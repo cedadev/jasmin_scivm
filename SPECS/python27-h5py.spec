@@ -1,7 +1,7 @@
 %define pname h5py
 Summary: Read and write HDF5 files from Python
 Name: python27-%{pname}
-Version: 2.6.0
+Version: 2.7.1
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD
@@ -42,6 +42,8 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 2.7.1-1.ceda
+- bump version, recompile against later hdf5
 
 * Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 2.6.0-1.ceda
 - initial version
