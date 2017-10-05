@@ -1,6 +1,6 @@
 Name: umutil
 Version: 20130102
-Release: 2.ceda%{?dist}
+Release: 3.ceda%{?dist}
 License: NCAS
 Group: Scientific support	
 Source0: umutil-20130102-pruned.tar.gz
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libumutil.a
 
 %changelog
+* Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 20130102-3.ceda
+- compile against later hdf5/netcdf
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 20130102-1.ceda
 - rebuild against later netcdf
 
