@@ -56,8 +56,8 @@ for i in pygmentize
 do
   path=%{_bindir}/$i
   tmppath=$RPM_BUILD_ROOT$path
-  mv $tmppath ${tmppath}27
-  perl -p -i -e "s,$path,${path}27," INSTALLED_FILES
+  mv $tmppath ${tmppath}-2.7
+  perl -p -i -e "s,$path,${path}-2.7," INSTALLED_FILES
 done
 
 %clean
