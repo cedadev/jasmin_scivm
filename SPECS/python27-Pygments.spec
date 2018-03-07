@@ -2,7 +2,7 @@
 Summary: Pygments is a syntax highlighting package written in Python.
 Name: python27-%{pname}
 Version: 2.2.0
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD License
 Group: Development/Libraries
@@ -52,18 +52,21 @@ python2.7 setup.py build
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
-# for i in pygmentize
-# do
-#   path=%{_bindir}/$i
-#   tmppath=$RPM_BUILD_ROOT$path
-#   mv $tmppath ${tmppath}_py27
-#   perl -p -i -e "s,$path,${path}_py27," INSTALLED_FILES
-# done
+for i in pygmentize
+do
+  path=%{_bindir}/$i
+  tmppath=$RPM_BUILD_ROOT$path
+  mv $tmppath ${tmppath}27
+  perl -p -i -e "s,$path,${path}27," INSTALLED_FILES
+done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Mar  7 2018  <builderdev@builder.jc.rl.ac.uk> - 2.2.0-2.ceda
+- reinstate renaming of executables
+
 * Tue Jul  4 2017  <builderdev@builder.jc.rl.ac.uk> - 2.2.0-1.ceda
 - update to 2.2.0
 
