@@ -4,6 +4,7 @@ Name: python27-%{pname}
 Version: @VERSION@
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
+Patch0: @PATCH@
 License: @LICENCE@
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -21,6 +22,7 @@ BuildArch: @BUILDARCH@
 
 %prep
 %setup -n %{pname}-%{version}
+%patch0 -p1
 
 %build
 python2.7 setup.py build

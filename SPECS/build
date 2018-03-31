@@ -37,7 +37,7 @@ then
     ans=$(echo $ans | cut -b 1)
     if [ "$ans" = y -o "$ans" = Y ]
     then
-	sudo yum localinstall $rpms
+	sudo yum localinstall $rpms || sudo yum reinstall $rpms
     fi
 else
     mv $timetmp $timefile.lastfailed
