@@ -18,6 +18,8 @@ tmpspec=/tmp/tmpspec
 
 rm -f $tmpspec
 tmpunpack=/home/builderdev/tmp/$name.tmp
+rm -fr $tmpunpack
+
 mkdir $tmpunpack || exit 1
 cd $tmpunpack
 tar xfz $sourcefile || tar xfj $sourcefile || unzip $sourcefile
@@ -37,8 +39,7 @@ then
 else
     cp python27-TEMPLATE.spec $specname
 fi
-print "s/@REQUIRES/$requires"
-perl -p -i -e "s/@REQUIRES/$requires" $specname
+perl -p -i -e "s/\@REQUIRES\@/$requires/" $specname
 
 echo "alt-X specedit"
 
