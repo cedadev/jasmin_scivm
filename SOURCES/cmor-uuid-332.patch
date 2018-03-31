@@ -1,0 +1,33 @@
+diff -ru cmor-3.3.2/configure.ac cmor-3.3.2-uuid/configure.ac
+--- cmor-3.3.2-uuid/configure.ac	2018-03-14 09:54:51.000000000 +0000
++++ cmor-3.3.2/configure.ac	2018-03-31 21:12:42.000000000 +0100
+@@ -167,25 +167,11 @@
+ 
+ LDFLAGS=${LDFLAGS}" -lm "
+ 
++UUIDLIB=`uuid-config --libs | sed 's/-l//g'`
++UUIDLDFLAGS="`uuid-config --libs` `uuid-config --ldflags`"
++UUIDFLAGS=`uuid-config --cflags`
+ 
+-AC_ARG_WITH([uuid],[AS_HELP_STRING([--with-uuid],[enable support for uuid in none standard location])],[],[with_uuid="no"])
+-if [ test x${with_uuid} != xyes ] ; then
+-  if [ test x${with_uuid} != xno ] ; then
+-   UUIDFLAGS=" -I${with_uuid}/include"
+-   if [ test ${RTAG} != "none" ] ; then
+-     UUIDLDFLAGS=" -L${with_uuid}/lib  ${RTAG}${with_uuid}/lib -luuid"
+-   else
+-     UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
+-   fi
+-  else
+-    UUIDLDFLAGS="-luuid"
+-    UUIDFLAGS=""
+-  fi
+-else
+-  UUIDLDFLAGS="-luuid"
+-  UUIDFLAGS=""
+-fi
+-AC_CHECK_LIB([uuid],[uuid_create],[],[AC_ERROR([Could not get a working uuid])],[ ${UUIDFLAGS} ${UUIDLDFLAGS}  ])
++AC_CHECK_LIB([${UUIDLIB}],[uuid_create],[],[AC_ERROR([Could not get a working uuid])],[ ${UUIDFLAGS} ${UUIDLDFLAGS}  ])
+ 
+ LIBS=""
+ AC_ARG_WITH([udunits2],[AS_HELP_STRING([--with-udunits2],[enable support for udunits2 in none standard location])],[],[with_udunits2="no"])

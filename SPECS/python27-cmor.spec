@@ -5,13 +5,13 @@
 %define python_command python%{python_version}
 
 Name: %{python_package}-cmor
-Version: 2.9.2
-Release: 3.ceda%{?dist}
+Version: 3.3.2
+Release: 1.ceda%{?dist}
 License: unknown
 Group: Scientific support	
 Source: cmor-%{version}.tar.gz	
-Patch1: cmor-uuid.patch
-Patch2: cmor-makefile-destdir-292.patch
+Patch1: cmor-uuid-332.patch
+Patch2: cmor-makefile-destdir-332.patch
 URL: http://www2-pcmdi.llnl.gov/cmor/
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
 BuildRequires: autoconf, gcc, hdf5, netcdf, uuid-devel, zlib-devel, udunits
@@ -76,7 +76,7 @@ if test `whoami` == root; then
 fi
 
 %files -f PYTHON_INSTALLED_FILES
-%defattr(0644,root,root)
+%defattr(-,root,root)
 
 %files -n %{libs_name}
 
@@ -108,8 +108,33 @@ fi
 %{_includedir}/cmor_locale.h
 %{_includedir}/cmor_md5.h
 %{_includedir}/cmor_users_functions.mod
+%{_includedir}/json-c/arraylist.h
+%{_includedir}/json-c/bits.h
+%{_includedir}/json-c/config.h
+%{_includedir}/json-c/debug.h
+%{_includedir}/json-c/json.h
+%{_includedir}/json-c/json_c_version.h
+%{_includedir}/json-c/json_config.h
+%{_includedir}/json-c/json_inttypes.h
+%{_includedir}/json-c/json_object.h
+%{_includedir}/json-c/json_object_iterator.h
+%{_includedir}/json-c/json_object_private.h
+%{_includedir}/json-c/json_tokener.h
+%{_includedir}/json-c/json_util.h
+%{_includedir}/json-c/linkhash.h
+%{_includedir}/json-c/math_compat.h
+%{_includedir}/json-c/printbuf.h
+%{_includedir}/json-c/random_seed.h
+
 
 %changelog
+
+* Sat Mar 31 2018  <builderdev@builder.jc.rl.ac.uk> - 3.3.2-1.ceda
+- bump version
+- update patches so as to apply similar changes to the current code
+- add the json-c headers to the file list
+- change defattr from 0644 to "-" (was stripping execute bit from PrePARE)
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 2.9.2-3.ceda
 - rename -devel to -libs (because -devel with no base package is confusing)
 
