@@ -1,7 +1,7 @@
 %define pname scikit-learn
 Summary: A set of python modules for machine learning and data mining
 Name: python27-%{pname}
-Version: 0.17b1
+Version: 0.19.1
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: new BSD
@@ -51,6 +51,11 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Sat Mar 31 2018  <builderdev@builder.jc.rl.ac.uk> - 0.19.1-1.ceda
+- bump version
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
