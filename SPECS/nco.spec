@@ -1,5 +1,5 @@
 Name: nco
-Version: 4.5.5
+Version: 4.7.3
 Release: 1.ceda%{?dist}
 License: GPL v3
 Group: Scientific support	
@@ -44,8 +44,6 @@ This package contains the libraries needed to build other code requiring
 the library that comes with the netCDF operators (NCO).
 For further information see the description for the nco (non-devel) package.
 
-
-
 %prep				
 %setup -n nco-%{version}
 
@@ -75,22 +73,22 @@ fi
 
 %files				
 %defattr(0755,root,root)
-%{_bindir}/ncap
 %{_bindir}/ncap2
 %{_bindir}/ncatted
 %{_bindir}/ncbo
+%{_bindir}/ncclimo
 %{_bindir}/ncdiff
 %{_bindir}/ncea
 %{_bindir}/ncecat
+%{_bindir}/nces
 %{_bindir}/ncflint
 %{_bindir}/ncks
 %{_bindir}/ncpdq
 %{_bindir}/ncra
 %{_bindir}/ncrcat
+%{_bindir}/ncremap
 %{_bindir}/ncrename
 %{_bindir}/ncwa
-%{_bindir}/nces
-%{_bindir}/ncremap
 %defattr(0644,root,root)			
 %{_libdir}/libnco-%{version}.so
 %{_libdir}/libnco_c++-%{version}.so
@@ -101,22 +99,24 @@ fi
 %doc %{_datadir}/info/nco.info-2.gz
 %doc %{_datadir}/info/nco.info-3.gz
 %doc %{_datadir}/info/nco.info-4.gz
+%doc %{_datadir}/info/nco.info-5.gz
 %exclude %{_datadir}/info/dir
 %doc %{_mandir}/man1/ncap.1.gz
 %doc %{_mandir}/man1/ncap2.1.gz
 %doc %{_mandir}/man1/ncatted.1.gz
 %doc %{_mandir}/man1/ncbo.1.gz
+%doc %{_mandir}/man1/ncclimo.1.gz
 %doc %{_mandir}/man1/ncecat.1.gz
+%doc %{_mandir}/man1/nces.1.gz
 %doc %{_mandir}/man1/ncflint.1.gz
 %doc %{_mandir}/man1/ncks.1.gz
 %doc %{_mandir}/man1/nco.1.gz
 %doc %{_mandir}/man1/ncpdq.1.gz
 %doc %{_mandir}/man1/ncra.1.gz
 %doc %{_mandir}/man1/ncrcat.1.gz
+%doc %{_mandir}/man1/ncremap.1.gz
 %doc %{_mandir}/man1/ncrename.1.gz
 %doc %{_mandir}/man1/ncwa.1.gz
-%doc %{_mandir}/man1/nces.1.gz
-%doc %{_mandir}/man1/ncremap.1.gz
 
 %files devel
 %defattr(0644,root,root)			
@@ -133,6 +133,9 @@ fi
 %{_libdir}/libnco.la
 
 %changelog
+* Sat Mar 31 2018  <builderdev@builder.jc.rl.ac.uk> - 4.7.3-1.ceda
+- bump version (tweak file lists)
+
 * Thu Apr  7 2016  <builderdev@builder.jc.rl.ac.uk> - 4.5.5-1.ceda
 - update to 4.5.5 - tweak file list
 
