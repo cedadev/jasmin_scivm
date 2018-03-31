@@ -17,7 +17,7 @@ Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: autoconf, gcc, hdf5, netcdf, uuid-devel, zlib-devel, udunits
 Requires: %{python_package}
 BuildRequires: %{python_package}
-Requires: hdf5, netcdf, uuid
+Requires: hdf5, netcdf, uuid, cmip6-cmor-tables
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 Summary:  a library to produce CMOR-compliant netCDF files (for Python %{python_version})
