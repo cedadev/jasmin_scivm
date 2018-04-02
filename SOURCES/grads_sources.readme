@@ -1,0 +1,17 @@
+This package forms part of the JASMIN Analysis Platform, packaged by 
+CEDA.
+
+The binary package contains executable code as compiled and distributed
+by COLA.
+
+The sources have been downloaded from COLA and included in this source
+RPM.  To the best of our knowledge the source tarball contains the
+"corresponding source" as defined in the GPL, but the RPM build
+process does not attempt to compile it (it simply copies the binaries
+into place).  This is because, in a test, the source did not build
+cleanly on our build system -- more details at
+https://github.com/cedadev/jasmin_scivm/issues/147
+
+If you have enquiries regarding building the source on your system, 
+please contact COLA directly, as unfortunately CEDA is unable to 
+assist with this.
