@@ -1,9 +1,9 @@
 %define pname setuptools
 Summary: Easily download, build, install, upgrade, and uninstall Python packages
 Name: python27-%{pname}
-Version: 18.2
+Version: 39.0.1
 Release: 1.ceda%{?dist}
-Source0: %{pname}-%{version}.tar.gz
+Source0: %{pname}-%{version}.zip
 License: PSF or ZPL
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -49,6 +49,9 @@ perl -n -l -i -e 'print "\"$_\""' INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+
+* Mon Apr  2 2018  <builderdev@builder.jc.rl.ac.uk> - 39.0.1-1.ceda
+- bump version
 
 * Sun Aug 23 2015  <builderdev@builder.jc.rl.ac.uk> - 18.2-1.ceda
 - initial version
