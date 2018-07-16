@@ -1,7 +1,7 @@
 %define pname iris-grib
 Summary: GRIB loading for Iris
 Name: python27-%{pname}
-Version: 0.9.0
+Version: 0.13.0
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: LGPL
@@ -38,6 +38,11 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Mon Jul 16 2018  <builderdev@builder.jc.rl.ac.uk> - 0.13.0-1.ceda
+- bump version
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
