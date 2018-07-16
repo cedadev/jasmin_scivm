@@ -1,5 +1,5 @@
 %define pname mpi4py
-%define version 1.3
+%define version 1.3.1
 
 Summary: MPI for Python
 Name: python27-%{pname}-platform_mpi
@@ -85,6 +85,11 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Mon Jul 16 2018  <builderdev@builder.jc.rl.ac.uk> - 1.3.1-1.ceda
+- bump version
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)

@@ -241,7 +241,7 @@ You should install either jasmin-sci-vm or jasmin-lotus-vm, which depend on this
 Summary: Adds configuration for JASMIN science VM
 Requires: jasmin-common-vm = %{version}-%{release}
 Requires: mpich >= 3.1-4
-Requires: python27-mpi4py-mpich >= 1.3-1.ceda
+Requires: python27-mpi4py-mpich >= 1.3.1-1.ceda
 Requires: esmf >= 7.0.0b57-1.ceda
 Requires: esmf-doc >= 7.0.0b57-1.ceda
 Requires: esmf-python27 >= 7.0.0b57-1.ceda
@@ -252,7 +252,7 @@ Adds configuration for JASMIN science VM
 %package -n lotus-vm
 Summary: Adds configuration for Lotus VM
 Requires: jasmin-common-vm = %{version}-%{release}
-Requires: python27-mpi4py-platform_mpi >= 1.3-1
+Requires: python27-mpi4py-platform_mpi >= 1.3.1-1
 %description -n lotus-vm
 Adds configuration for Lotus VM
 Requires: esmf-lotus >= 7.0.0b57-1.ceda
