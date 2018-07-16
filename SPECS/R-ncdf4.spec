@@ -1,5 +1,5 @@
 Summary: netCDF access library for R
-Name: R-ncdf
+Name: R-ncdf4
 Version: 1.16
 Release: 1.ceda%{dist}
 License: GPLv2+
