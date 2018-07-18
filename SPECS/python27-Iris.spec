@@ -1,21 +1,23 @@
-%define pname iris
-%define version 2.0.0
-%define release 1.ceda%{?dist}
+%define pname scitools-iris
+%define version 2.1.0
+%define release 2.ceda%{?dist}
 
 Summary: A powerful, easy to use, and community-driven Python library for analysing and visualising meteorological and oceanographic data sets
 Name: python27-%{pname}
 Version: %{version}
 Release: %{release}
-Source0: %{pname}-v%{version}.tar.gz
+Source0: %{pname}-%{version}.tar.gz
 License: GPL v3
 Group: Scientific support
 BuildRoot: %{_tmppath}/%{pname}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 Vendor: UK Met Office
 Url: http://scitools.org.uk/iris/%
-%define prereq gdal-python27 >= 1.9.1, graphviz-python27 >= 2.18, grib_api-python27 >= 1.9.16, python27-PIL >= 1.1.7, python27-Shapely >= 1.5.17, python27-cartopy >= 0.15.1, python27-matplotlib >= 1.5.3, python27-mock >= 1.0.1, python27-netCDF4 >= 1.2.9, python27-nose >= 1.3.7, python27-numpy >= 1.13.0, python27-pandas >= 0.11.0, python27-pyke >= 1.1.1, python27-scipy >= 0.19.1, python27-setuptools >= 39.0.1, udunits >= 2.1.24, python27, python27-Cython, mo_unpack, python27-biggus >= 0.15.0, python27-cf_units >= 1.1.3, python27-iris-grib >= 0.9.0, python27-dask >= 0.17.2, python27-filelock >= 3.0.4, python27-toolz >= 0.9.0
+%define prereq gdal-python27 >= 1.9.1, graphviz-python27 >= 2.18, grib_api-python27 >= 1.9.16, python27-PIL >= 1.1.7, python27-Shapely >= 1.5.17, python27-cartopy >= 0.15.1, python27-matplotlib >= 2.2.2, python27-mock >= 1.0.1, python27-netCDF4 >= 1.2.9, python27-nose >= 1.3.7, python27-numpy >= 1.14.0, python27-pandas >= 0.11.0, python27-pyke >= 1.1.1, python27-scipy >= 0.19.1, python27-setuptools >= 39.0.1, udunits >= 2.1.24, python27, python27-Cython, mo_unpack, python27-biggus >= 0.15.0, python27-cf_units >= 1.1.3, python27-iris-grib >= 0.9.0, python27-dask >= 0.17.2, python27-filelock >= 3.0.4, python27-toolz >= 0.9.0, python27-ImageHash >= 4.0, python27-pyugrid >= 0.3.1, python27-Sphinx >= 1.7.6
 Requires: %{prereq}
 BuildRequires: %{prereq}
+Provides: python27-iris
+Obsoletes: python27-iris
 
 
 %description
@@ -40,6 +42,17 @@ python2.7 setup.py build
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT
 
+#===================
+# overwite the site config file which is generated with wrong paths
+cat > $RPM_BUILD_ROOT/usr/lib/python2.7/site-packages/iris/etc/site.cfg <<EOF
+[System]
+udunits2_path = /usr/lib64/libudunits2.so
+
+[Resources]
+sample_data_dir = /usr/lib/python2.7/site-packages/iris_sample_data/sample_data/
+EOF
+#===================
+
 mkdir -p $RPM_BUILD_ROOT/%{docdir}
 cp CHANGES COPYING COPYING.LESSER $RPM_BUILD_ROOT/%{docdir}/
 
@@ -47,6 +60,10 @@ cp CHANGES COPYING COPYING.LESSER $RPM_BUILD_ROOT/%{docdir}/
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 2.1.0-1.ceda%{?dist}
+- bump version and add extra deps (per JAP ticket #180)
+- package name change
+- fix site config
 
 * Mon Apr  2 2018  <builderdev@builder.jc.rl.ac.uk> - 2.0.0-1.ceda%{?dist}
 - bump version
