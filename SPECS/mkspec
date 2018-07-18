@@ -23,7 +23,7 @@ rm -fr $tmpunpack
 mkdir $tmpunpack || exit 1
 cd $tmpunpack
 tar xfz $sourcefile || tar xfj $sourcefile || unzip $sourcefile
-cd $name*
+cd $name* || cd `ls | head -n1`
 if [ ! -z "$patch" ]
 then
     patch -p1 < /$base/SOURCES/$patch
