@@ -3,7 +3,7 @@
 Summary: The ssl.match_hostname() function from Python 3.4
 Name: python27-%{pname}
 Version: 3.4.0.2
-Release: 1.ceda%{?dist}
+Release: 3.ceda%{?dist}
 Source0: %{sname}-%{version}.tar.gz
 License: UNKNOWN
 Group: Development/Libraries
@@ -12,7 +12,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Brandon Craig Rhodes <brandon@rhodesmill.org>
 Url: http://bitbucket.org/brandon/backports.ssl_match_hostname
-Requires: python27
+Requires: python27 python27-backports-common
 BuildRequires: python27
 
 %description
@@ -76,11 +76,15 @@ python2.7 setup.py build
 %install
 rm -fr $RPM_BUILD_ROOT
 python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
+perl -n -i -e 'print unless m{/usr/lib/python2.7/site-packages/backports/__init__\.py}' INSTALLED_FILES
+rm $RPM_BUILD_ROOT/usr/lib/python2.7/site-packages/backports/__init__.py*
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 3.4.0.2-3.ceda
+- add python27-backports-common dependency and remove the __init__.py
 
 * Mon Apr 28 2014  <builderdev@builder.jc.rl.ac.uk> - 3.4.0.2-1.ceda
 - initial version

@@ -1,9 +1,9 @@
 %define pname matplotlib
 Summary: Python plotting package
 Name: python27-%{pname}
-Version: 1.5.3
+Version: 2.2.2
 # see matplotlibrc below when upgrading to >=1.5
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: UNKNOWN
 Group: Development/Libraries
@@ -12,7 +12,7 @@ Prefix: %{_prefix}
 Vendor: John D. Hunter <jdh2358@gmail.com>
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
 Url: http://matplotlib.sourceforge.net
-Requires: python27 python27-dateutil python27-pyparsing python27-cycler
+Requires: python27 python27-dateutil python27-pyparsing python27-cycler python27-kiwisolver python27-backports-functools_lru_cache
 BuildRequires: python27
 
 %description
@@ -42,6 +42,12 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 2.2.2-2.ceda
+- added RPM dependencies
+
+* Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 2.2.2-1.ceda
+- bump version
+
 * Sun Sep 18 2016  <builderdev@builder.jc.rl.ac.uk> - 1.5.3-1.ceda
 - update to 1.5.3
 
