@@ -11,7 +11,7 @@ Prefix: %{_prefix}
 Vendor: ECMWF <software.support@ecmwf.int>
 Url: https://software.ecmwf.int/stash/projects/PRDEL/repos/ecmwf-api-client/browse
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
-Requires: python27
+Requires: python27 
 BuildRequires: python27
 BuildArch: noarch
 
@@ -31,6 +31,11 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%changelog
+
+* Mon Jul 16 2018  <builderdev@builder.jc.rl.ac.uk> - 1.4.2-1.ceda
+- initial version
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
