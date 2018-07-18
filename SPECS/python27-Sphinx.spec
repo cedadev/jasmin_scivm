@@ -1,7 +1,7 @@
 %define pname Sphinx
 Summary: Python documentation generator
 Name: python27-%{pname}
-Version: 1.6.3
+Version: 1.7.6
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: BSD
@@ -11,20 +11,7 @@ Prefix: %{_prefix}
 Vendor: Georg Brandl <georg@python.org>
 Url: http://sphinx-doc.org/
 Packager: Alan Iwi <alan.iwi@stfc.ac.uk>
-Requires: python27
-Requires: python27-six >= 1.5.2-1.ceda
-Requires: python27-jinja2 >= 2.7.2-1.ceda
-Requires: python27-Pygments >= 2.2.0-1.ceda
-Requires: python27-docutils >= 0.13.1-1.ceda
-Requires: python27-snowballstemmer >= 1.2.1-1.ceda
-Requires: python27-Babel >= 2.4.0-1.ceda
-Requires: python27-alabaster >= 0.7.10-1.ceda
-Requires: python27-alabaster < 0.8
-Requires: python27-imagesize >= 0.7.1-1.ceda
-Requires: python27-requests >= 2.18.1-1.ceda
-Requires: python27-setuptools
-Requires: python27-sphinxcontrib-websupport
-Requires: python27-typing >= 3.6.1-1.ceda
+Requires: python27 python27-packaging
 BuildRequires: python27
 BuildArch: noarch
 
@@ -57,6 +44,9 @@ Among its features are the following:
   and inclusion of appropriately formatted docstrings
 * Setuptools integration
 
+For more information, refer to the `the documentation`__.
+
+.. __: http://www.sphinx-doc.org/
 
 %prep
 %setup -n %{pname}-%{version}
