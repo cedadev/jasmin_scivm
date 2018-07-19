@@ -34,6 +34,7 @@ Requires: atlas-devel >= 3.8.4
 Requires: bbcp >= 140414.00.1-1.ceda
 Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
+Requires: boost-devel >= 1.41.0
 Requires: cdo >= 1.9.4-1.ceda
 Requires: cmip6-cmor-tables >= 6.1.23-1.ceda
 Requires: cmor-libs >= 3.3.2-1.ceda
@@ -315,6 +316,7 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 
 %changelog
 * Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 1.1-34.ceda
+- boost-devel >= 1.41.0
 -  libuuid-devel >= 2.17.2
 -  cdo >= 1.9.4-1.ceda
 -  libcurl-devel >= 7.19.7
