@@ -1,5 +1,5 @@
 Name: cdo
-Version: 1.9.2
+Version: 1.9.4
 Release: 1.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
@@ -59,6 +59,12 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Thu Jul 19 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.4-1.ceda
+- bump version
+
+* Sat Mar 31 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.3-1.ceda
+- bump version
+
 * Tue Sep 26 2017  <builderdev@builder.jc.rl.ac.uk> - 1.9.0-1.ceda
 - bump version and compile against later hdf5/netcdf
 
