@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 34test.ceda
+Release: 34.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -27,7 +27,6 @@ Requires: ImageMagick >= 6.5.4.7
 Requires: JAGS >= 4.2.0-1.ceda
 Requires: R >= 3.3.1
 Requires: R-devel >= 3.3.1
-Requires: R-ncdf >= 1.6.8-2.ceda
 Requires: R-ncdf4 >= 1.16-1.ceda
 Requires: arpack >= 3.0.1
 Requires: atlas >= 3.8.4
@@ -35,7 +34,7 @@ Requires: atlas-devel >= 3.8.4
 Requires: bbcp >= 140414.00.1-1.ceda
 Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
-Requires: cdo >= 1.9.3-1.ceda
+Requires: cdo >= 1.9.4-1.ceda
 Requires: cmip6-cmor-tables >= 6.1.23-1.ceda
 Requires: cmor-libs >= 3.3.2-1.ceda
 Requires: coda >= 0.18.1-1.ceda
@@ -105,10 +104,13 @@ Requires: lapack >= 3.2.1
 Requires: lapack-devel >= 3.2.1
 Requires: leafpad >= 0.8.18
 Requires: libcdms >= 6.0rc2-7.ceda
+Requires: libcurl-devel >= 7.19.7
 Requires: libdrs >= 20130102-3.ceda
 Requires: libuuid >= 2.17.2
+Requires: libuuid-devel >= 2.17.2
 Requires: llvm-devel >= 3.4.2-4
 Requires: lxterminal >= 0.1.9-1.ceda
+Requires: mercurial >= 1.4-5
 Requires: mo_unpack >= 3.1.2-1.ceda
 Requires: mtk >= 1.4.3-1.ceda
 Requires: mtk-devel >= 1.4.3-1.ceda
@@ -191,7 +193,6 @@ Requires: python27-geopandas >= 0.3.0-1.ceda
 Requires: python27-h5py >= 2.7.1-1.ceda
 Requires: python27-ilamb >= 2.3-1.ceda
 Requires: python27-ipython >= 2.0.0-1.ceda
-Requires: python27-iris >= 2.0.0-1.ceda
 Requires: python27-iris-grib >= 0.13.0-1.ceda
 Requires: python27-iris_sample_data >= 2.0.0-1.ceda
 Requires: python27-jmespath >= 0.9.3-1.ceda
@@ -247,6 +248,7 @@ Requires: python27-tqdm >= 4.19.9-1.ceda
 Requires: python27-virtualenv >= 15.0.3-3.ceda
 Requires: python27-windspharm >= 1.3.1-1.ceda
 Requires: python27-xarray >= 0.10.2-1.ceda
+Requires: qt-devel >= 4.6.2
 Requires: redhat-lsb
 Requires: rjags >= 4.6-1.ceda
 Requires: sqlite-devel
@@ -261,6 +263,7 @@ Requires: tk >= 8.5.7
 Requires: tk-devel >= 8.5.7
 Requires: tkdiff >= 4.2
 Requires: tmux >= 1.6-3
+Requires: tree >= 1.5.3
 Requires: udunits >= 2.1.24-3.ceda
 Requires: udunits-devel >= 2.1.24-3.ceda
 Requires: umutil >= 20130102-3.ceda
@@ -274,7 +277,7 @@ Requires: xconv >= 1.93-1.ceda
 Requires: xemacs >= 21.5.31
 Requires: xorg-x11-util-macros
 Requires: xpdf >= 3.02
-
+Obsoletes: R-ncdf
 
 %description -n jasmin-common-vm
 Adds common configuration for JASMIN science VM and for Lotus VMs.
@@ -311,6 +314,17 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 1.1-34.ceda
+-  libuuid-devel >= 2.17.2
+-  cdo >= 1.9.4-1.ceda
+-  libcurl-devel >= 7.19.7
+-  libuuid-devel >= 2.17.2
+-  mercurial >= 1.4-5
+-  qt-devel >= 4.6.2
+-  tree >= 1.5.3
+- Obsoletes R-ncdf
+- remove "python27-iris" (now python27-scitools-iris)
+
 * Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 1.1-34test.ceda
 - R-ncdf4 >= 1.16-1.ceda
 - cdo >= 1.9.3-1.ceda
