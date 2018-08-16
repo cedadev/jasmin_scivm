@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.1
-Release: 34.ceda
+Release: 35test.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -152,7 +152,7 @@ Requires: python27-Cython >= 0.28.1-1.ceda
 Requires: python27-Fiona >= 1.7.11.post1-1.ceda
 Requires: python27-ImageHash >= 4.0-1.ceda
 Requires: python27-Jug >= 0.9.6-1.ceda
-Requires: python27-PIL >= 1.1.7-2.ceda
+Requires: python27-Pillow >= 5.2.0-1.ceda
 Requires: python27-PyYAML >= 3.12-1.ceda
 Requires: python27-Pydap >= 3.2.2-1.ceda
 Requires: python27-Pygments >= 2.2.0-2.ceda
@@ -315,6 +315,9 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Thu Aug 16 2018  <builderdev@builder.jc.rl.ac.uk> - 1.1-35test.ceda
+- python27-Pillow replacing python27-PIL
+
 * Wed Jul 18 2018  <builderdev@builder.jc.rl.ac.uk> - 1.1-34.ceda
 - boost-devel >= 1.41.0
 -  libuuid-devel >= 2.17.2
