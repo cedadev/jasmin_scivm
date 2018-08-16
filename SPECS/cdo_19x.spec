@@ -1,5 +1,5 @@
 Name: cdo
-Version: 1.9.4
+Version: 1.9.5
 Release: 1.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Thu Aug 16 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.5-1.ceda
+- bump version
+
 * Thu Jul 19 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.4-1.ceda
 - bump version
 
