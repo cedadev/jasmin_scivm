@@ -10,3 +10,6 @@
 *.pdf
 notused
 SPECS
+# ignore any non-JAP stuff
+jasmin-colour-ls.sh
+uid2username.sh
