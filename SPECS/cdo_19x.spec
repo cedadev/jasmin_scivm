@@ -1,14 +1,14 @@
 Name: cdo
 Version: 1.9.5
-Release: 1.ceda%{?dist}
+Release: 2.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
 Source: cdo-%{version}.tar.gz	
 #Patch0: cdo-utread.patch
 URL: https://code.zmaw.de/projects/cdo/wiki
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root	
-BuildRequires: gcc, gcc-c++, netcdf-devel, grib_api-devel, fftw-devel, proj-devel, libcurl-devel, udunits-devel, hdf5-devel, uuid-devel, cmor-libs, devtoolset-6-gcc-c++
-Requires: netcdf, grib_api, fftw, proj, libcurl, udunits, hdf5, uuid
+BuildRequires: gcc, gcc-c++, netcdf-devel, eccodes-devel, fftw-devel, proj-devel, libcurl-devel, udunits-devel, hdf5-devel, uuid-devel, cmor-libs, devtoolset-6-gcc-c++
+Requires: netcdf, eccodes, fftw, proj, libcurl, udunits, hdf5, uuid
 Summary:  Climate Data Operators is a set of operators for working on climate and NWP model data. 
 Prefix: /usr
 
@@ -34,7 +34,7 @@ export LIBS="-ludunits2 -lnetcdf -lossp-uuid"
 . /opt/rh/devtoolset-6/enable
 export CFLAGS="-I/usr/include/json-c -I/usr/include/cdTime"
 export CXXFLAGS="-std=c++0x -fpermissive $CFLAGS"
-%configure --with-netcdf=/usr --with-cmor=/usr --with-grib_api=/usr --with-fftw3 --with-proj=/usr --with-curl=/usr --with-udunits2=/usr
+%configure --with-netcdf=/usr --with-cmor=/usr --with-eccodes=/usr --with-fftw3 --with-proj=/usr --with-curl=/usr --with-udunits2=/usr
 make				
 
 %install			
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Thu Aug 23 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.5-2.ceda
+- change to using eccodes
+
 * Thu Aug 16 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.5-1.ceda
 - bump version
 
