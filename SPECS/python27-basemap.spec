@@ -1,7 +1,7 @@
 %define pname basemap
 Summary: Plot data on map projections with matplotlib
 Name: python27-%{pname}
-Version: 1.0.7
+Version: 1.1.0
 Release: 1.ceda%{?dist}
 Source0: %{pname}-%{version}.tar.gz
 License: OSI Approved
@@ -37,6 +37,9 @@ python2.7 setup.py install -O1 --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Thu Aug 23 2018  <builderdev@builder.jc.rl.ac.uk> - 1.1.0-1.ceda
+- bump version
+
 * Fri Aug 28 2015  <builderdev@builder.jc.rl.ac.uk> - 1.0.7-1.ceda
 - update to 1.0.7,
 -  updating deps to python27-matplotlib >= 1.4.3, geos >= 3.5.0
