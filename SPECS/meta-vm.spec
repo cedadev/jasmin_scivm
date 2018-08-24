@@ -1,7 +1,7 @@
 Summary: Meta-RPMs for JASMIN science VM and for Lotus VM
 Name: jasmin-meta-vm
 Version: 1.35
-Release: 1.ceda
+Release: 2.ceda
 Group: Utilities/Configuration
 License: Copyright STFC
 BuildRoot: %{_builddir}/%{name}-root
@@ -35,7 +35,7 @@ Requires: bbcp >= 140414.00.1-1.ceda
 Requires: bbcp-config >= 1-1.ceda
 Requires: blas >= 3.2.1
 Requires: boost-devel >= 1.41.0
-Requires: cdo >= 1.9.5-1.ceda
+Requires: cdo >= 1.9.5-2.ceda
 Requires: cmip6-cmor-tables >= 6.1.23-1.ceda
 Requires: cmor-libs >= 3.3.2-1.ceda
 Requires: coda >= 0.18.1-1.ceda
@@ -164,7 +164,7 @@ Requires: python27-astral >= 1.4-1.ceda.el6
 Requires: python27-backports-common >= 1.1-1.ceda
 Requires: python27-backports-functools_lru_cache >= 1.5-1.ceda
 Requires: python27-backports-ssl_match_hostname >= 3.4.0.2-3.ceda
-Requires: python27-basemap >= 1.0.5-4.ceda
+Requires: python27-basemap >= 1.1.0-1.ceda
 Requires: python27-biggus >= 0.15.0-1.ceda
 Requires: python27-boto3 >= 1.6.21-1.ceda
 Requires: python27-botocore >= 1.9.21-1.ceda
@@ -315,6 +315,9 @@ Requires: esmf-lotus-python27 >= 7.0.0b57-1.ceda
 %files -n lotus-vm
 
 %changelog
+* Fri Aug 24 2018  <builderdev@builder.jc.rl.ac.uk> - 1.35-2.ceda
+- cdo >= 1.9.5-2.ceda
+- python27-basemap >= 1.1.0-1.ceda
 
 * Tue Aug 21 2018  <builderdev@builder.jc.rl.ac.uk> - 1.35-1.ceda
 - python27-matplotlib >= 2.2.2-3.ceda
