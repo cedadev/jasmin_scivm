@@ -38,6 +38,7 @@ then
     if [ "$ans" = y -o "$ans" = Y ]
     then
 	sudo yum localinstall $rpms || sudo yum reinstall $rpms
+	./elogger.py -i builder.jc.rl.ac.uk $rpms
     fi
 else
     mv $timetmp $timefile.lastfailed
