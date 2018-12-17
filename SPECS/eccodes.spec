@@ -1,4 +1,4 @@
-%define vers 2.4.1
+%define vers 2.10.0
 %define source_dir eccodes-%{vers}-Source
 %define build_dir eccodes-build
 %define python /usr/bin/python2.7
@@ -121,6 +121,9 @@ fi
 
 
 %changelog
+* Mon Dec 17 2018  <builderdev@builder.jc.rl.ac.uk> - 2.10.0-1.ceda
+- bump version
+
 * Mon Sep 25 2017  <builderdev@builder.jc.rl.ac.uk> - 2.4.1-1.ceda
 - bump version; compile against later hdf5
 
