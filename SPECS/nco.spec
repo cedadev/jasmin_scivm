@@ -1,5 +1,5 @@
 Name: nco
-Version: 4.7.3
+Version: 4.7.9
 Release: 1.ceda%{?dist}
 License: GPL v3
 Group: Scientific support	
@@ -101,7 +101,6 @@ fi
 %doc %{_datadir}/info/nco.info-4.gz
 %doc %{_datadir}/info/nco.info-5.gz
 %exclude %{_datadir}/info/dir
-%doc %{_mandir}/man1/ncap.1.gz
 %doc %{_mandir}/man1/ncap2.1.gz
 %doc %{_mandir}/man1/ncatted.1.gz
 %doc %{_mandir}/man1/ncbo.1.gz
@@ -133,6 +132,9 @@ fi
 %{_libdir}/libnco.la
 
 %changelog
+* Mon Mar 25 2019  <builderdev@builder.jc.rl.ac.uk> - 4.7.9-1.ceda
+- bump version (another file list tweak)
+
 * Sat Mar 31 2018  <builderdev@builder.jc.rl.ac.uk> - 4.7.3-1.ceda
 - bump version (tweak file lists)
 
