@@ -1,6 +1,6 @@
 Name: cdo
-Version: 1.9.5
-Release: 2.ceda%{?dist}
+Version: 1.9.7.1
+Release: 1.ceda%{?dist}
 License: GPL v2
 Group: Scientific support	
 Source: cdo-%{version}.tar.gz	
@@ -24,7 +24,7 @@ larger than the physical memory.
 CDO is open source and released under the terms of the GNU General
 Public License v2 (GPL).
 
-%prep				
+%prep
 
 %setup
 #%patch0 -p1
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 
 #list of changes to this spec file since last version.
 %changelog
+* Tue Jun 25 2019  <builderdev@builder.jc.rl.ac.uk> - 1.9.7.1-1.ceda
+- bump version
+
 * Thu Aug 23 2018  <builderdev@builder.jc.rl.ac.uk> - 1.9.5-2.ceda
 - change to using eccodes
 
