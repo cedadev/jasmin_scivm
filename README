@@ -1,13 +1,5 @@
-This repository contains configuration for the JASMIN Scientific Analysis Platform.  Including:
+!! THIS REPOSITORY IS NO LONGER SUPPORTED !!
 
- * RPM SPEC files for building rpms
- * A test suite for verifying the intergrity of the system
- * A system for populating JASMIN wiki pages with the status of supported rpms.
+Please see our Help pages regarding software on JASMIN:
 
-http://www.jasmin.ac.uk/
-https://github.com/cedadev/jasmin_scivm
-
-Running the Test Suite
-======================
-
-  $ nosetests-2.7
+ https://help.jasmin.ac.uk/category/270-software-on-jasmin
