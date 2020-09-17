@@ -1,0 +1,13 @@
+#!/bin/sh
+
+pkg=$1
+
+venv=/tmp/venv
+rm -fr $venv
+virtualenv $venv
+. $venv/bin/activate
+
+pip install --force --upgrade pip
+pip install $pkg
+pip freeze
+
